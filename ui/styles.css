@@ -1,0 +1,37 @@
+body{
+    margin: 0px;
+    padding: 0px;
+}
+
+ul.main-menu {
+    background-color: #333;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+ul.main-menu > li {
+    display: inline-block;
+}
+
+ul.main-menu > li > a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+    font-size: 1.4rem;
+}
+
+ul.main-menu > li > a:hover {
+    background-color: black;
+}
+
+ul.main-menu img {
+    height: 1.4rem;
+}
+
+ul li.right {
+    float: right;
+}
