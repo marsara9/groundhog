@@ -1,3 +1,7 @@
+async function fetchJson(path) {
+    return await (await fetch(path)).json()
+}
+
 $(function() {
     $("div.template").each(function() {
         let url = $(this).attr("data-content")
