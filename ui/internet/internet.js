@@ -2,7 +2,7 @@ async function fetchInterfaces(callback) {
     return fetchJson("/interfaces")
 }
 
-function load() {
+$(document).ready(function() {
     fetchInterfaces().then((data) => {
         data.forEach(interface => {
             $("#internet-interface").append($("<option>", {
@@ -11,8 +11,4 @@ function load() {
             }))
         })
     })
-}
-
-$(document).ready(function() {
-    load()
 })
