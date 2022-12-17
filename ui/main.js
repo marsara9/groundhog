@@ -11,4 +11,10 @@ $(function() {
             console.log("Warning: template with no content url.")
         }
     })
+
+    checkLogin()
 });
+
+function checkLogin() {
+
+}

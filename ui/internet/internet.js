@@ -1,5 +1,7 @@
-async function fetchInterfaces(callback) {
-    return fetchJson("/interfaces")
+async function fetchInterfaces() {
+    return fetchJson("/interfaces").catch((reason) => {
+        location.href = "/login"
+    })
 }
 
 $(document).ready(function() {
