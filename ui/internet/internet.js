@@ -2,7 +2,7 @@ async function fetchInterfaces() {
     return fetchJson("/interfaces", {
         credentials: "same-origin"
     }).catch((reason) => {
-        //location.href = "/login"
+        location.href = "/login"
     })
 }
 
