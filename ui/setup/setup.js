@@ -1,3 +1,11 @@
+async function fetchInterfaces() {
+    return fetchJson("/interfaces", {
+        credentials: "same-origin"
+    }).catch((reason) => {
+        location.href = "/login"
+    })
+}
+
 function updateInterface() {
     const wan = $("#wan").val()
     if(wan === "ethernet") {
@@ -37,4 +45,13 @@ $(document).ready(function() {
         updateInterface()
     })
     updateInterface()
+
+    // fetchInterfaces().then((data) => {
+    //     data.forEach(interface => {
+    //         $("#internet-interface").append($("<option>", {
+    //             value : interface,
+    //             text : interface
+    //         }))
+    //     })
+    // })
 });
