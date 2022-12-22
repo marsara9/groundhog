@@ -131,23 +131,47 @@ input[type=submit] {
     flex-shrink: 1;
 }
 
-input[type="text"],
+input,
+/* input[type="text"],
 input[type="password"],
-input[type="submit"],
+input[type="submit"], */
 select {
+    border: 0;
     border-radius: 8px;
-    width: 240px;
-    padding: 4px;
+    padding: 6px;
     background-color: #333;
     color: #0cf;
     box-sizing: border-box;
 }
 
-input[type="text"],
-input[type="password"] {
-    
+.input-group {
+    width: 240px;
 }
 
-input[type="submit"] {
+.tabbar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 480px;
+}
+
+button.tab {
+    background-color: #333;
+    color: white;
+    padding: 8px;
     border: 0;
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+
+button.tab.selected {
+    color: #0cf
+}
+
+.tab-content {
+    padding: 8px;
+    border: 2px solid #333;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    flex-basis: 100%;
 }
