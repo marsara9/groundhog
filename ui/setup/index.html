@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>VPN Server</title>
+        <link rel="stylesheet" href="/styles.css">
+        <script src="https://code.jquery.com/jquery-3.6.2.min.js" integrity="sha256-2krYZKh//PcchRtd+H+VyyQoZ/e3EcrkxhM8ycwASPA=" crossorigin="anonymous"></script>
+        <script src="/main.js"></script>
+        <script src="/setup/setup.js"></script>
+    </head>
+    <body>
+        <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
+        <div class="content">
+            <div class="properties">
+                <div class="prop">
+                    <label for="wan">WAN Interface:</label>
+                    <select id="wan" autocomplete="off">
+                        <option value="ethernet">Ethernet</option>
+                        <option value="wifi">WiFi</option>
+                    </select>
+                    <input type="hidden" id="wan" />
+                </div>
+                <div class="prop">
+                    <label for="ssid">SSID:
+                        <div class="config note">
+                            <img src="/imgs/information.svg" />
+                            <span class="wifi">This should be the SSID of your router's WiFi.</span>
+                            <span class="ethernet">This should be the SSID that this device should broadcast.  Clients connecting to this SSID will be connected to the VPN.  If this is left blank, no WiFi signal will be broadcast.</span>
+                        </div>
+                    </label>
+                    <input type="text" id="ssid" autocomplete="off" />
+                </div>
+                <div class="prop">
+                    <label for="security">Security:</label>
+                    <select autocomplete="off">
+                        <option value="wpa2">WPA2-Personal</option>
+                        <option value="wpa3">WPA3-Personal</option>
+                    </select>
+                </div>
+                <div class="prop">
+                    <label for="passphrase">Passphrase:
+                        <div class="config note">
+                            <img src="/imgs/information.svg" />
+                            <span class="wifi">Set this to your router's WiFi password.</span>
+                            <span class="ethernet">Set this to the password you wish to use for WiFi.  Clients connecting to this SSID will use this password to connect.  If this is left blank, no WiFi singal will be broadcast.</span>
+                        </div>
+                    </label>
+                    <input type="password" id="passphrase" autocomplete="off" />
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

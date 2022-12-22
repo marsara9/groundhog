@@ -19,17 +19,18 @@ ul.main-menu > li > a {
     display: block;
     color: white;
     text-align: center;
-    padding: 16px;
+    padding: 8px;
     text-decoration: none;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
 }
 
 ul.main-menu > li > a:hover {
     background-color: black;
+    color: #0cf;
 }
 
 ul.main-menu img {
-    height: 1.4rem;
+    vertical-align: bottom;
 }
 
 ul li.right {
@@ -43,15 +44,110 @@ input[type=submit] {
 }
 
 .error {
-    color: red;
+    color: #c00;
 }
 
 .login-box {
     display: table;
     margin: 80px auto;
-    background: cornflowerblue;
-    color: white;
-    border: 2px solid black;
+    background: #0cf;
+    font-size: 1.4rem;
+    color: black;
+    border: 1px solid black;
     border-radius: 6px;
     padding: 8px;
+    box-shadow: 4px 4px 16px black;
+}
+
+.login-box input {
+    font-size: 1.4rem;
+}
+
+.content {
+    margin: 16px;
+    font-size: 1rem;
+}
+
+.note {
+    position: relative;
+    display: inline-block;
+    width: 16px;
+}
+  
+.note > span {
+    visibility: hidden;
+    width: 360px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    font-size: 1rem;
+    border-radius: 8px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+}
+  
+.note > span::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+}
+  
+.note:hover > span {
+    visibility: visible;
+}
+
+.properties {
+    display: inline-flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+.properties > .prop {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+}
+
+.properties > .prop > label {
+    flex-grow: 1;
+    flex-shrink: 0;
+    margin-right: 16px;
+}
+
+.properties > .prop > input {
+    flex-grow: 0;
+    flex-shrink: 1;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="submit"],
+select {
+    border-radius: 8px;
+    width: 240px;
+    padding: 4px;
+    background-color: #333;
+    color: #0cf;
+    box-sizing: border-box;
+}
+
+input[type="text"],
+input[type="password"] {
+    
+}
+
+input[type="submit"] {
+    border: 0;
 }

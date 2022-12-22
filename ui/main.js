@@ -2,6 +2,10 @@ async function fetchJson(path) {
     return await (await fetch(path)).json()
 }
 
+const observer = new MutationObserver(function () {
+    observer.disconnect()
+})
+
 function setCookie(name,value,days) {
     var expires = "";
     if (days) {
@@ -33,7 +37,7 @@ function logout() {
     location.href = "/login"
 }
 
-$(document).ready(function() {
+function loadTemplates() {
     $("div.template").each(function() {
         let url = $(this).attr("data-content")
         let script = $(this).attr("data-script")
@@ -48,8 +52,24 @@ $(document).ready(function() {
             console.log("Warning: template with no content url.")
         }
     })
+}
 
+function fixAutoFill() {
+    // $("input").each(function() {
+    //     $(this).attr("readonly", "readonly")
+    // })
+    // setTimeout(function() {
+    //     $("input").each(function() {
+    //         $(this).removeAttr("readonly")
+    //         $(this).val("")
+    //     })
+    // }, 500)
+}
+
+$(document).ready(function() {
+    loadTemplates()
     checkLogin()
+    fixAutoFill()
 });
 
 function checkLogin() {
