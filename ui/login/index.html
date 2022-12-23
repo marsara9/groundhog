@@ -9,19 +9,25 @@
     <body>
         <div>
             <div class="login-box">
-                <p>
-                    <label for="username">Username:</label>
-                    <input id="username" name="username" type="text" />
-                </p>
-                <p>
-                    <label for="password">Password:</label>
-                    <input id="password" name="password" type="password" />
-                </p>
-                <p>
-                    <span id="login-error" class="error"></span>
-                </p>
-                <input id="login" type="submit" value="Login" />
-            </form>
+                <dl>
+                    <dt>
+                        <label for="username">Username:</label>
+                    </dt>
+                    <dd>
+                        <input class="input-group" id="username" name="username" type="text" />
+                    </dd>
+                    <dt>
+                        <label for="password">Password:</label>
+                    </dt>
+                    <dd>
+                        <input class="input-group" id="password" name="password" type="password" />
+                    </dd>
+                </dl>
+                <p id="login-error" class="error"></p>
+                <div class="input-group">
+                    <input class="input-group" id="login" type="submit" value="Login" />
+                </div>
+            </div>
         </div>
     </body>
 </html>

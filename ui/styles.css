@@ -37,30 +37,8 @@ ul li.right {
     float: right;
 }
 
-input[type=submit] {
-    border: 2px solid #999;
-    border-radius: 2px;
-    background: #eee;
-}
-
 .error {
     color: #c00;
-}
-
-.login-box {
-    display: table;
-    margin: 80px auto;
-    background: #0cf;
-    font-size: 1.4rem;
-    color: black;
-    border: 1px solid black;
-    border-radius: 6px;
-    padding: 8px;
-    box-shadow: 4px 4px 16px black;
-}
-
-.login-box input {
-    font-size: 1.4rem;
 }
 
 .content {
@@ -120,15 +98,17 @@ input[type=submit] {
     margin-bottom: 16px;
 }
 
-.properties > .prop > label {
+.properties > .prop > *:first-child {
     flex-grow: 1;
     flex-shrink: 0;
     margin-right: 16px;
+    flex-basis: 1fr;
 }
 
-.properties > .prop > input {
+.properties > .prop > *:last-child {
     flex-grow: 0;
     flex-shrink: 1;
+    flex-basis: auto;
 }
 
 input,
@@ -142,10 +122,21 @@ select {
     background-color: #333;
     color: #0cf;
     box-sizing: border-box;
+    width: min-content;
+}
+
+div.input-group {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
 }
 
 .input-group {
-    width: 240px;
+    width: 240px !important;
+}
+
+.input-group > * {
+    flex-shrink: 1;
 }
 
 .tabbar {
@@ -164,6 +155,10 @@ button.tab {
     flex-shrink: 0;
 }
 
+button.tab:not(:last-of-type) {
+    border-right: 2px #999 ridge;
+}
+
 button.tab.selected {
     color: #0cf
 }
@@ -174,4 +169,57 @@ button.tab.selected {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
     flex-basis: 100%;
+}
+
+.login-box {
+    display: table;
+    border: 2px solid #0cf;
+    padding: 16px;
+    background-color: #333;
+    border-radius: 8px;
+    margin: 80px auto;
+    box-shadow: 4px 4px 16px black;
+}
+
+.login-box > dl {
+    display: grid;
+    grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
+    max-width: 480px;
+    margin: 0;
+    gap: 8px;
+    color: white;
+    overflow: hidden;
+    align-items: last baseline;
+}
+
+.login-box > .error {
+    text-align: end;
+}
+
+.login-box > .input-group {
+    margin: auto;
+}
+
+.login-box input[type=submit] {
+    background-color: transparent;
+    color: white;
+}
+
+.login-box input[type=submit]:hover {
+    background-color: black;
+    color: #0cf;
+}
+
+dl.prop-grid {
+    display: grid;
+    grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
+    max-width: 480px;
+    gap: 8px;
+    border: 2px solid #0cf;
+    padding: 8px;
+    border-radius: 8px;
+    background-color: #333;
+    color: white;
+    overflow: hidden;
+    align-items: last baseline;
 }

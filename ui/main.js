@@ -54,6 +54,25 @@ function loadTemplates() {
     })
 }
 
+function setupTabs() {
+    $(".tabbar").each(function() {
+        const tabs = $(this).children("button.tab")
+        tabs.each(function() {
+            $($(this).attr("data-content")).hide()
+            $(this).click(function() {
+                tabs.each(function() {
+                    $(this).removeClass("selected")
+                    $($(this).attr("data-content")).hide()
+                })
+
+                $(this).addClass("selected")
+                $($(this).attr("data-content")).show()
+            })
+        })
+        tabs.first().click()
+    })
+}
+
 function fixAutoFill() {
     // $("input").each(function() {
     //     $(this).attr("readonly", "readonly")
@@ -68,6 +87,7 @@ function fixAutoFill() {
 
 $(document).ready(function() {
     loadTemplates()
+    setupTabs()
     checkLogin()
     fixAutoFill()
 });

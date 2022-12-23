@@ -2,11 +2,40 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title>VPN Server</title>
-        <link rel="stylesheet" href="/styles.css">
-        <script src="https://code.jquery.com/jquery-3.6.2.min.js" integrity="sha256-2krYZKh//PcchRtd+H+VyyQoZ/e3EcrkxhM8ycwASPA=" crossorigin="anonymous"></script>
-        <script src="/main.js"></script>
+        <link rel="stylesheet" href="/styles.css" />
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+        <script type="text/javascript" src="/main.js"></script>
     </head>
     <body>
         <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
+        <div class="content">
+            <dl class="prop-grid">
+                <dt>Connection Type:</dt>
+                <dd id="wan">Ethernet</dd>
+
+                <dt>Internet Status:</dt>
+                <dd id="wan-status" class="error">Not Connected</dd>
+
+                <dt>VPN Status:</dt>
+                <dd id="vpn-status" class="error">Not Connected</dd>
+
+                <dt>WiFi Status:</dt>
+                <dd id="ethernet">Broadcasting</dd>
+            </dl>
+            <dl class="prop-grid">
+                <dt>SSID:</dt>
+                <dd id="ssid">Day</dd>
+
+                <dt>Security Type:</dt>
+                <dd id="security">WPA3-Personal</dd>
+            </dl>
+            <dl class="prop-grid">
+                <dt>DHCP Interfaces:</dt>
+                <dd id="dhcp-interfaces">eth1, wth0</dd>
+
+                <dt>Number of Connected Clients:</dt>
+                <dd id="num-clients">0</dd>
+            </dl>
+        </div>
     </body>
 </html>
