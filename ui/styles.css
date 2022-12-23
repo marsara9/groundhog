@@ -111,18 +111,31 @@ ul li.right {
     flex-basis: auto;
 }
 
-input,
-/* input[type="text"],
-input[type="password"],
-input[type="submit"], */
-select {
-    border: 0;
-    border-radius: 8px;
+input, select {
+    outline: none;
     padding: 6px;
     background-color: #333;
     color: #0cf;
     box-sizing: border-box;
-    width: min-content;
+}
+
+input[type="text"],
+input[type="password"],
+select {
+    border-width: 0 0 1px;
+    border-color: white; 
+}
+
+input[type="submit"] {    
+    border: none;    
+}
+
+input:focus {
+    border-color: #0cf;
+}
+
+input.error {
+    border-color: #c00;
 }
 
 div.input-group {
@@ -189,7 +202,7 @@ button.tab.selected {
     gap: 8px;
     color: white;
     overflow: hidden;
-    align-items: last baseline;
+    align-items: center;
 }
 
 .login-box > .error {
