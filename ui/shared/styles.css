@@ -9,22 +9,48 @@ ul.main-menu {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    border-width: 0 0 2px 0;
+    border-color: #0cf;
+    border-style: solid;
 }
 
 ul.main-menu > li {
     display: inline-block;
 }
 
-ul.main-menu > li > a {
+ul.main-menu > li ul {
+    display: none;
+    position: absolute;
+    background-color: #333;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    list-style-type: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 4px 4px 16px black;
+    z-index: 1;
+}
+
+ul.main-menu :is(a, button) {
     display: block;
+    background-color: transparent;
+    border: none;
     color: white;
     text-align: center;
-    padding: 8px;
+    padding: 8px 16px;
     text-decoration: none;
     font-size: 1.2rem;
 }
 
-ul.main-menu > li > a:hover {
+ul.main-menu > li ul a {
+    text-align: start;
+}
+
+ul.main-menu li:has(ul):hover ul {
+    display: block;
+}
+
+ul.main-menu :is(a, button):hover {
     background-color: black;
     color: #0cf;
 }
@@ -38,7 +64,11 @@ ul li.right {
 }
 
 .error {
-    color: #c00;
+    color: #d00;
+}
+
+.success {
+    color: #0d0;
 }
 
 .content {

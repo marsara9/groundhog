@@ -1,10 +1,18 @@
 <div>
     <ul class="main-menu">
         <li><a href="/">Status</a></li>
-        <li><a href="/setup">Setup</a></li>
-        <li><a href="/dhcp">DHCP</a></li>
-        <li><a href="/wifi">WiFi</a></li>
-        <li><a href="/vpn">VPN</a></li>
+        <li>
+            <button>Setup</button>
+            <ul>
+                <li><a href="/setup/internet">Internet</a></li>
+                <li><a href="/setup/wifi">WiFi</a></li>
+                <li><a href="/setup/dhcp">DHCP</a></li>
+                <li><a href="/setup/vpn">VPN</a></li>
+            </ul>
+        </li>
+        <li class="right">
+            <a id="profile" href="/profile">Username</a>
+        </li>
         <li class="right">
             <a id="logout" href="/login">
                 <img src="/imgs/logout.svg" alt="logout" />        
