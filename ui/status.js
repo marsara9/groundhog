@@ -70,6 +70,16 @@ $(document).ready(function() {
         displayInterfaceState("#vpn-status", result.vpnStatus)
         displayInterfaceState("#wifi-status", result.wifiStatus)
 
+        
+        if(result.ssid != null) {
+            $("#ssid").text(result.ssid)
+            $("#ssid").removeClass("error")
+        } else {
+            $("#ssid").text("Disconnected")
+            $("#ssid").addClass("error")
+        }
+        
+
         $("#dhcp-interfaces").text(result.dhcpInterfaces)
         
         updateInterface()
