@@ -5,36 +5,37 @@
         <link rel="stylesheet" href="/styles.css" />
         <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
         <script type="text/javascript" src="/main.js"></script>
+        <script type="text/javascript" src="/status.js"></script>
     </head>
     <body>
         <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
         <div class="content">
             <dl class="prop-grid">
                 <dt>Connection Type:</dt>
-                <dd id="wan">Ethernet</dd>
+                <dd id="wan">-</dd>
 
                 <dt>Internet Status:</dt>
-                <dd id="wan-status" class="error">Not Connected</dd>
+                <dd id="wan-status">-</dd>
 
                 <dt>VPN Status:</dt>
-                <dd id="vpn-status" class="error">Not Connected</dd>
+                <dd id="vpn-status">-</dd>
 
                 <dt>WiFi Status:</dt>
-                <dd id="ethernet">Broadcasting</dd>
+                <dd class="ethernet" id="wifi-status">-</dd>
             </dl>
             <dl class="prop-grid">
                 <dt>SSID:</dt>
-                <dd id="ssid">Day</dd>
+                <dd id="ssid">-</dd>
 
                 <dt>Security Type:</dt>
-                <dd id="security">WPA3-Personal</dd>
+                <dd id="security">-</dd>
             </dl>
             <dl class="prop-grid">
                 <dt>DHCP Interfaces:</dt>
-                <dd id="dhcp-interfaces">eth1, wth0</dd>
+                <dd id="dhcp-interfaces">-</dd>
 
                 <dt>Number of Connected Clients:</dt>
-                <dd id="num-clients">0</dd>
+                <dd id="num-clients">-</dd>
             </dl>
         </div>
     </body>

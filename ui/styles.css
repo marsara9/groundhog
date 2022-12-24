@@ -126,7 +126,8 @@ select {
     border-color: white; 
 }
 
-input[type="submit"] {    
+input[type="submit"],
+input[type="button"] {    
     border: none;    
 }
 
@@ -235,4 +236,5 @@ dl.prop-grid {
     color: white;
     overflow: hidden;
     align-items: last baseline;
+    box-shadow: 4px 4px 16px black;
 }
