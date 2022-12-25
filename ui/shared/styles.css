@@ -1,6 +1,7 @@
 body{
     margin: 0px;
     padding: 0px;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 ul.main-menu {
@@ -40,7 +41,6 @@ ul.main-menu :is(a, button) {
     padding: 8px 16px;
     text-decoration: none;
     font-size: 1.2rem;
-    font-family: sans-serif;
 }
 
 ul.main-menu > li ul a {
@@ -83,7 +83,7 @@ ul li.right {
     width: 16px;
 }
   
-.note > span {
+.note > *:not(img) {
     visibility: hidden;
     width: 360px;
     background-color: black;
@@ -99,7 +99,7 @@ ul li.right {
     margin-left: -60px;
 }
   
-.note > span::after {
+.note > *:not(img):after {
     content: "";
     position: absolute;
     top: 100%;
@@ -110,36 +110,8 @@ ul li.right {
     border-color: black transparent transparent transparent;
 }
   
-.note:hover > span {
+.note:hover > *:not(img) {
     visibility: visible;
-}
-
-.properties {
-    display: inline-flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-}
-
-.properties > .prop {
-    display: inline-flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-content: space-between;
-    align-items: baseline;
-    margin-bottom: 16px;
-}
-
-.properties > .prop > *:first-child {
-    flex-grow: 1;
-    flex-shrink: 0;
-    margin-right: 16px;
-    flex-basis: 1fr;
-}
-
-.properties > .prop > *:last-child {
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: auto;
 }
 
 input, select {
@@ -152,14 +124,33 @@ input, select {
 
 input[type="text"],
 input[type="password"],
+input[type="number"],
 select {
     border-width: 0 0 1px;
     border-color: white; 
 }
 
+input[type="number"]#port::-webkit-outer-spin-button,
+input[type="number"]#port::-webkit-inner-spin-button,
+input[type="number"]#port {
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+    margin: 0;
+}
+
 input[type="submit"],
-input[type="button"] {    
-    border: none;    
+input[type="button"],
+button {    
+    border: none;
+    background-color: transparent;
+    color: white;
+}
+
+input[type="submit"]:hover,
+input[type="button"]:hover,
+button:hover {
+    background-color: black;
+    color: #1ed2ff;
 }
 
 input:focus {
@@ -189,15 +180,23 @@ div.input-group {
     flex-direction: row;
     flex-wrap: wrap;
     width: 480px;
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: #1ed2ff;
+    border-style: solid;
+    overflow: hidden;
+    box-shadow: 4px 4px 16px black;
 }
 
 button.tab {
     background-color: #333;
     color: white;
     padding: 8px;
-    border: 0;
     flex-grow: 1;
     flex-shrink: 0;
+    border-color: #999;
+    border-width: 0 0 2px 0;
+    border-style: solid;
 }
 
 button.tab:not(:last-of-type) {
@@ -210,10 +209,22 @@ button.tab.selected {
 
 .tab-content {
     padding: 8px;
-    border: 2px solid #333;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
+    background-color: #333;
+    color: white;
     flex-basis: 100%;
+}
+
+dl.tab-content {
+    display: grid;
+    grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
+    margin: 0;
+    max-width: 480px;
+    gap: 8px;
+    padding: 8px;
+    background-color: #333;
+    color: white;
+    overflow: hidden;
+    align-items: last baseline;
 }
 
 .login-box {
@@ -245,19 +256,9 @@ button.tab.selected {
     margin: auto;
 }
 
-.login-box input[type=submit] {
-    background-color: transparent;
-    color: white;
-}
-
-.login-box input[type=submit]:hover {
-    background-color: black;
-    color: #1ed2ff;
-}
-
 dl.prop-grid {
     display: grid;
-    grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
+    grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 240px);
     max-width: 480px;
     gap: 8px;
     border: 2px solid #1ed2ff;
@@ -265,7 +266,15 @@ dl.prop-grid {
     border-radius: 8px;
     background-color: #333;
     color: white;
-    overflow: hidden;
+    /* overflow: hidden; */
     align-items: last baseline;
     box-shadow: 4px 4px 16px black;
+    white-space: nowrap;
+}
+
+dl.prop-grid > :is(dt, dd) {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 8px;
 }

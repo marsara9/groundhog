@@ -8,5 +8,40 @@
     </head>
     <body>
         <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
+        <div class="content">
+            <dl class="prop-grid">
+                <dt>
+                    <label for="ssid">SSID:</label>
+                    <div class="config note">
+                        <img src="/imgs/information.svg" alt="information" />
+                        <span class="wifi">This should be the SSID of your router's WiFi.</span>
+                        <span class="ethernet">This should be the SSID that this device should broadcast.  Clients connecting to this SSID will be connected to the VPN.  If this is left blank, no WiFi signal will be broadcast.</span>
+                    </div>
+                </dt>
+                <dd>
+                    <input class="input-group" type="text" id="ssid" placeholder="SSID" autocomplete="off" />
+                </dd>
+                <dt>
+                    <label for="security">Security:</label>
+                </dt>
+                <dd>
+                    <select class="input-group" id="security" autocomplete="off">
+                        <option value="wpa2">WPA2-Personal</option>
+                        <option value="wpa3">WPA3-Personal</option>
+                    </select>
+                </dd>
+                <dt>
+                    <label for="passphrase">Passphrase:</label>
+                    <div class="config note">
+                        <img src="/imgs/information.svg" alt="information" />
+                        <span class="wifi">Set this to your router's WiFi password.</span>
+                        <span class="ethernet">Set this to the password you wish to use for WiFi.  Clients connecting to this SSID will use this password to connect.  If this is left blank, no WiFi singal will be broadcast.</span>
+                    </div>
+                </dt>
+                <dd>
+                    <input class="input-group" type="password" id="passphrase" autocomplete="off" />
+                </dd>
+            </dl>
+        </div>
     </body>
 </html>

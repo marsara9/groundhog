@@ -13,91 +13,28 @@
             <dl class="prop-grid">
                 <dt>
                     <label for="wan">WAN Interface:</label>
+                    <div class="config note">
+                        <img src="/imgs/information.svg" alt="information" />
+                        <ul>
+                            <li>Wired - You use one of the provided ethernet ports to connect to the internet. (Recommended)</li>
+                            <li>Wireless - Connected to an existing Wireless access point.</li>
+                        </ul>
+                    </div>
                 </dt>
                 <dd>
                     <select class="input-group" id="wan" autocomplete="off">
                         <option value="ethernet">Wired</option>
                         <option value="wifi">Wireless</option>
                     </select>
+                    <button id="autoconfigure">Auto</button>
                 </dd>
                 <dt>
-                    <label for="ssid">SSID:</label>
-                    <div class="config note">
-                        <img src="/imgs/information.svg" alt="information" />
-                        <span class="wifi">This should be the SSID of your router's WiFi.</span>
-                        <span class="ethernet">This should be the SSID that this device should broadcast.  Clients connecting to this SSID will be connected to the VPN.  If this is left blank, no WiFi signal will be broadcast.</span>
-                    </div>
+                    
                 </dt>
                 <dd>
-                    <input class="input-group" type="text" id="ssid" placeholder="SSID" autocomplete="off" />
-                </dd>
-                <dt>
-                    <label for="security">Security:</label>
-                </dt>
-                <dd>
-                    <select class="input-group" id="security" autocomplete="off">
-                        <option value="wpa2">WPA2-Personal</option>
-                        <option value="wpa3">WPA3-Personal</option>
-                    </select>
-                </dd>
-                <dt>
-                    <label for="passphrase">Passphrase:</label>
-                    <div class="config note">
-                        <img src="/imgs/information.svg" alt="information" />
-                        <span class="wifi">Set this to your router's WiFi password.</span>
-                        <span class="ethernet">Set this to the password you wish to use for WiFi.  Clients connecting to this SSID will use this password to connect.  If this is left blank, no WiFi singal will be broadcast.</span>
-                    </div>
-                </dt>
-                <dd>
-                    <input class="input-group" type="password" id="passphrase" autocomplete="off" />
+                    <input type="button" value="Next" />
                 </dd>
             </dl>
-            <div class="properties">
-                <div class="prop">
-                    <label>VPN Config:</label>
-                    <div class="tabbar">
-                        <button class="tab" data-content="#tab-config">Config</button>
-                        <button class="tab" data-content="#tab-manual">Manual</button>
-                        <div class="tab-content" id="tab-config">
-                            <input type="file" id="vpn" placeholder="wg0.conf" />
-                        </div>
-                        <div class="tab-content properties" id="tab-manual">
-                            <div class="prop">
-                                <label for="endpoint">Domain / IP Address:</label>
-                                <div class="input-group">
-                                    <input type="text" id="endpoint" placeholder="12.23.45.67" />
-                                    <span>:</span>
-                                    <input type="text" id="port" placeholder="51820" style="width: 60px;" />
-                                </div>
-                            </div>
-                            <div class="prop">
-                                <label for="privatekey">Private Key:</label>
-                                <input class="input-group" type="password" id="privatekey" />
-                            </div>
-                            <div class="prop">
-                                <label for="publickey">Public Key:</label>
-                                <input class="input-group" type="password" id="publickey" />
-                            </div>
-                            <div class="prop">
-                                <label for="presharedkey">Preshared Key:</label>
-                                <input class="input-group" type="password" id="presharedkey" />
-                            </div>
-                            <div class="prop">
-                                <label for="address">Address:</label>
-                                <input class="input-group" type="text" id="address" placeholder="10.8.0.6/24" />
-                            </div>
-                            <div class="prop">
-                                <label for="dns">DNS Servers:</label>
-                                <input class="input-group" type="text" id="dns" placeholder="10.0.0.5, 10.0.0.1" />
-                            </div>
-                            <div class="prop">
-                                <label for="allowedips">Allowed IPs:</label>
-                                <input class="input-group" type="text" id="allowedips" value="10.0.0.0/8, 8.8.8.8/32, 8.8.4.4/32" readonly="readonly" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </body>
 </html>

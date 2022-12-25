@@ -239,16 +239,27 @@ class MyServer(BaseHTTPRequestHandler):
         except IOError:
             self.send_error(404, f"Not found: '{filename}'")
         return
- 
-    def get_interfaces(self):
+
+    def get_base_auth_json(self, get):
         if not self.validate_session():
-            self.send_error(401)
+            self.send_json_error(401)
             return
- 
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
- 
+
+        try:
+            object = get()
+
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+
+            result = json.dumps(object)
+            self.wfile.write(bytes(result, "utf-8"))
+        except:
+            self.send_json_error(500, "There was an error on the server.")
+        return
+
+    def get_interfaces(self):
+
         parsed_url = urllib.parse.urlparse(self.path)
         query = urllib.parse.parse_qs(parsed_url.query)
  
@@ -259,26 +270,21 @@ class MyServer(BaseHTTPRequestHandler):
  
         match type:
             case "all":
-                result = self.systemInfo.get_physical_interfaces()
+                interfaces = self.systemInfo.get_physical_interfaces()
             case "ethernet":
-                result = self.systemInfo.get_ethernet_interfaces()
+                interfaces = self.systemInfo.get_ethernet_interfaces()
             case "wifi":
-                result = self.systemInfo.get_wifi_interfaces()
+                interfaces = self.systemInfo.get_wifi_interfaces()
             case "lan":
-                result = self.systemInfo.get_lan_interfaces()
+                interfaces = self.systemInfo.get_lan_interfaces()
  
-        interfaces = json.dumps((inf for inf in result), iterable_as_array=True)
-        self.wfile.write(bytes(interfaces, "utf-8"))
+        return interfaces
+
+    def get_wan_interface(self):
+        return self.systemInfo.get_wan_interface()
  
     def get_status(self):
-        if not self.validate_session():
-            self.send_error(401)
-            return
- 
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
- 
+
         wan_interface = self.systemInfo.get_wan_interface()
         wifi_interfaces = self.systemInfo.get_wifi_interfaces()
  
@@ -304,7 +310,7 @@ class MyServer(BaseHTTPRequestHandler):
  
         (ssid,security_type) = self.systemInfo.get_wifi_ssid()
  
-        result = {
+        return {
             "connectionType": connection_type,
             "internetStatus": internet_status,
             "vpnStatus": vpn_status,
@@ -314,32 +320,20 @@ class MyServer(BaseHTTPRequestHandler):
             "securityType": security_type
         }
  
-        status = json.dumps(result)
-        self.wfile.write(bytes(status, "utf-8"))
- 
     def get_wifi_scan(self):
-        if not self.validate_session():
-            self.send_error(401)
-            return
- 
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
- 
-        ssids = self.systemInfo.get_nearby_access_points()
- 
-        status = json.dumps(ssids)
-        self.wfile.write(bytes(status, "utf-8"))
+        return self.systemInfo.get_nearby_access_points()
  
     def do_GET(self):
         try:
             parsed_url = urllib.parse.urlparse(self.path)
             if parsed_url.path == "/interfaces":
-                self.get_interfaces()
+                self.get_base_auth_json(self.get_interfaces)
+            elif parsed_url.path == "/interface/auto/wan":
+                self.get_base_auth_json(self.get_wan_interface)
             elif parsed_url.path == "/status":
-                self.get_status()
+                self.get_base_auth_json(self.get_status)
             elif parsed_url.path == "/wifi/scan":
-                self.get_wifi_scan()
+                self.get_base_auth_json(self.get_wifi_scan)
             else:
                 self.path = self.fix_path(self.path)
                 self.get_file(self.path)

@@ -2,7 +2,9 @@ async function fetchInterfaces() {
     return fetchJson("/interfaces", {
         credentials: "same-origin"
     }).catch((reason) => {
-        location.href = "/login"
+        if(reason.code == 401) {
+            location.href = "/login"
+        }
     })
 }
 
@@ -25,12 +27,12 @@ $(document).ready(function() {
     })
     updateInterface()
 
-    // fetchInterfaces().then((data) => {
-    //     data.forEach(interface => {
-    //         $("#internet-interface").append($("<option>", {
-    //             value : interface,
-    //             text : interface
-    //         }))
-    //     })
-    // })
+    fetchInterfaces().then((data) => {
+        // data.forEach(interface => {
+        //     $("#internet-interface").append($("<option>", {
+        //         value : interface,
+        //         text : interface
+        //     }))
+        // })
+    })
 });
