@@ -48,7 +48,7 @@ function displayInterfaceState(id, state) {
             $(id).addClass("error")
             $(id).removeClass("success")
             break;
-        case "no-interface":
+        case null:
             $(id).text("Not Configured")
             $(id).addClass("error")
             $(id).removeClass("success")
@@ -70,15 +70,17 @@ $(document).ready(function() {
         displayInterfaceState("#vpn-status", result.vpnStatus)
         displayInterfaceState("#wifi-status", result.wifiStatus)
 
-        
         if(result.ssid != null) {
             $("#ssid").text(result.ssid)
-            $("#ssid").removeClass("error")
         } else {
-            $("#ssid").text("Disconnected")
-            $("#ssid").addClass("error")
+            $("#ssid").text("-")
         }
-        
+
+        if(result.securityType != null) {
+            $("#security-type").text(result.securityType)
+        } else {
+            $("#security-type").text("-")
+        }
 
         $("#dhcp-interfaces").text(result.dhcpInterfaces)
         

@@ -1,6 +1,6 @@
 FROM python:3
 RUN apt-get update
-RUN apt-get install -y net-tools lshw hostapd bridge-utils network-manager
+RUN apt-get install -y net-tools network-manager wireguard
 RUN systemctl enable NetworkManager.service
 WORKDIR /server
 RUN bash -c 'mkdir -p database/{users,config}'
