@@ -1,23 +1,3 @@
-GitBucket GitBucket
-Toggle navigation
-Find a repository
-Pull requests
-Issues
-Snippets
-@marsara
- Files
- Branches1
- Releases
- Issues
- Pull requests
- Labels
- Priorities
- Milestones
- Wiki
- Settings
-  marsara / VPNServer
- VPNServer / vpnserver.py
-@MarSara MarSara 8 minutes ago 13 KB adding methods to setup and configure wifi
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from http.cookies import SimpleCookie
 from datetime import datetime, timedelta
