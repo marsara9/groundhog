@@ -140,14 +140,18 @@ input[type="number"]#port {
 
 input[type="submit"],
 input[type="button"],
+input[type="file"]::file-selector-button,
 button {    
     border: none;
     background-color: transparent;
     color: white;
+    padding: 8px;
+    min-width: 120px;
 }
 
 input[type="submit"]:hover,
 input[type="button"]:hover,
+input[type="file"]::file-selector-button:hover,
 button:hover {
     background-color: black;
     color: #1ed2ff;
@@ -258,8 +262,8 @@ dl.tab-content {
 
 dl.prop-grid {
     display: grid;
-    grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 240px);
-    max-width: 480px;
+    grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
+    max-width: 512px;
     gap: 8px;
     border: 2px solid #1ed2ff;
     padding: 8px;
@@ -269,7 +273,7 @@ dl.prop-grid {
     /* overflow: hidden; */
     align-items: last baseline;
     box-shadow: 4px 4px 16px black;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 dl.prop-grid > :is(dt, dd) {
@@ -277,4 +281,10 @@ dl.prop-grid > :is(dt, dd) {
     flex-direction: row;
     align-items: stretch;
     gap: 8px;
+}
+
+dl.prop-grid > dd > * {
+    flex-shrink: 1;
+    flex-grow: 1;
+    flex-basis: content;
 }

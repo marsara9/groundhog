@@ -3,13 +3,78 @@
     <head>
         <title>VPN Server</title>
         <link rel="stylesheet" href="/shared/styles.css">
-        <script src="https://code.jquery.com/jquery-3.6.2.min.js" integrity="sha256-2krYZKh//PcchRtd+H+VyyQoZ/e3EcrkxhM8ycwASPA=" crossorigin="anonymous"></script>
-        <script src="/shared/main.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+        <script type="text/javascript" src="/shared/main.js"></script>
+        <script type="text/javascript" src="/setup/vpn/vpn.js"></script>
     </head>
     <body>
         <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
         <div class="content">
-            <div class="tabbar">
+            <dl class="prop-grid">
+                <dt>
+                    <label for="file">Import from configuration file:</label>
+                </dt>
+                <dd>
+                    <input type="file" id="file" placeholder="wg0.conf" />
+                </dd>
+                <dt>
+                    <label for="endpoint">Domain / IP Address:</label>
+                </dt>
+                <dd>
+                    <input type="text" id="endpoint" pattern="([0-9]{1,3}\.){3}[0-9]{1,3}" inputmode="numeric" placeholder="12.23.45.67" />
+                    <span>:</span>
+                    <input type="number" id="port" min="10000" max="65535" placeholder="51820" style="width: 60px;" />
+                </dd>
+                <dt>
+                    <label for="privatekey">Private Key:</label>
+                </dt>
+                <dd>
+                    <input class="input-group" type="text" id="privatekey" />
+                </dd>
+                <dt>
+                    <label for="publickey">Public Key:</label>
+                </dt>
+                <dd>
+                    <input class="input-group" type="text" id="publickey" />
+                </dd>
+                <dt>
+                    <label for="presharedkey">Preshared Key:</label>
+                </dt>
+                <dd>
+                    <input class="input-group" type="text" id="presharedkey" />
+                </dd>
+                <dt>
+                    <label for="address">Address:</label>
+                </dt>
+                <dd>
+                    <input class="input-group" 
+                        type="text" 
+                        id="address" 
+                        pattern="([0-9]{1,3}\.){3}[0-9]{1,3}/(8|16|24)" 
+                        inputmode="numeric" 
+                        placeholder="10.8.0.6/24" 
+                        title="Please enter an IP address followed by number to indicate the number of mask bits." />
+                </dd>
+                <dt>
+                    <label for="dns">DNS Servers:</label>
+                </dt>
+                <dd>
+                    <input class="input-group" type="text" id="dns" placeholder="10.0.0.5, 10.0.0.1" />
+                </dd>
+                <dt>
+                    <label for="allowedips">Allowed IPs:</label>
+                </dt>
+                <dd>
+                    <input class="input-group" type="text" id="allowedips" placeholder="10.0.0.0/8, 8.8.8.8/32, 8.8.4.4/32" />
+                </dd>
+                <dt>
+                    
+                </dt>
+                <dd>
+                    <input type="button" value="Submit" />
+                </dd>
+            </dl>
+            <!-- <div class="tabbar">
                 <button class="tab" data-content="#tab-file">File</button>
                 <button class="tab" data-content="#tab-manual">Manual</button>
                 <div class="tab-content" id="tab-file">
@@ -67,7 +132,7 @@
                         <input class="input-group" type="text" id="allowedips" value="10.0.0.0/8, 8.8.8.8/32, 8.8.4.4/32" readonly="readonly" />
                     </dd>
                 </dl>
-            </div>
+            </div> -->
         </div>
     </body>
 </html>

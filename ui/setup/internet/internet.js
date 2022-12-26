@@ -3,7 +3,7 @@ async function fetchInterfaces() {
         credentials: "same-origin"
     }).catch((reason) => {
         if(reason.code == 401) {
-            location.href = "/login"
+            logout()
         }
     })
 }
@@ -27,12 +27,12 @@ $(document).ready(function() {
     })
     updateInterface()
 
-    fetchInterfaces().then((data) => {
-        // data.forEach(interface => {
-        //     $("#internet-interface").append($("<option>", {
-        //         value : interface,
-        //         text : interface
-        //     }))
-        // })
-    })
+    // fetchInterfaces().then((data) => {
+    //     // data.forEach(interface => {
+    //     //     $("#internet-interface").append($("<option>", {
+    //     //         value : interface,
+    //     //         text : interface
+    //     //     }))
+    //     // })
+    // })
 });
