@@ -100,12 +100,9 @@ class SystemInformation():
         nmcli.device.wifi_connect(ssid, passphrase, wifi_interfaces[0])
         return
  
-    def configure_vpn(self, config : str):
+    def configure_vpn(self):
         vpn_interface = self.get_vpn_interface()
         config_path = f"{os.getcwd()}/database/config/{vpn_interface}.conf"
-        with open(config_path, "w+") as file:
-            file.write(config)
-            file.flush()
  
         subprocess.call(["nmcli", "connection", "import", "type", "wireguard", "file", config_path])
         nmcli.connection.up(vpn_interface)
@@ -168,6 +165,29 @@ class MyServer(BaseHTTPRequestHandler):
         
         return True
  
+    def put_base_auth_json(self, put):
+        if not self.validate_session():
+            self.send_json_error(401, "Not Authorized")
+            return
+
+        try:
+            length = int(self.headers.get("Content-length"))
+            if length == 0:
+                self.send_json_error(400)
+                return
+
+            body = self.rfile.read(length)
+            content = json.loads(body.decode("utf8"))
+
+            put(content)
+
+            self.send_response(201)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+        except:
+            self.send_json_error(500, "There was an error on the server.")
+        return
+
     def post_auth(self):
         length = int(self.headers.get("Content-length"))
         if length == 0:
@@ -201,6 +221,26 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_header("Set-Cookie", f"username={username}")
         self.end_headers()
  
+    def put_vpn_configuration(self, configuration : dict[str:any]):
+        
+        with open("./database/config/wg0.conf", "w+") as file:
+            file.write("[Interface]\n")
+            file.write(f"PrivateKey = {configuration['privatekey']}\n")
+            file.write(f"Address = {configuration['address']}\n")
+            file.write(f"DNS = {configuration['dns']}\n")
+            file.write("\n\n")
+            file.write("[PEER]\n")
+            file.write(f"PublicKey = {configuration['publickey']}\n")
+            file.write(f"PresharedKey = {configuration['presharedkey']}\n")
+            file.write(f"AllowedIPs = {configuration['allowedips']}\n")
+            file.write(f"PersistentKeepalive = 0\n")
+            file.write(f"Endpoint = {configuration['endpoint']}\n")
+            file.flush()
+
+        self.systemInfo.configure_vpn(self.systemInfo.get_vpn_interface())
+
+        return
+
     def fix_path(self, filepath : str):
         filepath = filepath.replace("..", "")
         if("?" in filepath):
@@ -242,7 +282,7 @@ class MyServer(BaseHTTPRequestHandler):
 
     def get_base_auth_json(self, get):
         if not self.validate_session():
-            self.send_json_error(401)
+            self.send_json_error(401, "Not Authorized")
             return
 
         try:
@@ -258,30 +298,27 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_json_error(500, "There was an error on the server.")
         return
 
-    def get_interfaces(self):
+    # def get_interfaces(self):
 
-        parsed_url = urllib.parse.urlparse(self.path)
-        query = urllib.parse.parse_qs(parsed_url.query)
+    #     parsed_url = urllib.parse.urlparse(self.path)
+    #     query = urllib.parse.parse_qs(parsed_url.query)
  
-        if "type" in query:
-            type = query["type"][0]
-        else:
-            type = "all"
+    #     if "type" in query:
+    #         type = query["type"][0]
+    #     else:
+    #         type = "all"
  
-        match type:
-            case "all":
-                interfaces = self.systemInfo.get_physical_interfaces()
-            case "ethernet":
-                interfaces = self.systemInfo.get_ethernet_interfaces()
-            case "wifi":
-                interfaces = self.systemInfo.get_wifi_interfaces()
-            case "lan":
-                interfaces = self.systemInfo.get_lan_interfaces()
+    #     match type:
+    #         case "all":
+    #             interfaces = self.systemInfo.get_physical_interfaces()
+    #         case "ethernet":
+    #             interfaces = self.systemInfo.get_ethernet_interfaces()
+    #         case "wifi":
+    #             interfaces = self.systemInfo.get_wifi_interfaces()
+    #         case "lan":
+    #             interfaces = self.systemInfo.get_lan_interfaces()
  
-        return interfaces
-
-    def get_wan_interface(self):
-        return self.systemInfo.get_wan_interface()
+    #     return interfaces
  
     def get_status(self):
 
@@ -321,16 +358,14 @@ class MyServer(BaseHTTPRequestHandler):
         }
  
     def get_wifi_scan(self):
-        return self.systemInfo.get_nearby_access_points()
+        return self.systemInfo.get_nearby_access_points()    
  
     def do_GET(self):
         try:
             parsed_url = urllib.parse.urlparse(self.path)
-            if parsed_url.path == "/interfaces":
-                self.get_base_auth_json(self.get_interfaces)
-            elif parsed_url.path == "/interface/auto/wan":
-                self.get_base_auth_json(self.get_wan_interface)
-            elif parsed_url.path == "/status":
+            # if parsed_url.path == "/interfaces":
+            #     self.get_base_auth_json(self.get_interfaces)
+            if parsed_url.path == "/status":
                 self.get_base_auth_json(self.get_status)
             elif parsed_url.path == "/wifi/scan":
                 self.get_base_auth_json(self.get_wifi_scan)
@@ -343,9 +378,22 @@ class MyServer(BaseHTTPRequestHandler):
  
     def do_POST(self):
         try:
-            match self.path:
+            parsed_url = urllib.parse.urlparse(self.path)
+            match parsed_url.path:
                 case "/auth":
                     self.post_auth()
+                case _:
+                    self.send_error(404)
+        except:
+            traceback.print_exc()
+            self.send_basic_error(500, "An error occured on the server, please try again")
+
+    def do_PUT(self):
+        try:
+            parsed_url = urllib.parse.urlparse(self.path)
+            match parsed_url.path:
+                case "/configuration/vpn":
+                    self.put_base_auth_json(self.put_vpn_configuration)
                 case _:
                     self.send_error(404)
         except:

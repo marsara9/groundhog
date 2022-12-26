@@ -1,5 +1,57 @@
-async function fetchJson(path) {
-    return await (await fetch(path)).json()
+function fetchJson(url, onResult) {
+    fetch(url, {
+        credentials: "same-origin"
+    }).then(response => {
+        if(response.ok) {
+            return response.json()
+        } else {
+            let error =  new Error(response.statusText)
+            error.status = response.status
+            error.body = response.body
+            throw error
+        }
+    }).then(data => {
+        onResult(data)
+    }).catch(reason => {
+        console.log(reason)
+        if(reason.status == 401) {
+            logout()
+        }
+    })
+}
+
+function postJson(url, data) {
+    fetch(url, {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-cache",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    }).catch(reason => {
+        if(reason.code == 401) {
+            console.log(reason)
+            logout()
+        }
+    })
+}
+
+function putJson(url, data) {
+    fetch(url, {
+        method: "PUT",
+        credentials: "same-origin",
+        cache: "no-cache",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    }).catch(reason => {
+        if(reason.code == 401) {
+            console.log(reason)
+            logout()
+        }
+    })
 }
 
 const observer = new MutationObserver(function () {

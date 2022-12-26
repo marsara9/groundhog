@@ -20,15 +20,17 @@ function parseConfigFile() {
         setConfiguration(result)
     })
     const file = $(this).prop("files")[0]
-    // reader.readAsDataURL(file)
-    reader.readAsText(file)
+    if(file) {
+        reader.readAsText(file)
+    }
 }
 
 function setConfiguration(configuration) {
-    const endpoint = configuration.endpoint.split(":")[0]
+    const url = configuration.endpoint.split(":")[0]
     const port = configuration.endpoint.split(":")[1]
-    $("#endpoint").val(endpoint)
+    $("#url").val(url)
     $("#port").val(port)
+    $("#endpoint").val(configuration.endpoint)
 
     $("#privatekey").val(configuration.privatekey)
     $("#publickey").val(configuration.publickey)
@@ -39,7 +41,30 @@ function setConfiguration(configuration) {
     $("#allowedips").val(configuration.allowedips)
 }
 
+function getConfiguration(submit) {
+    configuration = {}
+    submit.parents("dl.prop-grid").find("input:not(.ignore)").each(function() {
+        const input = $(this)        
+        configuration[input.attr("id")] = input.val()
+    })
+
+    return configuration
+}
+
+function submitConfiguration() {
+    putJson("/configuration/vpn", getConfiguration($(this)))
+}
+
 $(document).ready(function() {
-    $("#file").on("change", parseConfigFile)    
+
+    $("#url").on("input", function() {
+        $("#endpoint").val($(this).val() + ":" + $("#port").val())
+    })
+    $("#port").on("input", function() {
+        $("#endpoint").val($("#url").val() + ":" + $(this).val())
+    })
+
+    $("#file").on("change", parseConfigFile)
+    $("#submit").click(submitConfiguration)
 });
 

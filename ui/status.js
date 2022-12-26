@@ -1,8 +1,26 @@
 async function fetchStatus() {
-    return fetchJson("/status", {
-        credentials: "same-origin"
-    }).catch((reason) => {
-        location.href = "/login"
+    return fetchJson("/status", result => {
+        displayConnectionType(result.connectionType)
+
+        displayInterfaceState("#wan-status", result.internetStatus)
+        displayInterfaceState("#vpn-status", result.vpnStatus)
+        displayInterfaceState("#wifi-status", result.wifiStatus)
+
+        if(result.ssid != null) {
+            $("#ssid").text(result.ssid)
+        } else {
+            $("#ssid").text("-")
+        }
+
+        if(result.securityType != null) {
+            $("#security-type").text(result.securityType)
+        } else {
+            $("#security-type").text("-")
+        }
+
+        $("#dhcp-interfaces").text(result.dhcpInterfaces)
+        
+        updateInterface()
     })
 }
 
@@ -62,28 +80,5 @@ function displayInterfaceState(id, state) {
 }
 
 $(document).ready(function() {
-    fetchStatus().then((result) => {
-
-        displayConnectionType(result.connectionType)
-
-        displayInterfaceState("#wan-status", result.internetStatus)
-        displayInterfaceState("#vpn-status", result.vpnStatus)
-        displayInterfaceState("#wifi-status", result.wifiStatus)
-
-        if(result.ssid != null) {
-            $("#ssid").text(result.ssid)
-        } else {
-            $("#ssid").text("-")
-        }
-
-        if(result.securityType != null) {
-            $("#security-type").text(result.securityType)
-        } else {
-            $("#security-type").text("-")
-        }
-
-        $("#dhcp-interfaces").text(result.dhcpInterfaces)
-        
-        updateInterface()
-    })
+    fetchStatus()
 });
