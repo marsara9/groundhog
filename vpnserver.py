@@ -123,7 +123,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", "application/josn")
         self.end_headers()
-        self.wfile.write(bytes(json.dump(object), "utf8"))
+        self.wfile.write(bytes(json.dumps(object), "utf8"))
         return
  
     def get_ip_address(self):
