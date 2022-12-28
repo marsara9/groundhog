@@ -241,6 +241,15 @@ class MyServer(BaseHTTPRequestHandler):
 
         return
 
+    def put_wifi_configuration(self, configuration : dict[str:any]):
+
+        if(configuration["apmode"] == True):
+            self.systemInfo.create_access_point(configuration["ssid"], configuration["passphrase"])
+        else:
+            self.systemInfo.connect_to_wifi(configuration["ssid"], configuration["passphrase"])
+
+        return
+
     def fix_path(self, filepath : str):
         filepath = filepath.replace("..", "")
         if("?" in filepath):
@@ -394,6 +403,8 @@ class MyServer(BaseHTTPRequestHandler):
             match parsed_url.path:
                 case "/configuration/vpn":
                     self.put_base_auth_json(self.put_vpn_configuration)
+                case "/configuration/wifi":
+                    self.put_base_auth_json(self.put_wifi_configuration)
                 case _:
                     self.send_error(404)
         except:
