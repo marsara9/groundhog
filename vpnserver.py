@@ -3,6 +3,7 @@ from http.cookies import SimpleCookie
 from datetime import datetime, timedelta
 from socketserver import ThreadingMixIn
 import os
+import numpy
 import urllib.parse
 import subprocess
 import traceback
@@ -29,22 +30,33 @@ class SystemInformation():
         return nmcli.device()
  
     def get_wan_interface(self):
-        route = subprocess.run(["route"], stdout=subprocess.PIPE)
-        default = subprocess.run(["grep", "^default"], input=route.stdout, stdout=subprocess.PIPE)
-        grep = subprocess.run(["grep", "-o", "[^ ]*$"], input=default.stdout, stdout=subprocess.PIPE)
-        return grep.stdout.decode("utf8").strip("\n")
+        route = subprocess.run(["ip", "route"], stdout=subprocess.PIPE)
+        grep = subprocess.run(["grep", "default"], input=route.stdout, stdout=subprocess.PIPE)
+        awk = subprocess.run(["awk", "/default/ {print $5}"], input=grep.stdout, stdout=subprocess.PIPE)
+        return awk.stdout.decode("utf8").strip("\n")
  
     def get_vpn_interface(self):
         return "wg0"
  
     def get_physical_interfaces(self):
-        return [device.device for device in self.get_all_interfaces() if device.device_type == "ethernet" or device.device_type == "wifi"]
+        #return [device.device for device in self.get_all_interfaces() if device.device_type == "ethernet" or device.device_type == "wifi"]
+        #find /sys/class/net -mindepth 1 -maxdepth 1 -lname '*virtual*' -prune -o -printf '%f\n'
+        find = subprocess.run(["find", "/sys/class/net", "-mindepth", "1", "-lname", "*virtual*", "-prune", "-o", "-printf", "%f\n"], stdout=subprocess.PIPE)
+        return find.stdout.decode("utf8").strip("\n").split("\n")
  
     def get_ethernet_interfaces(self):
-        return [device.device for device in self.get_all_interfaces() if device.device_type == "ethernet"]
+        #return [device.device for device in self.get_all_interfaces() if device.device_type == "ethernet"]
+        physical = self.get_physical_interfaces()
+        wifi = self.get_wifi_interfaces()
+        return numpy.subtract(physical, wifi)
+        
  
     def get_wifi_interfaces(self):
-        return [device.device for device in self.get_all_interfaces() if device.device_type == "wifi"]
+        #return [device.device for device in self.get_all_interfaces() if device.device_type == "wifi"]
+        #iw dev | awk '$1=="Interface"{print $2}'
+        iw = subprocess.run(["iw", "dev"], stdout=subprocess.PIPE)
+        awk = subprocess.run(["awk", "$1=='Interface'{print $2}"], input=iw.stdout, stdout=subprocess.PIPE)
+        return awk.stdout.decode("utf8").strip("\n").split("\n")
  
     def get_lan_interfaces(self):
         physical = self.get_physical_interfaces()
@@ -57,27 +69,35 @@ class SystemInformation():
         if not interface in [device.device for device in self.get_all_interfaces()]:
             return None
  
-        result = [device.state for device in nmcli.device.status() if device.device == interface][0]
-        match result:
-            case "connected":
-                return "up"
-            case "disconnected":
-                return "down"
-        return None
+        try:
+            with open(f"/sys/class/net/{interface}/operstate", "r") as file:
+                return file.read()
+        except:
+            return None
+
+        # result = [device.state for device in nmcli.device.status() if device.device == interface][0]
+        # match result:
+        #     case "connected":
+        #         return "up"
+        #     case "disconnected":
+        #         return "down"
+        # return None
  
     def get_wifi_ssid(self):
         wifi_interfaces = self.get_wifi_interfaces()
         if len(wifi_interfaces) == 0:
             return None
  
-        nmcli_ = subprocess.run(["nmcli", "-t", "-f", "active,ssid,security", "device", "wifi"], stdout=subprocess.PIPE)
-        grep = subprocess.run(["grep", "yes"], input=nmcli_.stdout, stdout=subprocess.PIPE)
-        awk = subprocess.run(["awk", "-F", ":", "{print $2,$3}"], input=grep.stdout, stdout=subprocess.PIPE)
-        result = awk.stdout.decode("utf8").strip("\n").split(" ")    
-        if len(result) >= 2:
-            return result
-        else:
-            return [None, None]
+        # nmcli_ = subprocess.run(["nmcli", "-t", "-f", "active,ssid,security", "device", "wifi"], stdout=subprocess.PIPE)
+        # grep = subprocess.run(["grep", "yes"], input=nmcli_.stdout, stdout=subprocess.PIPE)
+        # awk = subprocess.run(["awk", "-F", ":", "{print $2,$3}"], input=grep.stdout, stdout=subprocess.PIPE)
+        # result = awk.stdout.decode("utf8").strip("\n").split(" ")    
+        # if len(result) >= 2:
+        #     return result
+        # else:
+        #     return [None, None]
+        iwgetid = subprocess.run(["iwgetid", "-r"], stdout=subprocess.PIPE)
+        return iwgetid.stdout.decode("utf8").strip("\n")
  
     def create_access_point(self, ssid : str, passphrase : str):
         wifi_interfaces = self.get_wifi_interfaces()
@@ -119,11 +139,11 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes(error, "utf8"))
         return
  
-    def send_json_error(self, code : int, object : str):
+    def send_json_error(self, code : int, message : str):
         self.send_response(code)
         self.send_header("Content-Type", "application/josn")
         self.end_headers()
-        self.wfile.write(bytes(json.dumps(object), "utf8"))
+        self.wfile.write(bytes(json.dumps(message), "utf8"))
         return
  
     def get_ip_address(self):
@@ -303,7 +323,8 @@ class MyServer(BaseHTTPRequestHandler):
 
             result = json.dumps(object)
             self.wfile.write(bytes(result, "utf-8"))
-        except:
+        except Exception as e:
+            traceback.print_exc()
             self.send_json_error(500, "There was an error on the server.")
         return
 
@@ -357,6 +378,7 @@ class MyServer(BaseHTTPRequestHandler):
         (ssid,security_type) = self.systemInfo.get_wifi_ssid()
  
         return {
+            "wanInterface": wan_interface,
             "connectionType": connection_type,
             "internetStatus": internet_status,
             "vpnStatus": vpn_status,
