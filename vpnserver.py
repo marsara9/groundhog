@@ -55,7 +55,7 @@ class SystemInformation():
         #return [device.device for device in self.get_all_interfaces() if device.device_type == "wifi"]
         #iw dev | awk '$1=="Interface"{print $2}'
         iw = subprocess.run(["iw", "dev"], stdout=subprocess.PIPE)
-        awk = subprocess.run(["awk", "$1=='Interface'{print $2}"], input=iw.stdout, stdout=subprocess.PIPE)
+        awk = subprocess.run(["awk", "$1==\"Interface\"{print $2}"], input=iw.stdout, stdout=subprocess.PIPE)
         return awk.stdout.decode("utf8").strip("\n").split("\n")
  
     def get_lan_interfaces(self):
@@ -86,7 +86,7 @@ class SystemInformation():
     def get_wifi_ssid(self):
         wifi_interfaces = self.get_wifi_interfaces()
         if len(wifi_interfaces) == 0:
-            return None
+            return [None, None]
  
         # nmcli_ = subprocess.run(["nmcli", "-t", "-f", "active,ssid,security", "device", "wifi"], stdout=subprocess.PIPE)
         # grep = subprocess.run(["grep", "yes"], input=nmcli_.stdout, stdout=subprocess.PIPE)
@@ -97,7 +97,8 @@ class SystemInformation():
         # else:
         #     return [None, None]
         iwgetid = subprocess.run(["iwgetid", "-r"], stdout=subprocess.PIPE)
-        return iwgetid.stdout.decode("utf8").strip("\n")
+        ssid = iwgetid.stdout.decode("utf8").strip("\n")
+        return [ssid, None]
  
     def create_access_point(self, ssid : str, passphrase : str):
         wifi_interfaces = self.get_wifi_interfaces()
