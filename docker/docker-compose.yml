@@ -17,9 +17,9 @@ services:
   server:
     image: marsara9/vpnrouter:latest
     container_name: vpnrouter
-    networks:
-      - internal
-    # network_mode: "host"
+    #networks:
+    #  - internal
+    network_mode: "host"
     cap_add:
       - NET_ADMIN
     #devices:
@@ -37,11 +37,12 @@ services:
     # ports:
     #   - 8080:8080
     volumes:
-      - /sys/class/net:/host/sys/class/net
+    #  - /sys/class/net:/host/sys/class/net
     #  - /run/dbus/system_bus_socket:/host/run/dbus/system_bus_socket
     #  - /run/dbus/:/host/run/dbus/
     #  - /var/run/dbus:/var/run/dbus
-      - ~/Projects/VpnServer/database:/server/database
+    #  - ~/Projects/VpnServer/database:/server/database
+      - /home/marsara/Projects/VpnServer/database:/server/database
     restart: unless-stopped
 networks:
   internal:
