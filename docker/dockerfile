@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3-slim
 # Install required software
 RUN apt-get update
 RUN apt-get install -y \
@@ -13,7 +13,7 @@ RUN apt-get install -y \
 WORKDIR /router
 RUN bash -c 'mkdir -p database/{users,config}'
 COPY ui/ ui/
-COPY server/vpnrouter.py server/
+COPY server/ server/
 
 # Setup user and permissions
 ENV HOME /root

@@ -119,11 +119,18 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes(error, "utf8"))
         return
  
-    def send_json_error(self, code : int, object : str):
+    def send_json_error(self, code : int, object : str, error : Exception):
         self.send_response(code)
         self.send_header("Content-Type", "application/josn")
         self.end_headers()
-        self.wfile.write(bytes(json.dumps(object), "utf8"))
+        if __debug__:
+            obj = {
+                "message": object,
+                "error": e.message
+            }
+            self.wfile.write(bytes(json.dumps(object), "utf8"))
+        else:
+            self.wfile.write(bytes(json.dumps(object), "utf8"))
         return
  
     def get_ip_address(self):
@@ -184,8 +191,9 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_response(201)
             self.send_header("Content-type", "application/json")
             self.end_headers()
-        except:
-            self.send_json_error(500, "There was an error on the server.")
+        except Exception as e:
+            self.send_json_error(500, "There was an error on the server.", e)
+            raise e
         return
 
     def post_auth(self):
@@ -303,8 +311,9 @@ class MyServer(BaseHTTPRequestHandler):
 
             result = json.dumps(object)
             self.wfile.write(bytes(result, "utf-8"))
-        except:
-            self.send_json_error(500, "There was an error on the server.")
+        except Exception as e:
+            self.send_json_error(500, "There was an error on the server.", e)
+            raise e
         return
 
     # def get_interfaces(self):
