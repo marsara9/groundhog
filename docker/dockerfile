@@ -1,14 +1,14 @@
 FROM python:3
 RUN apt-get update
 RUN apt-get install -y net-tools network-manager wireguard
-RUN systemctl enable NetworkManager.service
-WORKDIR /server
+#RUN systemctl enable NetworkManager.service
+WORKDIR /router
 RUN bash -c 'mkdir -p database/{users,config}'
 COPY ui ./ui
-COPY vpnserver.py .
+COPY server/vpnrouter.py ./server
 RUN useradd -m dockeruser
-RUN chown -R dockeruser /server
+RUN chown -R dockeruser /router
 USER dockeruser
 RUN pip3 install simplejson bcrypt nmcli
 EXPOSE 8080
-ENTRYPOINT ["python3", "-u", "vpnserver.py"]
+ENTRYPOINT ["python3", "-u", "server/vpnrouter.py"]

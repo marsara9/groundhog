@@ -1,0 +1,49 @@
+version: '3.5'
+services:
+  # webui:
+  #   image: nginx:latest
+  #   container_name: webui
+  #   networks:
+  #     - internal
+  #   volumes:
+  #     - /docker/nginx:/etc/nginx
+  #     - /docker/certs:/certs
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   depends_on:
+  #     - server
+  #   restart: unless-stopped
+  server:
+    image: marsara9/vpnrouter:latest
+    container_name: vpnrouter
+    networks:
+      - internal
+    # network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+    #devices:
+    #  - /sys/class/net/eno1
+    #  - /sys/class/net/wlp4s0
+    environment:
+    #  - DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
+    #  - DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket,guid=5f2e8ef735db8bc193bab6b963aca6fc
+    #  - DISPLAY=:0
+    #   - PUID=1000
+    #   - PGID=1000
+      - TZ=America/New_York
+    # security_opt:
+    #   - apparmor:unconfined
+    # ports:
+    #   - 8080:8080
+    volumes:
+    #  - /sys/class/net:/host/sys/class/net
+    #  - /run/dbus/system_bus_socket:/host/run/dbus/system_bus_socket
+    #  - /run/dbus/:/host/run/dbus/
+    #  - /var/run/dbus:/var/run/dbus
+    #  - ~/Projects/VpnServer/database:/server/database
+    restart: unless-stopped
+networks:
+  internal:
+    name: internal
+    driver: bridge

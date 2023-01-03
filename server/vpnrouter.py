@@ -16,10 +16,10 @@ hostName = "0.0.0.0"
 serverPort = 8080
  
 def create_user(username : str, password : str):
-    if not os.path.exists(f"./database/users/{username}"):
+    if not os.path.exists(f"{os.getcwd()}/database/users/{username}"):
         hash = bcrypt.hashpw(password.encode("utf8"), bcrypt.gensalt())
  
-        with open(f"./database/users/{username}", "wb+") as file:
+        with open(f"{os.getcwd()}/database/users/{username}", "wb+") as file:
             file.write(hash)
             file.flush()
  
@@ -144,7 +144,7 @@ class MyServer(BaseHTTPRequestHandler):
         hashed_token = str(base64.b64decode(token), "utf8")
  
         hashed_password = None
-        with open(f"./database/users/{username}", "rb") as file:
+        with open(f"{os.getcwd()}/database/users/{username}", "rb") as file:
             hashed_password = file.read()
  
         decyrpted_token = "".join(chr(ord(a)^ord(b)) for a,b in zip(hashed_token, hashed_password.decode("utf8")))
@@ -199,11 +199,11 @@ class MyServer(BaseHTTPRequestHandler):
         username = content["username"]
         hashed_password = None
  
-        if not os.path.exists(f"./database/users/{username}"):
+        if not os.path.exists(f"{os.getcwd()}/database/users/{username}"):
             self.send_basic_error(401, "Invalid username or password")
             return
  
-        with open(f"./database/users/{username}", "rb") as file:
+        with open(f"{os.getcwd()}/database/users/{username}", "rb") as file:
             hashed_password = file.read()
             if not bcrypt.checkpw(content["password"].encode("utf8"), hashed_password):
                 self.send_basic_error(401, "Invalid username or password")
@@ -223,7 +223,7 @@ class MyServer(BaseHTTPRequestHandler):
  
     def put_vpn_configuration(self, configuration : dict[str:any]):
         
-        with open("./database/config/wg0.conf", "w+") as file:
+        with open(f"{os.getcwd()}/database/config/{self.systemInfo.get_vpn_interface()}.conf", "w+") as file:
             file.write("[Interface]\n")
             file.write(f"PrivateKey = {configuration['privatekey']}\n")
             file.write(f"Address = {configuration['address']}\n")
