@@ -119,18 +119,18 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes(error, "utf8"))
         return
  
-    def send_json_error(self, code : int, object : str, error : Exception):
+    def send_json_error(self, code : int, message : str, error : Exception = None):
         self.send_response(code)
         self.send_header("Content-Type", "application/josn")
         self.end_headers()
         if __debug__:
             obj = {
-                "message": object,
-                "error": e.message
+                "message": message,
+                "error": str(error) if error else None
             }
-            self.wfile.write(bytes(json.dumps(object), "utf8"))
+            self.wfile.write(bytes(json.dumps(obj), "utf8"))
         else:
-            self.wfile.write(bytes(json.dumps(object), "utf8"))
+            self.wfile.write(bytes(json.dumps(message), "utf8"))
         return
  
     def get_ip_address(self):
