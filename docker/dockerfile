@@ -17,11 +17,11 @@ COPY server/ server/
 
 # Setup user and permissions
 ENV HOME /root
-#RUN useradd -m dockeruser
-#RUN usermod -aG sudo dockeruser
-#RUN chown -R dockeruser /router
-#USER dockeruser
-#ENV HOME /home/dockeruser
+RUN useradd -m dockeruser
+RUN usermod -aG sudo dockeruser
+RUN chown -R dockeruser /router
+USER dockeruser
+ENV HOME /home/dockeruser
 
 # Install user specific software
 ## Rust is required by bcrypt
