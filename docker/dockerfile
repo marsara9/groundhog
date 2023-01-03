@@ -1,4 +1,5 @@
 FROM python:3
+# Install required software
 RUN apt-get update
 RUN apt-get install -y \
     net-tools \
@@ -6,17 +7,28 @@ RUN apt-get install -y \
     wireguard \
     build-essential \
     curl
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
-ENV PATH="/root/.cargo/bin:${PATH}"
-#RUN echo 'source $HOME/.cargo/env' >> $HOME/.bashrc
 #RUN systemctl enable NetworkManager.service
+
+# Create driectory structure
 WORKDIR /router
 RUN bash -c 'mkdir -p database/{users,config}'
-COPY ui ./ui
-COPY server/vpnrouter.py ./server
-RUN useradd -m dockeruser
-RUN chown -R dockeruser /router
-USER dockeruser
-RUN pip3 install simplejson bcrypt nmcli
+COPY ui/ ui/
+COPY server/vpnrouter.py server/
+
+# Setup user and permissions
+ENV HOME /root
+#RUN useradd -m dockeruser
+#RUN usermod -aG sudo dockeruser
+#RUN chown -R dockeruser /router
+#USER dockeruser
+#ENV HOME /home/dockeruser
+
+# Install user specific software
+## Rust is required by bcrypt
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
+ENV PATH="${HOME}/.cargo/bin:${PATH}"
+RUN pip3 install simplejson bcrypt nmcli --verbose --no-warn-script-location
+
+# Start the server
 EXPOSE 8080
 ENTRYPOINT ["python3", "-u", "server/vpnrouter.py"]
