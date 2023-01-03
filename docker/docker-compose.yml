@@ -14,7 +14,7 @@ services:
   #   depends_on:
   #     - server
   #   restart: unless-stopped
-  server:
+  router:
     image: marsara9/vpnrouter:latest
     container_name: vpnrouter
     networks:
@@ -36,7 +36,7 @@ services:
     #   - apparmor:unconfined
     # ports:
     #   - 8080:8080
-    volumes:
+    #volumes:
     #  - /sys/class/net:/host/sys/class/net
     #  - /run/dbus/system_bus_socket:/host/run/dbus/system_bus_socket
     #  - /run/dbus/:/host/run/dbus/

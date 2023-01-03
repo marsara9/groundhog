@@ -1,6 +1,14 @@
 FROM python:3
 RUN apt-get update
-RUN apt-get install -y net-tools network-manager wireguard
+RUN apt-get install -y \
+    net-tools \
+    network-manager \
+    wireguard \
+    build-essential \
+    curl
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
+ENV PATH="/root/.cargo/bin:${PATH}"
+#RUN echo 'source $HOME/.cargo/env' >> $HOME/.bashrc
 #RUN systemctl enable NetworkManager.service
 WORKDIR /router
 RUN bash -c 'mkdir -p database/{users,config}'
