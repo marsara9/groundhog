@@ -21,6 +21,8 @@ services:
       - internal
     cap_add:
       - NET_ADMIN
+    security_opt:
+      - apparmor:unconfined
     environment:
     #   - PUID=1000
     #   - PGID=1000

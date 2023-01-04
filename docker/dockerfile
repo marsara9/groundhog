@@ -14,7 +14,7 @@ ENV HOME /home/dockeruser
 ## Rust is required by bcrypt
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
 ENV PATH="${HOME}/.cargo/bin:${PATH}"
-RUN pip3 install simplejson bcrypt nmcli --verbose --no-warn-script-location
+RUN pip3 install simplejson bcrypt nmcli --verbose --no-warn-script-location --no-cache-dir
 
 #FROM gcr.io/distroless/python3-debian11
 FROM python:3-slim
