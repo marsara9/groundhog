@@ -1,23 +1,33 @@
-FROM python:3
+FROM python:3-slim
+# Install required software
 RUN apt-get update
-RUN apt-get install -y iproute2 iw wireguard wireless-tools
-#RUN apt-get install -y iproute2 network-manager wireguard strace sudo
-#RUN systemctl mask NetworkManager.service
+RUN apt-get install -y \
+    net-tools \
+    network-manager \
+    wireguard \
+    build-essential \
+    curl
 
-#RUN dbus-uuidgen > /var/lib/dbus/marchine-id
-#RUN mkdir /var/run/dbus
-#RUN dbus-daemon --config-file=/usr/share/dbus-1/system.conf --print-address > dbus_path
-#RUN export DBUS_SYSTEM_BUS_ADDRESS=$(cat dbus_path)
-#ENV DBUS_SYSTEM_BUS_ADDRESS="$(cat dbus_path)"
-ENV DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
-
-WORKDIR /server
+# Create driectory structure
+WORKDIR /router
 RUN bash -c 'mkdir -p database/{users,config}'
-COPY ui ./ui
-COPY server/vpnrouter.py .
+COPY ui/ ui/
+COPY server/ server/
+
+# Setup user and permissions
+ENV HOME /root
 RUN useradd -m dockeruser
-RUN chown -R dockeruser /server
+RUN usermod -aG sudo dockeruser
+RUN chown -R dockeruser /router
 USER dockeruser
-RUN pip3 install simplejson bcrypt nmcli numpy --no-warn-script-location
+ENV HOME /home/dockeruser
+
+# Install user specific software
+## Rust is required by bcrypt
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
+ENV PATH="${HOME}/.cargo/bin:${PATH}"
+RUN pip3 install simplejson bcrypt nmcli --verbose --no-warn-script-location
+
+# Start the server
 EXPOSE 8080
-ENTRYPOINT ["python3", "-u", "vpnrouter.py"]
+ENTRYPOINT ["python3", "-u", "server/vpnrouter.py"]

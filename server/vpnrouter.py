@@ -3,7 +3,6 @@ from http.cookies import SimpleCookie
 from datetime import datetime, timedelta
 from socketserver import ThreadingMixIn
 import os
-import numpy
 import urllib.parse
 import subprocess
 import traceback
@@ -30,28 +29,22 @@ class SystemInformation():
         return nmcli.device()
  
     def get_wan_interface(self):
-        route = subprocess.run(["ip", "route"], stdout=subprocess.PIPE)
-        grep = subprocess.run(["grep", "default"], input=route.stdout, stdout=subprocess.PIPE)
-        awk = subprocess.run(["awk", "/default/ {print $5}"], input=grep.stdout, stdout=subprocess.PIPE)
-        return awk.stdout.decode("utf8").strip("\n")
+        route = subprocess.run(["route"], stdout=subprocess.PIPE)
+        default = subprocess.run(["grep", "^default"], input=route.stdout, stdout=subprocess.PIPE)
+        grep = subprocess.run(["grep", "-o", "[^ ]*$"], input=default.stdout, stdout=subprocess.PIPE)
+        return grep.stdout.decode("utf8").strip("\n")
  
     def get_vpn_interface(self):
         return "wg0"
  
     def get_physical_interfaces(self):
-        find = subprocess.run(["find", "/sys/class/net", "-mindepth", "1", "-lname", "*virtual*", "-prune", "-o", "-printf", "%f\n"], stdout=subprocess.PIPE)
-        return find.stdout.decode("utf8").strip("\n").split("\n")
+        return [device.device for device in self.get_all_interfaces() if device.device_type == "ethernet" or device.device_type == "wifi"]
  
     def get_ethernet_interfaces(self):
-        physical = self.get_physical_interfaces()
-        wifi = self.get_wifi_interfaces()
-        return numpy.subtract(physical, wifi)
-        
+        return [device.device for device in self.get_all_interfaces() if device.device_type == "ethernet"]
  
     def get_wifi_interfaces(self):
-        iw = subprocess.run(["iw", "dev"], stdout=subprocess.PIPE)
-        awk = subprocess.run(["awk", "$1==\"Interface\"{print $2}"], input=iw.stdout, stdout=subprocess.PIPE)
-        return awk.stdout.decode("utf8").strip("\n").split("\n")
+        return [device.device for device in self.get_all_interfaces() if device.device_type == "wifi"]
  
     def get_lan_interfaces(self):
         physical = self.get_physical_interfaces()
@@ -61,23 +54,30 @@ class SystemInformation():
         return physical
  
     def get_interface_status(self, interface : str):
-        if not interface in self.get_physical_interfaces():
+        if not interface in [device.device for device in self.get_all_interfaces()]:
             return None
  
-        try:
-            with open(f"/sys/class/net/{interface}/operstate", "r") as file:
-                return file.read().strip("\n")
-        except:
-            return None
+        result = [device.state for device in nmcli.device.status() if device.device == interface][0]
+        match result:
+            case "connected":
+                return "up"
+            case "disconnected":
+                return "down"
+        return None
  
     def get_wifi_ssid(self):
         wifi_interfaces = self.get_wifi_interfaces()
         if len(wifi_interfaces) == 0:
-            return [None, None]
+            return None
  
-        iwgetid = subprocess.run(["iwgetid", "-r"], stdout=subprocess.PIPE)
-        ssid = iwgetid.stdout.decode("utf8").strip("\n")
-        return [ssid, None]
+        nmcli_ = subprocess.run(["nmcli", "-t", "-f", "active,ssid,security", "device", "wifi"], stdout=subprocess.PIPE)
+        grep = subprocess.run(["grep", "yes"], input=nmcli_.stdout, stdout=subprocess.PIPE)
+        awk = subprocess.run(["awk", "-F", ":", "{print $2,$3}"], input=grep.stdout, stdout=subprocess.PIPE)
+        result = awk.stdout.decode("utf8").strip("\n").split(" ")    
+        if len(result) >= 2:
+            return result
+        else:
+            return [None, None]
  
     def create_access_point(self, ssid : str, passphrase : str):
         wifi_interfaces = self.get_wifi_interfaces()
@@ -103,8 +103,9 @@ class SystemInformation():
     def configure_vpn(self):
         vpn_interface = self.get_vpn_interface()
         config_path = f"{os.getcwd()}/database/config/{vpn_interface}.conf"
-
-        subprocess.call(["wg-quick", "up", config_path])
+ 
+        subprocess.call(["nmcli", "connection", "import", "type", "wireguard", "file", config_path])
+        nmcli.connection.up(vpn_interface)
         return
  
 class MyServer(BaseHTTPRequestHandler):
@@ -118,11 +119,18 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes(error, "utf8"))
         return
  
-    def send_json_error(self, code : int, message : str):
+    def send_json_error(self, code : int, message : str, error : Exception = None):
         self.send_response(code)
         self.send_header("Content-Type", "application/josn")
         self.end_headers()
-        self.wfile.write(bytes(json.dumps(message), "utf8"))
+        if __debug__:
+            obj = {
+                "message": message,
+                "error": str(error) if error else None
+            }
+            self.wfile.write(bytes(json.dumps(obj), "utf8"))
+        else:
+            self.wfile.write(bytes(json.dumps(message), "utf8"))
         return
  
     def get_ip_address(self):
@@ -183,8 +191,9 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_response(201)
             self.send_header("Content-type", "application/json")
             self.end_headers()
-        except:
-            self.send_json_error(500, "There was an error on the server.")
+        except Exception as e:
+            self.send_json_error(500, "There was an error on the server.", e)
+            raise e
         return
 
     def post_auth(self):
@@ -303,8 +312,8 @@ class MyServer(BaseHTTPRequestHandler):
             result = json.dumps(object)
             self.wfile.write(bytes(result, "utf-8"))
         except Exception as e:
-            traceback.print_exc()
-            self.send_json_error(500, "There was an error on the server.")
+            self.send_json_error(500, "There was an error on the server.", e)
+            raise e
         return
 
     # def get_interfaces(self):
@@ -357,7 +366,6 @@ class MyServer(BaseHTTPRequestHandler):
         (ssid,security_type) = self.systemInfo.get_wifi_ssid()
  
         return {
-            "wanInterface": wan_interface,
             "connectionType": connection_type,
             "internetStatus": internet_status,
             "vpnStatus": vpn_status,
