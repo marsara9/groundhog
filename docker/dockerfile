@@ -1,24 +1,12 @@
-FROM python:3-slim
+FROM python:3-slim AS compile
 # Install required software
 RUN apt-get update
 RUN apt-get install -y \
-    net-tools \
-    network-manager \
-    wireguard \
     build-essential \
     curl
 
-# Create driectory structure
-WORKDIR /router
-RUN bash -c 'mkdir -p database/{users,config}'
-COPY ui/ ui/
-COPY server/ server/
-
 # Setup user and permissions
-ENV HOME /root
 RUN useradd -m dockeruser
-RUN usermod -aG sudo dockeruser
-RUN chown -R dockeruser /router
 USER dockeruser
 ENV HOME /home/dockeruser
 
@@ -27,6 +15,33 @@ ENV HOME /home/dockeruser
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
 ENV PATH="${HOME}/.cargo/bin:${PATH}"
 RUN pip3 install simplejson bcrypt nmcli --verbose --no-warn-script-location
+
+#FROM gcr.io/distroless/python3-debian11
+FROM python:3-slim
+
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+    net-tools \
+    network-manager
+
+RUN useradd -m dockeruser
+RUN usermod -aG sudo dockeruser
+ENV HOME /home/dockeruser
+
+# Copy dependencies
+## Python packages
+COPY --from=compile "${HOME}/.local/lib/python3.11/site-packages/bcrypt" "${HOME}/.local/lib/python3.11/site-packages/bcrypt"
+COPY --from=compile "${HOME}/.local/lib/python3.11/site-packages/nmcli" "${HOME}/.local/lib/python3.11/site-packages/nmcli"
+COPY --from=compile "${HOME}/.local/lib/python3.11/site-packages/simplejson" "${HOME}/.local/lib/python3.11/site-packages/simplejson"
+
+# Create driectory structure
+WORKDIR /router
+RUN bash -c 'mkdir -p database/{users,config}'
+COPY ui/ ui/
+COPY server/ server/
+
+RUN chown -R dockeruser /router
+USER dockeruser
 
 # Start the server
 EXPOSE 8080
