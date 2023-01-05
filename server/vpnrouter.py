@@ -428,6 +428,13 @@ if __name__ == "__main__":
  
     webServer = ThreadedHTTPServer((hostName, serverPort), MyServer)
     print("Server started http://%s:%s" % (hostName, serverPort))
+
+    if not os.path.exists(f"{os.getcwd()}/database"):
+        os.makedirs(f"{os.getcwd()}/database")
+    if not os.path.exists(f"{os.getcwd()}/database/users"):
+        os.makedirs(f"{os.getcwd()}/database/users")
+    if not os.path.exists(f"{os.getcwd()}/database/config"):
+        os.makedirs(f"{os.getcwd()}/database/config")
  
     create_user("admin", "admin")
  

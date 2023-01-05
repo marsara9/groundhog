@@ -1,48 +1,42 @@
-FROM python:3-slim AS compile
+FROM python:3-slim AS build
 # Install required software
 RUN apt-get update
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
     build-essential \
     curl
 
+WORKDIR /build
+COPY server/ server/
+
 # Setup user and permissions
-RUN useradd -m dockeruser
-USER dockeruser
-ENV HOME /home/dockeruser
+RUN useradd -m builduser
+RUN chown -R builduser /build
+USER builduser
 
 # Install user specific software
 ## Rust is required by bcrypt
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
-ENV PATH="${HOME}/.cargo/bin:${PATH}"
-RUN pip3 install simplejson bcrypt nmcli --verbose --no-warn-script-location --no-cache-dir
+RUN pip3 install pyinstaller simplejson bcrypt nmcli --verbose --no-warn-script-location --no-cache-dir
 
-#FROM gcr.io/distroless/python3-debian11
-FROM python:3-slim
+RUN /home/builduser/.local/bin/pyinstaller --onefile --python-option u server/vpnrouter.py
+
+FROM debian:stable-slim
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
     net-tools \
     network-manager
 
-RUN useradd -m dockeruser
-RUN usermod -aG sudo dockeruser
-ENV HOME /home/dockeruser
-
-# Copy dependencies
-## Python packages
-COPY --from=compile "${HOME}/.local/lib/python3.11/site-packages/bcrypt" "${HOME}/.local/lib/python3.11/site-packages/bcrypt"
-COPY --from=compile "${HOME}/.local/lib/python3.11/site-packages/nmcli" "${HOME}/.local/lib/python3.11/site-packages/nmcli"
-COPY --from=compile "${HOME}/.local/lib/python3.11/site-packages/simplejson" "${HOME}/.local/lib/python3.11/site-packages/simplejson"
-
 # Create driectory structure
 WORKDIR /router
-RUN bash -c 'mkdir -p database/{users,config}'
 COPY ui/ ui/
-COPY server/ server/
 
+COPY --from=build /build/dist/vpnrouter server/
+
+RUN useradd -m dockeruser
+RUN usermod -aG sudo dockeruser
 RUN chown -R dockeruser /router
-USER dockeruser
 
 # Start the server
 EXPOSE 8080
-ENTRYPOINT ["python3", "-u", "server/vpnrouter.py"]
+ENTRYPOINT [ "./server/vpnrouter" ]
