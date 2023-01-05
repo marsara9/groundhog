@@ -12,9 +12,12 @@ COPY server/ server/
 RUN useradd -m builduser
 RUN chown -R builduser /build
 USER builduser
+ENV HOME="/home/builduser"
 
 # Install user specific software
 ## Rust is required by bcrypt
+ENV PATH="${HOME}/.cargo/bin:${PATH}"
+RUN pip3 install simplejson bcrypt nmcli --verbose --no-warn-script-location --no-cache-dir
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
 RUN pip3 install pyinstaller simplejson bcrypt nmcli --verbose --no-warn-script-location --no-cache-dir
 
