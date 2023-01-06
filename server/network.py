@@ -4,6 +4,8 @@ import nmcli
 
 class NetworkManager():
 
+    CONFIG_DIRECTORY = f"{os.getcwd()}/database/config"
+
     def __init__(self):
         nmcli.disable_use_sudo()
  
@@ -81,10 +83,28 @@ class NetworkManager():
         nmcli.radio.wifi_on()
         nmcli.device.wifi_connect(ssid, passphrase, wifi_interfaces[0])
         return
+
+    def create_vpn_configuration_file(self, interface : str, configuration : dict[str:any]):
+        if not os.path.exists(self.CONFIG_DIRECTORY):
+            os.makedirs(self.CONFIG_DIRECTORY)
+        
+        with open(f"{self.CONFIG_DIRECTORY}/{self.get_vpn_interface()}.conf", "w+") as file:
+            file.write("[Interface]\n")
+            file.write(f"PrivateKey = {configuration['privatekey']}\n")
+            file.write(f"Address = {configuration['address']}\n")
+            file.write(f"DNS = {configuration['dns']}\n")
+            file.write("\n\n")
+            file.write("[PEER]\n")
+            file.write(f"PublicKey = {configuration['publickey']}\n")
+            file.write(f"PresharedKey = {configuration['presharedkey']}\n")
+            file.write(f"AllowedIPs = {configuration['allowedips']}\n")
+            file.write(f"PersistentKeepalive = 0\n")
+            file.write(f"Endpoint = {configuration['endpoint']}\n")
+            file.flush()
  
     def configure_vpn(self):
         vpn_interface = self.get_vpn_interface()
-        config_path = f"{os.getcwd()}/database/config/{vpn_interface}.conf"
+        config_path = f"{self.CONFIG_DIRECTORY}/{vpn_interface}.conf"
  
         subprocess.call(["nmcli", "connection", "import", "type", "wireguard", "file", config_path])
         nmcli.connection.up(vpn_interface)
