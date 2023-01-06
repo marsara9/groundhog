@@ -67,7 +67,7 @@ class Application:
                 ("Set-Cookie", f"username={username}")
             ])
         else:
-            http.start_response("401 Not Authorized")
+            http.start_response("401 Not Authorized", [])
         return []
 
     def get_file(self, http : HttpTools, filepath : str):
