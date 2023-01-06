@@ -14,11 +14,11 @@ class NetworkManager():
  
     def get_wan_interface(self):
         for device in nmcli.device.show_all("GENERAL.DEVICE,IP4.GATEWAY,IP6.GATEWAY"):
-            if "GENERAL.DEVICE" not in device.keys:
+            if not "GENERAL.DEVICE" in device.keys():
                 continue
-            if "IP4.GATEWAY" in device.keys and device["IP4.GATEWAY"]:
+            if "IP4.GATEWAY" in device.keys() and device["IP4.GATEWAY"]:
                 return device["GENERAL.DEVICE"]
-            elif "IP6.GATEWAY" in device.keys and device["IP6.GATEWAY"]:
+            elif "IP6.GATEWAY" in device.keys() and device["IP6.GATEWAY"]:
                 return device["GENERAL.DEVICE"]
         return None
  

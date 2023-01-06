@@ -1,7 +1,6 @@
 from wsgiref.simple_server import make_server
 from router import Application
 from auth import Auth
-import os
 
 hostName = "0.0.0.0"
 serverPort = 8080

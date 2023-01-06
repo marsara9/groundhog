@@ -2,6 +2,7 @@ from auth import Auth
 from http.client import responses
 from http.cookies import SimpleCookie
 import simplejson as json
+import traceback
 
 class Request:
 
@@ -60,6 +61,7 @@ class HttpTools:
         self.start_response(f"{code} {responses[code]}", [
             ("Content-Type", "application/json")
         ])
+        traceback.print_exception(error)
         if __debug__:
             obj = {
                 "message": message,
