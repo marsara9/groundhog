@@ -9,6 +9,9 @@ class Auth:
     USERS_DIRECTORY = f"{os.getcwd()}/database/users"
 
     def enumerate_users(self) -> list[str]:
+        if not os.path.exists(self.USERS_DIRECTORY):
+            return []
+
         return [user for user in os.listdir(self.USERS_DIRECTORY)]
 
     def get_user_hashed_password(self, username : str) -> bytes:
