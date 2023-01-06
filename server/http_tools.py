@@ -5,21 +5,37 @@ import simplejson as json
 
 class Request:
 
-    def __init__(self,environ) -> None:
-        content_length = int(environ.get("CONTENT_LENGTH", 0))
+    def __init__(self, environ) -> None:
+        content_length = self.tryGet(environ, "CONTENT_LENGTH", int, 0)
 
         self.method = environ["REQUEST_METHOD"]
         self.path = environ["PATH_INFO"]
         self.content_length = content_length
         self.body = environ["wsgi.input"].read(content_length)
+        self.cookies = self.tryGet(environ, "HTTP_COOKIE", SimpleCookie, None)
 
-        if "HTTP_X_FORWARDED_FOR" in environ: 
-            self.remote_address = environ["HTTP_X_FORWARDED_FOR"].split(',')[-1].strip()
-        else:
-            self.remote_address = environ["REMOTE_ADDR"]
+        self.remote_address = self.tryGet(
+            environ,
+            "HTTP_X_FORWARDED_FOR",
+            default=self.tryGet(
+                environ,
+                "REMOTE_ADDR",
+                default=""
+            )
+        )
 
     def jsonBody(self):
         return json.loads(self.body.decode("utf8"))
+
+    # Find the given key in environ, then trasform it 
+    # using the supplied mapper.  If the key cannot be found
+    # or if the value is empty/None or otherwise not present
+    # return the default value instead.
+    def tryGet(self, environ, key, mapper = lambda it: it, default = None):
+        if key in environ and environ[key]:
+            return mapper(environ[key])
+        else:
+            return default
         
 
 class HttpTools:
@@ -54,8 +70,7 @@ class HttpTools:
             return [json.dumps(message).encode("utf8")]
 
     def get_base_auth_json(self, get):
-        cookies = SimpleCookie(self.environ['HTTP_COOKIE'])
-        if not self.auth.validate_session_cookies(cookies, self.request.remote_address):
+        if not self.auth.validate_session_cookies(self.request.cookies, self.request.remote_address):
             return self.send_json_error(401, "Not Authorized")
         try:
             result = json.dumps(get())
@@ -68,17 +83,14 @@ class HttpTools:
             return self.send_json_error(500, "There was an error on the server.", e)
 
     def put_base_auth_json(self, put):
-        cookies = SimpleCookie(self.environ['HTTP_COOKIE'])
-        if not self.auth.validate_session_cookies(cookies, self.request.remote_address):
+        if not self.auth.validate_session_cookies(self.request.cookies, self.request.remote_address):
             return self.send_json_error(401, "Not Authorized")
 
         try:
-            length = int(self.environ.get("CONTENT_LENGTH", 0))
-            if length == 0:
+            if self.request.content_length == 0:
                 return self.send_json_error(400)                
 
-            body = self.environ["wsgi.input"].read(length)
-            content = json.loads(body.decode("utf8"))
+            content = self.request.jsonBody()
 
             put(content)
 
