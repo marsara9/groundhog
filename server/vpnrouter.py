@@ -144,6 +144,9 @@ class MyServer(BaseHTTPRequestHandler):
         self.end_headers()
  
     def put_vpn_configuration(self, configuration : dict[str:any]):
+
+        if not os.path.exists(f"{os.getcwd()}/database/config"):
+            os.makedirs(f"{os.getcwd()}/database/config")
         
         with open(f"{os.getcwd()}/database/config/{self.systemInfo.get_vpn_interface()}.conf", "w+") as file:
             file.write("[Interface]\n")
@@ -341,13 +344,6 @@ if __name__ == "__main__":
  
     webServer = ThreadedHTTPServer((hostName, serverPort), MyServer)
     print("Server started http://%s:%s" % (hostName, serverPort))
-
-    if not os.path.exists(f"{os.getcwd()}/database"):
-        os.makedirs(f"{os.getcwd()}/database")
-    if not os.path.exists(f"{os.getcwd()}/database/users"):
-        os.makedirs(f"{os.getcwd()}/database/users")
-    if not os.path.exists(f"{os.getcwd()}/database/config"):
-        os.makedirs(f"{os.getcwd()}/database/config")
  
     create_user("admin", "admin")
  
