@@ -8,6 +8,9 @@ class Auth:
 
     USERS_DIRECTORY = f"{os.getcwd()}/database/users"
 
+    def enumerate_users(self) -> list[str]:
+        return [user for user in os.listdir(self.USERS_DIRECTORY)]
+
     def get_user_hashed_password(self, username : str) -> bytes:
         user_file = f"{self.USERS_DIRECTORY}/{username}"
 
@@ -30,7 +33,7 @@ class Auth:
         return True
         
 
-    def create_user(self, username : str, password : str):
+    def create_user(self, username : str, password : str) -> bool:
         if not os.path.exists(self.USERS_DIRECTORY):
             os.makedirs(self.USERS_DIRECTORY)
 
@@ -40,6 +43,8 @@ class Auth:
             with open(f"{self.USERS_DIRECTORY}/{username}", "wb") as file:
                 file.write(hash)
                 file.flush()
+                return True
+        return False
 
     def validate_session_cookies(self, cookies : SimpleCookie, ip_address : str) -> bool:
 
@@ -55,6 +60,8 @@ class Auth:
     def validate_session(self, username : str, token : str, ip_address : str) -> bool:
         if username == None or token == None:
             return False
+
+        username = username.lower()
 
         hashed_token = str(base64.b64decode(token), "utf8")
  
@@ -72,7 +79,7 @@ class Auth:
         if token_values[0] != username:
             print('\033[93m' + "Auth failed -- username does not match" + '\033[0m')
             return False
-        if datetime.fromisoformat(token_values[1]) + timedelta(hours=24) < datetime.now():
+        if datetime.fromisoformat(token_values[1]) + timedelta(hours=1) < datetime.now():
             print('\033[93m' + "Auth failed --session has expired" + '\033[0m')
             return False
         if ip_address != token_values[2]:
@@ -83,6 +90,7 @@ class Auth:
 
     def authenticate(self, username : str, password : str, ip_address : str) -> str:
         
+        username = username.lower()
         hashed_password = self.get_user_hashed_password(username)
 
         if hashed_password == None:
