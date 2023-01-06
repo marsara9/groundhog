@@ -86,10 +86,10 @@ class Auth:
         hashed_password = self.get_user_hashed_password(username)
 
         if hashed_password == None:
-            return None
+            raise Exception("Authentication failed; user was not found.")
  
         if not bcrypt.checkpw(password.encode("utf8"), hashed_password):
-            return None
+            raise Exception("Authentication failed; password did not match")
  
         now = datetime.now()
  

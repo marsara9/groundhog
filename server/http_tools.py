@@ -3,15 +3,33 @@ from http.client import responses
 from http.cookies import SimpleCookie
 import simplejson as json
 
+class Request:
+
+    def __init__(self,environ) -> None:
+        content_length = int(environ.get("CONTENT_LENGTH", 0))
+
+        self.method = environ["REQUEST_METHOD"]
+        self.path = environ["PATH_INFO"]
+        self.content_length = content_length
+        self.body = environ["wsgi.input"].read(content_length)
+
+        if "HTTP_X_FORWARDED_FOR" in environ: 
+            self.remote_address = environ["HTTP_X_FORWARDED_FOR"].split(',')[-1].strip()
+        else:
+            self.remote_address = environ["REMOTE_ADDR"]
+
+    def jsonBody(self):
+        return json.loads(self.body.decode("utf8"))
+        
+
 class HttpTools:
+
+    auth = Auth()
 
     def __init__(self, environ, start_response):
         self.environ = environ
         self.start_response = start_response
-        self.method = environ["REQUEST_METHOD"]
-        self.path = environ["PATH_INFO"]
-
-    auth = Auth()
+        self.request = Request(environ)
 
     def send_basic_error(self, code : int, message : str, error : Exception = None):
         print(f"Error : {str(error)}")
@@ -34,16 +52,10 @@ class HttpTools:
             return [json.dumps(obj).encode("utf8")]
         else:
             return [json.dumps(message).encode("utf8")]
- 
-    def get_ip_address(self) -> str:
-        if "HTTP_X_FORWARDED_FOR" in self.environ: 
-            return self.environ["HTTP_X_FORWARDED_FOR"].split(',')[-1].strip()
-        else:
-            return self.environ["REMOTE_ADDR"]
 
     def get_base_auth_json(self, get):
         cookies = SimpleCookie(self.environ['HTTP_COOKIE'])
-        if not self.auth.validate_session_cookies(cookies, self.get_ip_address()):
+        if not self.auth.validate_session_cookies(cookies, self.request.remote_address):
             return self.send_json_error(401, "Not Authorized")
         try:
             result = json.dumps(get())
@@ -57,7 +69,7 @@ class HttpTools:
 
     def put_base_auth_json(self, put):
         cookies = SimpleCookie(self.environ['HTTP_COOKIE'])
-        if not self.auth.validate_session_cookies(cookies, self.get_ip_address()):
+        if not self.auth.validate_session_cookies(cookies, self.request.remote_address):
             return self.send_json_error(401, "Not Authorized")
 
         try:

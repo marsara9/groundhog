@@ -9,7 +9,7 @@ class Application:
 
     def __call__(self, environ, start_response):
         http = HttpTools(environ, start_response)
-        match http.method:
+        match http.request.method:
             case "GET":
                 return self.get(http)
             case "POST":
@@ -19,7 +19,7 @@ class Application:
         return http.send_basic_error(404, "Not Found")
 
     def get(self, http : HttpTools):
-        match http.path:
+        match http.request.path:
             case "/status":
                 return http.get_base_auth_json(self.get_status)
             case "/wifi/scan":
@@ -27,20 +27,20 @@ class Application:
             case _:
                 filename = None
                 try:
-                    filename = http.fix_path(http.path)
+                    filename = http.fix_path(http.request.path)
                     return self.get_file(http, filename)
                 except Exception as e:
                     return http.send_basic_error(404, f"Not found: '{filename}'", e)
         return http.send_basic_error(404, "Not Found")
 
     def post(self, http : HttpTools):
-        match http.path:
+        match http.request.path:
             case "/auth":
                 return self.post_auth(http)
         return http.send_basic_error(404, "Not Found")
 
     def put(self, http : HttpTools):
-        match http.path:
+        match http.request.path:
             case "/configuration/vpn":
                 http.put_base_auth_json(self.put_vpn_configuration)
                 pass
@@ -50,24 +50,22 @@ class Application:
         return http.send_basic_error(404, "Not Found")
 
     def post_auth(self, http : HttpTools):
-        length = int(http.environ.get("CONTENT_LENGTH", 0))
-        if length == 0:
+        if http.request.content_length == 0:
             return http.send_json_error(400)
 
-        body = http.environ["wsgi.input"].read(length)
-        content = json.loads(body.decode("utf8"))
+        content = http.request.jsonBody()
 
         username = content["username"]
         password = content["password"]
 
-        token = http.auth.authenticate(username, password, http.get_ip_address())
-        if token != None:
+        try:
+            token = http.auth.authenticate(username, password, http.request.remote_address)
             http.start_response("204 No Content", [
                 ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
                 ("Set-Cookie", f"username={username}")
             ])
-        else:
-            http.start_response("401 Not Authorized", [])
+        except Exception as e:
+            http.send_basic_error(401, "Not Authorized", e)
         return []
 
     def get_file(self, http : HttpTools, filepath : str):
@@ -134,22 +132,10 @@ class Application:
 
     def put_vpn_configuration(self, configuration : dict[str:any]):
 
-        if not os.path.exists(f"{os.getcwd()}/database/config"):
-            os.makedirs(f"{os.getcwd()}/database/config")
-        
-        with open(f"{os.getcwd()}/database/config/{network_manager.get_vpn_interface()}.conf", "w+") as file:
-            file.write("[Interface]\n")
-            file.write(f"PrivateKey = {configuration['privatekey']}\n")
-            file.write(f"Address = {configuration['address']}\n")
-            file.write(f"DNS = {configuration['dns']}\n")
-            file.write("\n\n")
-            file.write("[PEER]\n")
-            file.write(f"PublicKey = {configuration['publickey']}\n")
-            file.write(f"PresharedKey = {configuration['presharedkey']}\n")
-            file.write(f"AllowedIPs = {configuration['allowedips']}\n")
-            file.write(f"PersistentKeepalive = 0\n")
-            file.write(f"Endpoint = {configuration['endpoint']}\n")
-            file.flush()
+        network_manager.create_vpn_configuration_file(
+            network_manager.get_vpn_interface(),
+            configuration
+        )
 
         network_manager.configure_vpn(network_manager.get_vpn_interface())
 
