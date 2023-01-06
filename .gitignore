@@ -2,3 +2,4 @@ database/
 dist/
 build/
 *.spec
+__pycache__

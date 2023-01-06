@@ -6,11 +6,21 @@ class HttpTools:
     def __init__(self, environ, start_response):
         self.environ = environ
         self.start_response = start_response
+        self.path = environ["PATH_INFO"]
 
     auth = Auth()
 
+    def send_basic_error(self, code : int, message : str, error : Exception = None):
+        print(f"Error : {str(error)}")
+        self.start_response(f"{code} Error", [
+            ("Content-Type", "text/plain"),
+            ("Content-Length", str(len(message)))
+        ])
+        return [message.encode("utf8")]
+
     def send_json_error(self, code : int, message : str, error : Exception = None):
-        self.start_response(f"{code}", [
+        #self.environ["wsgi.errors"].write(f"{str(error)}\n")
+        self.start_response(f"{code} Error", [
             ("Content-Type", "application/json")
         ])
         if __debug__:
@@ -59,3 +69,15 @@ class HttpTools:
         except Exception as e:
             return self.send_json_error(500, "There was an error on the server.", e)
         return
+
+    def fix_path(self, filepath : str):
+        filepath = filepath.replace("..", "")
+        if("?" in filepath):
+            filepath = filepath.rsplit("?", 1)[0]
+        parts = filepath.split("/")
+        if filepath.endswith("/") or not "." in parts[-1]:
+            if filepath.endswith("/"):
+                filepath += "index.html"
+            else:
+                filepath += "/index.html"
+        return f"ui{filepath}"

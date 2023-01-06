@@ -1,40 +1,103 @@
 from network import NetworkManager
 from auth import Auth
 from http_tools import HttpTools
+import os
+import simplejson as json
 
 network_manager = NetworkManager()
 
 class Application:
-    def __init__(self, environ, start_response):
-        self.environ = environ
-        self.start_response = start_response
 
-    def __iter__(self):
-        match self.environ["REQUEST_METHOD"]:
+    def __call__(self, environ, start_response):
+        match environ["REQUEST_METHOD"]:
             case "GET":
-                return self.get()
+                return self.get(environ, start_response)
             case "POST":
-                return self.post()
+                return self.post(environ, start_response)
             case "PUT":
-                return self.put()
+                return self.put(environ, start_response)
         return []
 
-    def get(self):
-        http = HttpTools(self.environ, self.start_response)
-        match self.environ["PATH_INFO"]:
+    def get(self, environ, start_response):
+        http = HttpTools(environ, start_response)
+        match http.path:
             case "/status":
                 return http.get_base_auth_json(self.get_status)
             case "/wifi/scan":
                 pass
+            case _:
+                filename = None
+                try:
+                    filename = http.fix_path(http.path)
+                    return self.get_file(filename)
+                except:
+                    return http.send_basic_error(404, f"Not found: '{filename}'")
+        return http.send_basic_error(404, "Not Found")
 
-    def post(self):
-        pass
+    def post(self, environ, start_response):
+        http = HttpTools(environ, start_response)
+        match http.path:
+            case "/auth":
+                return self.post_auth(http)
+        return http.send_basic_error(404, "Not Found")
 
-    def put(self):
-        pass
+    def put(self, environ, start_response):
+        http = HttpTools(environ, start_response)
+        match http.path:
+            case "/configuration/vpn":
+                #self.put_base_auth_json(self.put_vpn_configuration)
+                pass
+            case "/configuration/wifi":
+                #self.put_base_auth_json(self.put_wifi_configuration)
+                pass
+        return http.send_basic_error(404, "Not Found")
 
-    def post_auth(self):
+    def post_auth(self, http : HttpTools):
+        length = int(http.environ.get("CONTENT_LENGTH", 0))
+        if length == 0:
+            return http.send_json_error(400)
 
+        body = self.environ["wsgi.input"].read(length)
+        content = json.loads(body.decode("utf8"))
+
+        username = content["username"]
+        password = content["password"]
+
+        auth = Auth()
+        token = auth.authenticate(username, password)
+        if token != None:
+            self.start_response("204 No Content", [
+                ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
+                ("Set-Cookie", f"username={username}")
+            ])
+        else:
+            self.start_response("401 Not Authorized")
+        return []
+
+    def get_file(self, filepath : str):
+ 
+        if filepath.endswith(".html"):
+            type = "text/html"
+        elif filepath.endswith(".js"):
+            type = "text/javascript"
+        elif filepath.endswith(".css"):
+            type = "text/css"
+        elif filepath.endswith(".png"):
+            type = "image/png"
+        elif filepath.endswith(".svg"):
+            type = "image/svg+xml"
+        else:
+            type = None
+
+        filename = os.getcwd() + os.sep + filepath
+        print(f"\033[92mLoading static file '{filename}'\033[0m")
+        with open(filename, "rb") as file:
+            file_content = file.read()
+            self.start_response("200 OK", [
+                ("Content-Type", type),
+                ("Content-Length", str(len(file_content)))
+            ])
+            return [file_content]
 
     def get_status(self):
 
