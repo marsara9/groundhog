@@ -41,7 +41,7 @@ RUN pip3 install pyinstaller --verbose --no-warn-script-location --no-cache-dir 
         ) \
     )
 
-RUN /home/builduser/.local/bin/pyinstaller --onefile --python-option u server/vpnrouter.py
+RUN /home/builduser/.local/bin/pyinstaller --onefile --python-option u server/server.py
 
 FROM debian:stable-slim
 
@@ -55,7 +55,7 @@ RUN apt-get install -y --no-install-recommends \
 WORKDIR /router
 COPY ui/ ui/
 
-COPY --from=build /build/dist/vpnrouter server/
+COPY --from=build /build/dist/server server/
 
 RUN useradd -m dockeruser
 RUN usermod -aG sudo dockeruser
@@ -63,4 +63,4 @@ RUN chown -R dockeruser /router
 
 # Start the server
 EXPOSE 8080
-ENTRYPOINT [ "./server/vpnrouter" ]
+ENTRYPOINT [ "./server/server" ]

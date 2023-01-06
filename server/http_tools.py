@@ -1,4 +1,5 @@
 from auth import Auth
+from http.client import responses
 from http.cookies import SimpleCookie
 import simplejson as json
 
@@ -7,13 +8,14 @@ class HttpTools:
     def __init__(self, environ, start_response):
         self.environ = environ
         self.start_response = start_response
+        self.method = environ["REQUEST_METHOD"]
         self.path = environ["PATH_INFO"]
 
     auth = Auth()
 
     def send_basic_error(self, code : int, message : str, error : Exception = None):
         print(f"Error : {str(error)}")
-        self.start_response(f"{code} Error", [
+        self.start_response(f"{code} {responses[code]}", [
             ("Content-Type", "text/plain"),
             ("Content-Length", str(len(message)))
         ])
@@ -21,7 +23,7 @@ class HttpTools:
 
     def send_json_error(self, code : int, message : str, error : Exception = None):
         #self.environ["wsgi.errors"].write(f"{str(error)}\n")
-        self.start_response(f"{code} Error", [
+        self.start_response(f"{code} {responses[code]}", [
             ("Content-Type", "application/json")
         ])
         if __debug__:

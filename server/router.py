@@ -1,5 +1,4 @@
 from network import NetworkManager
-from auth import Auth
 from http_tools import HttpTools
 import os
 import simplejson as json
@@ -9,17 +8,17 @@ network_manager = NetworkManager()
 class Application:
 
     def __call__(self, environ, start_response):
-        match environ["REQUEST_METHOD"]:
-            case "GET":
-                return self.get(environ, start_response)
-            case "POST":
-                return self.post(environ, start_response)
-            case "PUT":
-                return self.put(environ, start_response)
-        return []
-
-    def get(self, environ, start_response):
         http = HttpTools(environ, start_response)
+        match http.method:
+            case "GET":
+                return self.get(http)
+            case "POST":
+                return self.post(http)
+            case "PUT":
+                return self.put(http)
+        return http.send_basic_error(404, "Not Found")
+
+    def get(self, http : HttpTools):
         match http.path:
             case "/status":
                 return http.get_base_auth_json(self.get_status)
@@ -34,21 +33,19 @@ class Application:
                     return http.send_basic_error(404, f"Not found: '{filename}'", e)
         return http.send_basic_error(404, "Not Found")
 
-    def post(self, environ, start_response):
-        http = HttpTools(environ, start_response)
+    def post(self, http : HttpTools):
         match http.path:
             case "/auth":
                 return self.post_auth(http)
         return http.send_basic_error(404, "Not Found")
 
-    def put(self, environ, start_response):
-        http = HttpTools(environ, start_response)
+    def put(self, http : HttpTools):
         match http.path:
             case "/configuration/vpn":
-                #self.put_base_auth_json(self.put_vpn_configuration)
+                http.put_base_auth_json(self.put_vpn_configuration)
                 pass
             case "/configuration/wifi":
-                #self.put_base_auth_json(self.put_wifi_configuration)
+                http.put_base_auth_json(self.put_wifi_configuration)
                 pass
         return http.send_basic_error(404, "Not Found")
 
@@ -63,8 +60,7 @@ class Application:
         username = content["username"]
         password = content["password"]
 
-        auth = Auth()
-        token = auth.authenticate(username, password, http.get_ip_address())
+        token = http.auth.authenticate(username, password, http.get_ip_address())
         if token != None:
             http.start_response("204 No Content", [
                 ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
@@ -135,3 +131,35 @@ class Application:
             "ssid": ssid,
             "securityType": security_type
         }
+
+    def put_vpn_configuration(self, configuration : dict[str:any]):
+
+        if not os.path.exists(f"{os.getcwd()}/database/config"):
+            os.makedirs(f"{os.getcwd()}/database/config")
+        
+        with open(f"{os.getcwd()}/database/config/{network_manager.get_vpn_interface()}.conf", "w+") as file:
+            file.write("[Interface]\n")
+            file.write(f"PrivateKey = {configuration['privatekey']}\n")
+            file.write(f"Address = {configuration['address']}\n")
+            file.write(f"DNS = {configuration['dns']}\n")
+            file.write("\n\n")
+            file.write("[PEER]\n")
+            file.write(f"PublicKey = {configuration['publickey']}\n")
+            file.write(f"PresharedKey = {configuration['presharedkey']}\n")
+            file.write(f"AllowedIPs = {configuration['allowedips']}\n")
+            file.write(f"PersistentKeepalive = 0\n")
+            file.write(f"Endpoint = {configuration['endpoint']}\n")
+            file.flush()
+
+        network_manager.configure_vpn(network_manager.get_vpn_interface())
+
+        return
+
+    def put_wifi_configuration(self, configuration : dict[str:any]):
+
+        if(configuration["apmode"] == True):
+            network_manager.create_access_point(configuration["ssid"], configuration["passphrase"])
+        else:
+            network_manager.connect_to_wifi(configuration["ssid"], configuration["passphrase"])
+
+        return
