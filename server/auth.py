@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from http.cookies import SimpleCookie
 import os
 import base64
 import bcrypt
@@ -40,7 +41,18 @@ class Auth:
                 file.write(hash)
                 file.flush()
 
-    def validate_session(self, username : str, token : str) -> bool:
+    def validate_session_cookies(self, cookies : SimpleCookie, ip_address : str) -> bool:
+
+        if not ("username" in cookies and "sessionid" in cookies):
+            print('\033[93m' + "Auth failed -- no username or sessionid sent" + '\033[0m')
+            return False
+
+        username = cookies["username"].value
+        token = cookies["sessionid"].value
+
+        return self.validate_session(username, token, ip_address)
+
+    def validate_session(self, username : str, token : str, ip_address : str) -> bool:
         if username == None or token == None:
             return False
 
@@ -63,13 +75,13 @@ class Auth:
         if datetime.fromisoformat(token_values[1]) + timedelta(hours=24) < datetime.now():
             print('\033[93m' + "Auth failed --session has expired" + '\033[0m')
             return False
-        if self.get_ip_address() != token_values[2]:
+        if ip_address != token_values[2]:
             print('\033[93m' + "Auth failed -- ip address does not match" + '\033[0m')
             return False
         
         return True
 
-    def authenticate(self, username : str, password : str) -> str:
+    def authenticate(self, username : str, password : str, ip_address : str) -> str:
         
         hashed_password = self.get_user_hashed_password(username)
 
@@ -81,7 +93,7 @@ class Auth:
  
         now = datetime.now()
  
-        decrypyed_token = f"{username}|{now.isoformat()}|{self.get_ip_address()}"
+        decrypyed_token = f"{username}|{now.isoformat()}|{ip_address}"
         hashed_token = "".join(chr(ord(a)^ord(b)) for a,b in zip(decrypyed_token, hashed_password.decode("utf8")))
         token = str(base64.b64encode(bytes(hashed_token, "utf8")), "utf8")
  

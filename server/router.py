@@ -29,9 +29,9 @@ class Application:
                 filename = None
                 try:
                     filename = http.fix_path(http.path)
-                    return self.get_file(filename)
-                except:
-                    return http.send_basic_error(404, f"Not found: '{filename}'")
+                    return self.get_file(http, filename)
+                except Exception as e:
+                    return http.send_basic_error(404, f"Not found: '{filename}'", e)
         return http.send_basic_error(404, "Not Found")
 
     def post(self, environ, start_response):
@@ -57,24 +57,24 @@ class Application:
         if length == 0:
             return http.send_json_error(400)
 
-        body = self.environ["wsgi.input"].read(length)
+        body = http.environ["wsgi.input"].read(length)
         content = json.loads(body.decode("utf8"))
 
         username = content["username"]
         password = content["password"]
 
         auth = Auth()
-        token = auth.authenticate(username, password)
+        token = auth.authenticate(username, password, http.get_ip_address())
         if token != None:
-            self.start_response("204 No Content", [
+            http.start_response("204 No Content", [
                 ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
                 ("Set-Cookie", f"username={username}")
             ])
         else:
-            self.start_response("401 Not Authorized")
+            http.start_response("401 Not Authorized")
         return []
 
-    def get_file(self, filepath : str):
+    def get_file(self, http : HttpTools, filepath : str):
  
         if filepath.endswith(".html"):
             type = "text/html"
@@ -93,7 +93,7 @@ class Application:
         print(f"\033[92mLoading static file '{filename}'\033[0m")
         with open(filename, "rb") as file:
             file_content = file.read()
-            self.start_response("200 OK", [
+            http.start_response("200 OK", [
                 ("Content-Type", type),
                 ("Content-Length", str(len(file_content)))
             ])

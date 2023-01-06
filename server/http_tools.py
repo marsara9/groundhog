@@ -1,4 +1,5 @@
 from auth import Auth
+from http.cookies import SimpleCookie
 import simplejson as json
 
 class HttpTools:
@@ -32,14 +33,15 @@ class HttpTools:
         else:
             return [json.dumps(message).encode("utf8")]
  
-    def get_ip_address(self):
+    def get_ip_address(self) -> str:
         if "HTTP_X_FORWARDED_FOR" in self.environ: 
             return self.environ["HTTP_X_FORWARDED_FOR"].split(',')[-1].strip()
         else:
             return self.environ["REMOTE_ADDR"]
 
     def get_base_auth_json(self, get):
-        if not self.auth.validate_session():
+        cookies = SimpleCookie(self.environ['HTTP_COOKIE'])
+        if not self.auth.validate_session_cookies(cookies, self.get_ip_address()):
             return self.send_json_error(401, "Not Authorized")
         try:
             result = json.dumps(get())
@@ -52,7 +54,8 @@ class HttpTools:
             return self.send_json_error(500, "There was an error on the server.", e)
 
     def put_base_auth_json(self, put):
-        if not self.auth.validate_session():
+        cookies = SimpleCookie(self.environ['HTTP_COOKIE'])
+        if not self.auth.validate_session_cookies(cookies, self.get_ip_address()):
             return self.send_json_error(401, "Not Authorized")
 
         try:
