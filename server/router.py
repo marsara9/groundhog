@@ -3,9 +3,9 @@ from http_tools import HttpTools
 import os
 import simplejson as json
 
-network_manager = NetworkManager()
-
 class Application:
+
+    network_manager = NetworkManager()
 
     def __call__(self, environ, start_response):
         http = HttpTools(environ, start_response)
@@ -95,8 +95,8 @@ class Application:
 
     def get_status(self):
 
-        wan_interface = network_manager.get_wan_interface()
-        wifi_interfaces = network_manager.get_wifi_interfaces()
+        wan_interface = self.network_manager.get_wan_interface()
+        wifi_interfaces = self.network_manager.get_wifi_interfaces()
  
         if len(wan_interface) == 0:
             connection_type = "Unknown"
@@ -106,19 +106,19 @@ class Application:
                 connection_type = "wifi"
             else:
                 connection_type = "ethernet"
-            internet_status = network_manager.get_interface_status(wan_interface)
+            internet_status = self.network_manager.get_interface_status(wan_interface)
  
-        vpn_interface = network_manager.get_vpn_interface()
-        vpn_status = network_manager.get_interface_status(vpn_interface)
+        vpn_interface = self.network_manager.get_vpn_interface()
+        vpn_status = self.network_manager.get_interface_status(vpn_interface)
  
         wifi_status = "down"
         for interface in wifi_interfaces:
-            if network_manager.get_interface_status(interface) == "up":
+            if self.network_manager.get_interface_status(interface) == "up":
                 wifi_status = "up"
  
-        dhcp_interfaces = network_manager.get_lan_interfaces()
+        dhcp_interfaces = self.network_manager.get_lan_interfaces()
  
-        (ssid,security_type) = network_manager.get_wifi_ssid()
+        (ssid,security_type) = self.network_manager.get_wifi_ssid()
  
         return {
             "connectionType": connection_type,
@@ -132,20 +132,20 @@ class Application:
 
     def put_vpn_configuration(self, configuration : dict[str:any]):
 
-        network_manager.create_vpn_configuration_file(
-            network_manager.get_vpn_interface(),
+        self.network_manager.create_vpn_configuration_file(
+            self.network_manager.get_vpn_interface(),
             configuration
         )
 
-        network_manager.configure_vpn(network_manager.get_vpn_interface())
+        self.network_manager.configure_vpn(self.network_manager.get_vpn_interface())
 
         return
 
     def put_wifi_configuration(self, configuration : dict[str:any]):
 
         if(configuration["apmode"] == True):
-            network_manager.create_access_point(configuration["ssid"], configuration["passphrase"])
+            self.network_manager.create_access_point(configuration["ssid"], configuration["passphrase"])
         else:
-            network_manager.connect_to_wifi(configuration["ssid"], configuration["passphrase"])
+            self.network_manager.connect_to_wifi(configuration["ssid"], configuration["passphrase"])
 
         return
