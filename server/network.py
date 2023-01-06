@@ -13,10 +13,14 @@ class NetworkManager():
         return nmcli.device()
  
     def get_wan_interface(self):
-        route = subprocess.run(["route"], stdout=subprocess.PIPE)
-        default = subprocess.run(["grep", "^default"], input=route.stdout, stdout=subprocess.PIPE)
-        grep = subprocess.run(["grep", "-o", "[^ ]*$"], input=default.stdout, stdout=subprocess.PIPE)
-        return grep.stdout.decode("utf8").strip("\n")
+        for device in nmcli.device.show_all("GENERAL.DEVICE,IP4.GATEWAY,IP6.GATEWAY"):
+            if not "GENERAL.DEVICE" in device.keys():
+                continue
+            if "IP4.GATEWAY" in device.keys() and device["IP4.GATEWAY"]:
+                return device["GENERAL.DEVICE"]
+            elif "IP6.GATEWAY" in device.keys() and device["IP6.GATEWAY"]:
+                return device["GENERAL.DEVICE"]
+        return None
  
     def get_vpn_interface(self):
         return "wg0"

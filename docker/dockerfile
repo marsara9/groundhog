@@ -48,7 +48,6 @@ FROM debian:stable-slim
 # Install required software
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
-    net-tools \
     network-manager
 
 # Create driectory structure
