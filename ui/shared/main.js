@@ -22,7 +22,7 @@ function fetchJson(url, onResult) {
 
 function postJson(url, data) {
     $("#loading-dialog").show()
-    fetch(url, {
+    return fetch(url, {
         method: "POST",
         credentials: "same-origin",
         cache: "no-cache",
@@ -42,8 +42,28 @@ function postJson(url, data) {
 
 function putJson(url, data) {
     $("#loading-dialog").show()
-    fetch(url, {
+    return fetch(url, {
         method: "PUT",
+        credentials: "same-origin",
+        cache: "no-cache",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    }).catch(reason => {
+        if(reason.code == 401) {
+            console.log(reason)
+            logout()
+        }
+    }).then(() => {
+        $("#loading-dialog").hide()
+    })
+}
+
+function deleteJson(url, data) {
+    $("#loading-dialog").show()
+    return fetch(url, {
+        method: "DELETE",
         credentials: "same-origin",
         cache: "no-cache",
         headers: {
