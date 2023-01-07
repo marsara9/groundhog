@@ -52,7 +52,7 @@ function getConfiguration(submit) {
 }
 
 function submitConfiguration() {
-    putJson("/configuration/vpn", getConfiguration($(this)))
+    putJson("/vpn/configuration", getConfiguration($(this)))
 }
 
 $(document).ready(function() {
