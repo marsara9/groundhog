@@ -51,7 +51,7 @@ class Auth:
 
     def validate_session_cookies(self, cookies : SimpleCookie, ip_address : str) -> bool:
 
-        if not ("username" in cookies and "sessionid" in cookies):
+        if cookies == None or not ("username" in cookies and "sessionid" in cookies):
             print('\033[93m' + "Auth failed -- no username or sessionid sent" + '\033[0m')
             return False
 

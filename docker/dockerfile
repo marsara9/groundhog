@@ -1,12 +1,18 @@
+FROM debian:stable AS deps
+RUN cd /tmp && \
+    apt-get update && \
+    apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
+        --no-conflicts --no-breaks --no-replaces --no-enhances \
+        --no-pre-depends network-manager grep | grep "^\w") && \
+    mkdir /dpkg && \
+    for deb in *.deb; do dpkg --extract $deb /dpkg || exit 10; done
+
 FROM python:3-slim AS build
 
 # Install build software
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        build-essential \
-        git \
-        zlib1g-dev \
-        curl
+        build-essential git zlib1g-dev curl
 
 WORKDIR /build
 COPY server/ server/
@@ -21,46 +27,27 @@ ENV HOME="/home/builduser"
 ## Rust is required by bcrypt
 ENV PATH="${HOME}/.cargo/bin:${PATH}"
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
-
 # Install Python dependencies
 RUN pip3 install --verbose --no-warn-script-location --no-cache-dir \
-        simplejson \
-        bcrypt \
-        nmcli
+        simplejson bcrypt nmcli
 
 # Install PyInstaller
 RUN pip3 install pyinstaller --verbose --no-warn-script-location --no-cache-dir || \
-    ( \
-        pip install git+https://github.com/pyinstaller/pyinstaller || \
-        ( \
-            git clone https://github.com/pyinstaller/pyinstaller && \
-            cd pyinstaller/bootloader && \
-            python3 ./waf distclean all && \
-            cd ../ && \
-            pip3 install . \
-        ) \
-    )
+    pip3 install git+https://github.com/pyinstaller/pyinstaller
 
 RUN /home/builduser/.local/bin/pyinstaller --onefile --python-option u server/server.py
 
-FROM debian:stable-slim
+FROM gcr.io/distroless/static-debian11:latest
 
-# Install required software
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends network-manager && \
-    rm -rf /var/lib/apt/lists/*
+COPY --from=deps /usr/bin/awk /usr/bin/awk
+COPY --from=deps /dpkg /
 
 # Create driectory structure
 WORKDIR /router
 COPY ui/ ui/
 
-COPY --from=build /build/dist/server server/
-
-# Create user
-RUN useradd -m dockeruser && \
-    usermod -aG sudo dockeruser && \
-    chown -R dockeruser /router
+COPY --from=build /build/dist/server bin/
 
 # Start the server
 EXPOSE 8080
-ENTRYPOINT [ "./server/server" ]
+ENTRYPOINT [ "./bin/server" ]
