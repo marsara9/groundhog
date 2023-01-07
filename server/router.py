@@ -5,6 +5,8 @@ import simplejson as json
 
 class Application:
 
+    PASSWORD_LENGTH_REQUIREMENT = 8
+
     network_manager = NetworkManager()
 
     def __call__(self, environ, start_response):
@@ -143,17 +145,23 @@ class Application:
         if not http.auth.validate_session_cookies(http.request.cookies, http.request.remote_address):
             return http.send_json_error(401, "Not Authorized")
 
+        if not http.request.validate_json("username", "password", "newPassword"):
+            return http.send_json_error(400, "Bad Request", Exception("Required content missing from request"))
+
         content = http.request.jsonBody()
 
         username = content["username"]
-        currnet_password = content["current_password"]
-        new_password = content["new_password"]
+        currnet_password = content["password"]
+        new_password = content["newPassword"]
 
-        if http.request.cookies["username"] != username:
+        if http.request.cookies["username"].value != username:
             return http.send_json_error(403, "Forbidden")
 
-        if not http.auth.authenticate(username, currnet_password):
+        if not http.auth.authenticate(username, currnet_password, http.request.remote_address):
             return http.send_json_error(403, "Forbidden")
+
+        if len(new_password) < self.PASSWORD_LENGTH_REQUIREMENT:
+            return http.start_response("406 Not Acceptable", "New password does not meet requirements.")
 
         if http.auth.set_user_password(username, new_password):
             token = http.auth.create_auth_token(username, http.request.remote_address)
@@ -161,7 +169,9 @@ class Application:
                 ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
             ])
         else:
-            http.start_response("406", "The server was unable to change your password at this time.  Please try again later.")
+            http.start_response("406 Not Acceptable", "The server was unable to change your password at this time.  Please try again later.")
+
+        return []
 
     def put_vpn_configuration(self, configuration : dict[str:any]):
 

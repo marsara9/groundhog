@@ -10,44 +10,38 @@
     <body>
         <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
         <div class="content">
+            <p>Change Password</p>
             <dl class="prop-grid">
                 <dt>
-                    <label for="privatekey">Username:</label>
+                    <label for="username">Username:</label>
                 </dt>
                 <dd>
                     <input type="text" id="username" readonly="readonly" />
                 </dd>
                 <dt>
-                    <label for="privatekey">Current Password:</label>
+                    <label for="password">Current Password:</label>
                 </dt>
                 <dd>
                     <input type="password" id="password" />
                 </dd>
-            </dl>
-            <p>Change Password</p>
-            <dl class="prop-grid">
                 <dt>
-                    <label for="privatekey">New Password:</label>
+                    <label for="newPassword">New Password:</label>
                 </dt>
                 <dd>
-                    <input type="password" id="new-password" />
+                    <input type="password" id="newPassword" />
                 </dd>
                 <dt>
-                    <label for="privatekey">Confirm Password:</label>
+                    <label for="confirmPassword">Confirm Password:</label>
                 </dt>
                 <dd>
-                    <input type="password" id="confirm-password" />
+                    <input class="ignore" type="password" id="confirmPassword" />
                 </dd>
-            </dl>
-            <p>Save</p>
-            <dl class="prop-grid">
                 <dt>
                     
                 </dt>
                 <dd>
-                    <input type="button" id="save" value="Save" />
+                    <input class="ignore" type="button" id="submit" value="Save" />
                 </dd>
             </dl>
-        </div>
     </body>
 </html>

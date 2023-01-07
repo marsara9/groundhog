@@ -28,6 +28,13 @@ class Request:
     def jsonBody(self):
         return json.loads(self.body.decode("utf8"))
 
+    def validate_json(self, *keys) -> bool:
+        content = self.jsonBody()
+        for key in keys:
+            if not key in content:
+                return False
+        return True
+
     # Find the given key in environ, then trasform it 
     # using the supplied mapper.  If the key cannot be found
     # or if the value is empty/None or otherwise not present
@@ -49,18 +56,26 @@ class HttpTools:
         self.request = Request(environ)
 
     def send_basic_error(self, code : int, message : str, error : Exception = None):
-        print(f"Error : {str(error)}")
+
+        if error != None:
+            print(f"\033[91m {str(error)} \033[0m")
+        
         self.start_response(f"{code} {responses[code]}", [
             ("Content-Type", "text/plain"),
             ("Content-Length", str(len(message)))
         ])
+
         return [message.encode("utf8")]
 
     def send_json_error(self, code : int, message : str, error : Exception = None):
+
+        if error != None:
+            print(f"\033[91m {str(error)} \033[0m")
+
         self.start_response(f"{code} {responses[code]}", [
             ("Content-Type", "application/json")
         ])
-        traceback.print_exception(error)
+
         if __debug__:
             obj = {
                 "message": message,
@@ -74,8 +89,8 @@ class HttpTools:
         if not self.auth.validate_session_cookies(self.request.cookies, self.request.remote_address):
             return self.send_json_error(401, "Not Authorized")
         try:
-            username = self.request.cookies["username"]
-            token = self.auth.create_auth_token(username)
+            username = self.request.cookies["username"].value
+            token = self.auth.create_auth_token(username, self.request.remote_address)
 
             result = json.dumps(get())
 
@@ -96,8 +111,8 @@ class HttpTools:
             if self.request.content_length == 0:
                 return self.send_json_error(411)
 
-            username = self.request.cookies["username"]
-            token = self.auth.create_auth_token(username)
+            username = self.request.cookies["username"].value
+            token = self.auth.create_auth_token(username, self.request.remote_address)
 
             content = self.request.jsonBody()
 
