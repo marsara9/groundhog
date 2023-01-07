@@ -21,6 +21,7 @@ function fetchJson(url, onResult) {
 }
 
 function postJson(url, data) {
+    $("#loading-dialog").show()
     fetch(url, {
         method: "POST",
         credentials: "same-origin",
@@ -34,10 +35,13 @@ function postJson(url, data) {
             console.log(reason)
             logout()
         }
+    }).then(() => {
+        $("#loading-dialog").hide()
     })
 }
 
 function putJson(url, data) {
+    $("#loading-dialog").show()
     fetch(url, {
         method: "PUT",
         credentials: "same-origin",
@@ -51,6 +55,8 @@ function putJson(url, data) {
             console.log(reason)
             logout()
         }
+    }).then(() => {
+        $("#loading-dialog").hide()
     })
 }
 
