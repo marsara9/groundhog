@@ -41,6 +41,7 @@ ul.main-menu :is(a, button) {
     padding: 8px 16px;
     text-decoration: none;
     font-size: 1.2rem;
+    border-radius: 0;
 }
 
 ul.main-menu > li ul a {
@@ -147,6 +148,7 @@ button {
     color: white;
     padding: 8px;
     min-width: 120px;
+    border-radius: 8px;
 }
 
 input[type="submit"]:hover,
@@ -156,6 +158,18 @@ button:hover {
     background-color: black;
     color: #1ed2ff;
 }
+
+input[type="button"].error,
+button.error {
+    color: #c00;
+}
+
+input[type="button"].error:hover,
+button.error:hover {
+    color: white;
+    background-color: #c00;
+}
+
 
 input:focus {
     border-color: #1ed2ff;
