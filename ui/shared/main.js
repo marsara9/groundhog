@@ -151,6 +151,9 @@ $(document).ready(function() {
 });
 
 function checkLogin() {
+    if(window.location.pathname == "/login") {
+        return
+    }
     if(!getCookie("username") || !getCookie("sessionid")) {
         logout()
     }
