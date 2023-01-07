@@ -23,21 +23,24 @@ class Application:
             case "/status":
                 return http.get_base_auth_json(self.get_status)
             case "/wifi/scan":
-                pass
+                return http.get_base_auth_json(self.get_wifi_scan)
             case _:
                 filename = None
                 try:
                     filename = http.fix_path(http.request.path)
-                    return self.get_file(http, filename)
+                    if filename != None and len(filename) > 0:
+                        return self.get_file(http, filename)
                 except Exception as e:
                     return http.send_basic_error(404, f"Not found: '{filename}'", e)
-        return http.send_basic_error(404, "Not Found")
+        return http.send_json_error(404, "Not Found")
 
     def post(self, http : HttpTools):
         match http.request.path:
             case "/auth":
                 return self.post_auth(http)
-        return http.send_basic_error(404, "Not Found")
+            case "/user/password":
+                return self.post_user_change_password(http)
+        return http.send_json_error(404, "Not Found")
 
     def put(self, http : HttpTools):
         match http.request.path:
@@ -47,11 +50,11 @@ class Application:
             case "/configuration/wifi":
                 http.put_base_auth_json(self.put_wifi_configuration)
                 pass
-        return http.send_basic_error(404, "Not Found")
+        return http.send_json_error(404, "Not Found")
 
     def post_auth(self, http : HttpTools):
         if http.request.content_length == 0:
-            return http.send_json_error(400)
+            return http.send_json_error(411)
 
         content = http.request.jsonBody()
 
@@ -129,6 +132,36 @@ class Application:
             "ssid": ssid,
             "securityType": security_type
         }
+
+    def get_wifi_scan(self):
+        return self.network_manager.get_nearby_access_points() 
+
+    def post_user_change_password(self, http : HttpTools):
+        if http.request.content_length == 0:
+            return http.send_json_error(411)
+        
+        if not http.auth.validate_session_cookies(http.request.cookies, http.request.remote_address):
+            return http.send_json_error(401, "Not Authorized")
+
+        content = http.request.jsonBody()
+
+        username = content["username"]
+        currnet_password = content["current_password"]
+        new_password = content["new_password"]
+
+        if http.request.cookies["username"] != username:
+            return http.send_json_error(403, "Forbidden")
+
+        if not http.auth.authenticate(username, currnet_password):
+            return http.send_json_error(403, "Forbidden")
+
+        if http.auth.set_user_password(username, new_password):
+            token = http.auth.create_auth_token(username, http.request.remote_address)
+            http.start_response("200 OK", [
+                ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
+            ])
+        else:
+            http.start_response("406", "The server was unable to change your password at this time.  Please try again later.")
 
     def put_vpn_configuration(self, configuration : dict[str:any]):
 

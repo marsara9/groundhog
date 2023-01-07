@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>VPN Server</title>
+        <link rel="stylesheet" href="/shared/styles.css" />
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+        <script type="text/javascript" src="/shared/main.js"></script>
+        <script type="text/javascript" src="/profile/profile.js"></script>
+    </head>
+    <body>
+        <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
+        <div class="content">
+            <dl class="prop-grid">
+                <dt>
+                    <label for="privatekey">Username:</label>
+                </dt>
+                <dd>
+                    <input type="text" id="username" readonly="readonly" />
+                </dd>
+                <dt>
+                    <label for="privatekey">Current Password:</label>
+                </dt>
+                <dd>
+                    <input type="password" id="password" />
+                </dd>
+            </dl>
+            <p>Change Password</p>
+            <dl class="prop-grid">
+                <dt>
+                    <label for="privatekey">New Password:</label>
+                </dt>
+                <dd>
+                    <input type="password" id="new-password" />
+                </dd>
+                <dt>
+                    <label for="privatekey">Confirm Password:</label>
+                </dt>
+                <dd>
+                    <input type="password" id="confirm-password" />
+                </dd>
+            </dl>
+            <p>Save</p>
+            <dl class="prop-grid">
+                <dt>
+                    
+                </dt>
+                <dd>
+                    <input type="button" id="save" value="Save" />
+                </dd>
+            </dl>
+        </div>
+    </body>
+</html>

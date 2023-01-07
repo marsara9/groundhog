@@ -57,7 +57,6 @@ class HttpTools:
         return [message.encode("utf8")]
 
     def send_json_error(self, code : int, message : str, error : Exception = None):
-        #self.environ["wsgi.errors"].write(f"{str(error)}\n")
         self.start_response(f"{code} {responses[code]}", [
             ("Content-Type", "application/json")
         ])
@@ -75,10 +74,15 @@ class HttpTools:
         if not self.auth.validate_session_cookies(self.request.cookies, self.request.remote_address):
             return self.send_json_error(401, "Not Authorized")
         try:
+            username = self.request.cookies["username"]
+            token = self.auth.create_auth_token(username)
+
             result = json.dumps(get())
+
             self.start_response("200 OK", [
                 ("Content-Type", "application/json"),
-                ('Content-Length', str(len(result)))
+                ('Content-Length', str(len(result))),
+                ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
             ])
             return [result.encode("utf8")]
         except Exception as e:
@@ -90,13 +94,18 @@ class HttpTools:
 
         try:
             if self.request.content_length == 0:
-                return self.send_json_error(400)                
+                return self.send_json_error(411)
+
+            username = self.request.cookies["username"]
+            token = self.auth.create_auth_token(username)
 
             content = self.request.jsonBody()
 
             put(content)
 
-            self.start_response("201 Created", [])
+            self.start_response("201 Created", [
+                ("Set-Cookie", f"sessionid={token}; Max-Age=3600")
+            ])
         except Exception as e:
             return self.send_json_error(500, "There was an error on the server.", e)
         return

@@ -101,7 +101,14 @@ class Auth:
  
         if not bcrypt.checkpw(password.encode("utf8"), hashed_password):
             raise Exception("Authentication failed; password did not match")
- 
+
+        return self.create_auth_token(username, ip_address)
+
+    def create_auth_token(self, username : str, ip_address: str) -> str:
+
+        username = username.lower()
+        hashed_password = self.get_user_hashed_password(username)
+
         now = datetime.now()
  
         decrypyed_token = f"{username}|{now.isoformat()}|{ip_address}"
