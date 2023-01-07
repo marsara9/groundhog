@@ -161,7 +161,7 @@ class Application:
             return http.send_json_error(403, "Forbidden")
 
         if len(new_password) < self.PASSWORD_LENGTH_REQUIREMENT:
-            return http.start_response("406 Not Acceptable", "New password does not meet requirements.")
+            return http.send_json_error(406, "New password does not meet requirements.")
 
         if http.auth.set_user_password(username, new_password):
             token = http.auth.create_auth_token(username, http.request.remote_address)
@@ -169,7 +169,7 @@ class Application:
                 ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
             ])
         else:
-            http.start_response("406 Not Acceptable", "The server was unable to change your password at this time.  Please try again later.")
+            http.send_json_error(406, "The server was unable to change your password at this time.  Please try again later.")
 
         return []
 
