@@ -60,6 +60,19 @@ function putJson(url, data) {
     })
 }
 
+function genericPopulateFields(data) {
+    for(const key in data) {
+        let value = data[key]
+        if(typeof value === "object") {
+            for(const index in value) {
+                $(`input#${key}-${index}`).val(value[index])
+            }
+        } else {
+            $(`input#${key}`).val(data[key])
+        }
+    }
+}
+
 const observer = new MutationObserver(function () {
     observer.disconnect()
 })

@@ -276,6 +276,15 @@ dl.prop-grid {
     white-space: normal;
 }
 
+dl.prop-grid > hr {
+    grid-column: 1 / 3;
+    border: 0;
+    height: 1px;
+    width: 100%;
+    background: #1ed2ff;
+    background-image: linear-gradient(to right, white, #1ed2ff, white);
+}
+
 dl.prop-grid > :is(dt, dd) {
     display: flex;
     flex-direction: row;

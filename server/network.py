@@ -114,3 +114,32 @@ class NetworkManager():
         nmcli.connection.up(vpn_interface)
         return
  
+    def get_dhcp_configuration(self):
+        if not os.path.exists(f"{self.CONFIG_DIRECTORY}/dhcpd.conf"):
+            return None
+        
+        with open(f"{self.CONFIG_DIRECTORY}/dhcpd.conf", "r") as file:
+            conf = file.read()
+
+        configuration = {
+            "default-lease-time": 600,
+            "max-lease-time": 7200,
+            "subnet": "192.168.250.0",
+            "netmask": "255.255.255.0",
+            "interfaces" : [
+                "eth1",
+                "wlan0"
+            ],
+            "router": "192.168.250.1",
+            "range": {
+                "start": "192.168.250.10",
+                "end": "192.168.250.200"
+            },
+            "dns": [
+                "10.0.0.5",
+                "10.0.0.1",
+            ],
+            "domain" : "remote.1.sdoras.lan"
+        }
+
+        return configuration

@@ -145,7 +145,7 @@ class Application:
         return self.network_manager.get_nearby_access_points() 
 
     def get_dhcp_configuation(self):
-        return None
+        return self.network_manager.get_dhcp_configuration()
 
     def post_user_change_password(self, http : HttpTools):
         if http.request.content_length == 0:

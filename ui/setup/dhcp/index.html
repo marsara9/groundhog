@@ -16,41 +16,41 @@
                 </dt>
                 <dd>
                     <input id="subnet" type="text" placeholder="192.168.250" />
-                    <span>.0/24</span>
+                    <span id="netmask">/24</span>
                 </dd>
                 <dt>
                     <label for="router">Router IP Address:</label>
                 </dt>
                 <dd>
-                    <span>192.168.250.</span>
-                    <input id="router" type="number" placeholder="1" min="1" max="254" />
+                    <input id="router" type="text" placeholder="192.168.250.1"  />
                 </dd>
+                <hr />
                 <dt>
                     <label for="range-start">Range:</label>
                 </dt>
                 <dd>
-                    <span>192.168.250.</span>
-                    <input id="range-start" type="number" placeholder="10" min="1" max="254" />
+                    <input id="range-start" type="text" placeholder="192.168.250.10" />
                 </dd>
                 <dt>
                     <label for="range-end">To:</label>
                 </dt>
                 <dd>
-                    <span>192.168.250.</span>
-                    <input id="range-end" type="number" placeholder="254" min="1" max="254" />
+                    <input id="range-end" type="text" placeholder="192.168.250.200" />
                 </dd>
+                <hr />
                 <dt>
-                    <label for="dns-1">DNS Servers:</label>
+                    <label for="dns-0">DNS Servers:</label>
                 </dt>
                 <dd>
-                    <input id="dns-1" type="text" placeholder="8.8.8.8" />
+                    <input id="dns-0" type="text" placeholder="8.8.8.8" />
                 </dd>
                 <dt>
 
                 </dt>
                 <dd>
-                    <input id="dns-2" type="text" placeholder="8.8.4.4" />
+                    <input id="dns-1" type="text" placeholder="8.8.4.4" />
                 </dd>
+                <hr />
                 <dt>
                     <label for="default-lease-time">Default Lease Time:</label>
                 </dt>
