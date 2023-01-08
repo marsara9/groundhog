@@ -203,4 +203,4 @@ class Application:
         return
 
     def put_dhcp_configuration(self, configuration : dict[str:any]):
-        pass
+        return

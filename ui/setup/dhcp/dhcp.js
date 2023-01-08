@@ -20,8 +20,13 @@ function bitCount (num) {
     num = num - ((num >> 1) & 0x55555555)
     num = (num & 0x33333333) + ((num >> 2) & 0x33333333)
     return ((num + (num >> 4) & 0xF0F0F0F) * 0x1010101) >> 24
-  }
+}
+
+function submitConfiguration() {
+    putJson("/dhcp/configuration", getFieldData($(this)))
+}
 
 $(document).ready(function() {
     fetchDHCPConfig()
+    $("#submit").click(submitConfiguration)
 });

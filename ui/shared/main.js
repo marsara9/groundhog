@@ -73,6 +73,16 @@ function genericPopulateFields(data) {
     }
 }
 
+function getFieldData(submit) {
+    configuration = {}
+    submit.parents("dl.prop-grid").find("input:not(.ignore)").each(function() {
+        const input = $(this)        
+        configuration[input.attr("id")] = input.val()
+    })
+
+    return configuration
+}
+
 const observer = new MutationObserver(function () {
     observer.disconnect()
 })

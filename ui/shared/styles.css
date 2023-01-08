@@ -288,7 +288,7 @@ dl.prop-grid > hr {
 dl.prop-grid > :is(dt, dd) {
     display: flex;
     flex-direction: row;
-    align-items: stretch;
+    align-items: flex-end;
     gap: 8px;
 }
 

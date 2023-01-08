@@ -41,18 +41,8 @@ function setConfiguration(configuration) {
     $("#allowedips").val(configuration.allowedips)
 }
 
-function getConfiguration(submit) {
-    configuration = {}
-    submit.parents("dl.prop-grid").find("input:not(.ignore)").each(function() {
-        const input = $(this)        
-        configuration[input.attr("id")] = input.val()
-    })
-
-    return configuration
-}
-
 function submitConfiguration() {
-    putJson("/vpn/configuration", getConfiguration($(this)))
+    putJson("/vpn/configuration", getFieldData($(this)))
 }
 
 $(document).ready(function() {
