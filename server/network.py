@@ -2,7 +2,6 @@ import os
 import subprocess
 import nmcli
 import pydhcpdparser
-import re
 
 class NetworkManager():
 

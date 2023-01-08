@@ -29,7 +29,7 @@ ENV PATH="${HOME}/.cargo/bin:${PATH}"
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
 # Install Python dependencies
 RUN pip3 install --verbose --no-warn-script-location --no-cache-dir \
-        simplejson bcrypt nmcli
+        simplejson bcrypt nmcli pydhcpdparser
 
 # Install PyInstaller
 RUN pip3 install pyinstaller --verbose --no-warn-script-location --no-cache-dir || \
