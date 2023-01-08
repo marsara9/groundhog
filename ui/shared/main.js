@@ -45,91 +45,41 @@ function restJson(url, method, body, showSpinner, onResult, onError) {
 
 function fetchJson(url, onResult, onError) {
     restJson(url, "GET", null, false, onResult, onError)
-    // fetch(url, {
-    //     credentials: "same-origin"
-    // }).then(response => {
-    //     if(response.ok) {
-    //         return response.json()
-    //     } else {
-    //         let error =  new Error(response.statusText)
-    //         error.status = response.status
-    //         error.body = response.body
-    //         throw error
-    //     }
-    // }).then(data => {
-    //     onResult(data)
-    // }).catch(reason => {
-    //     console.log(reason)
-    //     if(reason.status == 401) {
-    //         logout()
-    //     }
-    // })
 }
 
 function postJson(url, data, onResult, onError) {
     restJson(url, "POST", data, true, onResult, onError)
-    // $("#loading-dialog").show()
-    // return fetch(url, {
-    //     method: "POST",
-    //     credentials: "same-origin",
-    //     cache: "no-cache",
-    //     headers: {
-    //         "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify(data)
-    // }).catch(reason => {
-    //     if(onCatch) {
-    //         onCatch(reason)
-    //     }
-    //     if(reason.code == 401) {
-    //         console.log(reason)
-    //         logout()
-    //     }
-    // }).then(() => {
-    //     $("#loading-dialog").hide()
-    // })
 }
 
 function putJson(url, data, onResult, onError) {
     restJson(url, "PUT", data, true, onResult, onError)
-    // $("#loading-dialog").show()
-    // return fetch(url, {
-    //     method: "PUT",
-    //     credentials: "same-origin",
-    //     cache: "no-cache",
-    //     headers: {
-    //         "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify(data)
-    // }).catch(reason => {
-    //     if(reason.code == 401) {
-    //         console.log(reason)
-    //         logout()
-    //     }
-    // }).then(() => {
-    //     $("#loading-dialog").hide()
-    // })
 }
 
 function deleteJson(url, data, onResult, onError) {
     restJson(url, "DELETE", data, true, onResult, onError)
-    // $("#loading-dialog").show()
-    // return fetch(url, {
-    //     method: "DELETE",
-    //     credentials: "same-origin",
-    //     cache: "no-cache",
-    //     headers: {
-    //         "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify(data)
-    // }).catch(reason => {
-    //     if(reason.code == 401) {
-    //         console.log(reason)
-    //         logout()
-    //     }
-    // }).then(() => {
-    //     $("#loading-dialog").hide()
-    // })
+}
+
+function genericPopulateFields(data) {
+    for(const key in data) {
+        let value = data[key]
+        if(typeof value === "object") {
+            for(const index in value) {
+                $(`input#${key}-${index}`).val(value[index])
+            }
+        } else {
+            $(`input#${key}`).val(data[key])
+        }
+    }
+}
+
+function getFieldData(submit) {
+    configuration = {}
+    submit.parents("dl.prop-grid").find("input:not(.ignore)").each(function() {
+        const input = $(this)        
+        configuration[input.attr("id")] = input.val()
+    })
+
+    return configuration
 }
 
 function setCookie(name,value,days) {

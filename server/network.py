@@ -1,6 +1,7 @@
 import os
 import subprocess
 import nmcli
+import pydhcpdparser
 
 class NetworkManager():
 
@@ -114,3 +115,37 @@ class NetworkManager():
         nmcli.connection.up(vpn_interface)
         return
  
+    def get_dhcp_configuration(self):
+        if not os.path.exists(f"{self.CONFIG_DIRECTORY}/dhcpd.conf"):
+            return None
+        
+        with open(f"{self.CONFIG_DIRECTORY}/dhcpd.conf", "r") as file:
+            conf = file.read()
+            conf_dict = pydhcpdparser.parser.parse(conf)
+
+        def find(key : str) -> any:
+            return next((item[key] for item in conf_dict if key in item), None)
+
+        options = find("option")
+        range = find("range")
+        dns = options["domain-name-servers"].split(",")
+
+        configuration = {
+            "default-lease-time": find("default-lease-time"),
+            "max-lease-time": find("max-lease-time"),
+            "subnet": find("subnet"),
+            "netmask": find("netmask"),
+            "interfaces" : [
+                "eth1",
+                "wlan0"
+            ],
+            "router": options["routers"],
+            "range": {
+                "start": range[0],
+                "end": range[1]
+            },
+            "dns": dns,
+            "domain" : options["domain-name"]
+        }
+
+        return configuration
