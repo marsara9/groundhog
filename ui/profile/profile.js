@@ -12,11 +12,25 @@ function getPasswordUpdate(submit) {
 function submitPasswordUpdate() {
     updatePassword = getPasswordUpdate($(this))
 
-    if($("#confirmPassword").val() != updatePassword["newPassword"]) {
+    if($("#confirm-password").val() != updatePassword["new-password"]) {
+        $("#confirm-password").addClass("error")
         return
     }
 
-    postJson("/user/password", updatePassword)
+    $("#confirm-password").removeClass("error")
+
+    postJson("/user/password", updatePassword, 
+        onResult = data => {
+            $("#change-password-response").addClass("success")
+            $("#change-password-response").removeClass("error")
+            $("#change-password-response").text("Updated")
+        },
+        onError = reason => {
+            $("#change-password-response").removeClass("success")
+            $("#change-password-response").addClass("error")
+            $("#change-password-response").text(reason.message)
+        }
+    )
 }
 
 function deleteUser() {

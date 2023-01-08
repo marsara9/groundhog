@@ -22,22 +22,22 @@
                     <label for="password">Current Password:</label>
                 </dt>
                 <dd>
-                    <input type="password" id="password" />
+                    <input type="password" id="password" required="required" />
                 </dd>
                 <dt>
-                    <label for="newPassword">New Password:</label>
+                    <label for="new-password">New Password:</label>
                 </dt>
                 <dd>
-                    <input type="password" id="newPassword" />
+                    <input type="password" id="new-password" required="required" />
                 </dd>
                 <dt>
-                    <label for="confirmPassword">Confirm Password:</label>
+                    <label for="confirm-password">Confirm Password:</label>
                 </dt>
                 <dd>
-                    <input class="ignore" type="password" id="confirmPassword" />
+                    <input class="ignore" type="password" id="confirm-password" required="required" />
                 </dd>
                 <dt>
-                    
+                    <span id="change-password-response"></span>
                 </dt>
                 <dd>
                     <input class="ignore" type="button" id="submit" value="Save" />
@@ -50,6 +50,33 @@
                 </dt>
                 <dd>
                     <input class="ignore error" type="button" id="delete-user" value="Delete User" />
+                </dd>
+            </dl>
+            <p>Create New User:</p>
+            <dl class="prop-grid">
+                <dt>
+                    <label for="new-user-username">Username:</label>
+                </dt>
+                <dd>
+                    <input type="text" id="new-user-username" />
+                </dd>
+                <dt>
+                    <label for="new-user-password">Password:</label>
+                </dt>
+                <dd>
+                    <input type="password" id="new-user-password" />
+                </dd>
+                <dt>
+                    <label for="new-user-password">Confirm:</label>
+                </dt>
+                <dd>
+                    <input type="password" id="new-user-confirm-password" />
+                </dd>
+                <dt>
+                    
+                </dt>
+                <dd>
+                    <input class="ignore" type="button" id="create-new-user" value="Create" />
                 </dd>
             </dl>
         </div>

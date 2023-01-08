@@ -140,28 +140,40 @@ class Application:
 
     def post_user_change_password(self, http : HttpTools):
         if http.request.content_length == 0:
-            return http.send_json_error(411)
+            return http.send_json_error(411, "Missing Payload")
         
         if not http.auth.validate_session_cookies(http.request.cookies, http.request.remote_address):
             return http.send_json_error(401, "Not Authorized")
 
-        if not http.request.validate_json("username", "password", "newPassword"):
+        if not http.request.validate_json("username", "password", "new-password"):
             return http.send_json_error(400, "Bad Request", Exception("Required content missing from request"))
 
         content = http.request.jsonBody()
 
         username = content["username"]
         currnet_password = content["password"]
-        new_password = content["newPassword"]
+        new_password = content["new-password"]
 
         if http.request.cookies["username"].value != username:
             return http.send_json_error(403, "Forbidden")
 
         if not http.auth.authenticate(username, currnet_password, http.request.remote_address):
-            return http.send_json_error(403, "Forbidden")
+            return http.send_json_error(403, {
+                "parameter" : "password",
+                "message" : "Current password doesn't match."
+            })
+
+        if new_password == currnet_password:
+            return http.send_json_error(406, {
+                "parameter" : "new-password",
+                "message" : "New password cannot be the same as your current password."
+            })
 
         if len(new_password) < self.PASSWORD_LENGTH_REQUIREMENT:
-            return http.send_json_error(406, "New password does not meet requirements.")
+            return http.send_json_error(406, {
+                "parameter" : "new-password",
+                "message" : "The new password must be at least 8 characters long."
+            })
 
         if http.auth.set_user_password(username, new_password):
             token = http.auth.create_auth_token(username, http.request.remote_address)
