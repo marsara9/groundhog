@@ -31,7 +31,10 @@ function restJson(url, method, body, showSpinner, onResult, onError) {
                 }
             })
         } else {
-            if(onResult && onError) {
+            if(response.ok && onResult) {
+                onResult()
+            }
+            else if(!response.ok && onError) {
                 onError(response.body)
             }
         }

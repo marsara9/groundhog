@@ -9,10 +9,10 @@ function submitPasswordUpdate() {
     $("#confirm-password").removeClass("error")
 
     postJson("/user/password", updatePassword, 
-        onResult = data => {
+        onResult = () => {
             $("#change-password-response").addClass("success")
             $("#change-password-response").removeClass("error")
-            $("#change-password-response").text("Updated")
+            $("#change-password-response").text("Password Updated")
         },
         onError = reason => {
             $("#change-password-response").removeClass("success")
