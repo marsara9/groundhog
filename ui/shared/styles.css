@@ -41,6 +41,7 @@ ul.main-menu :is(a, button) {
     padding: 8px 16px;
     text-decoration: none;
     font-size: 1.2rem;
+    border-radius: 0;
 }
 
 ul.main-menu > li ul a {
@@ -147,6 +148,7 @@ button {
     color: white;
     padding: 8px;
     min-width: 120px;
+    border-radius: 8px;
 }
 
 input[type="submit"]:hover,
@@ -157,12 +159,24 @@ button:hover {
     color: #1ed2ff;
 }
 
+input[type="button"].error,
+button.error {
+    color: #ff6b6b;
+}
+
+input[type="button"].error:hover,
+button.error:hover {
+    color: white;
+    background-color: #ff6b6b;
+}
+
+
 input:focus {
     border-color: #1ed2ff;
 }
 
 input.error {
-    border-color: #c00;
+    border-color: #ff6b6b;
 }
 
 div.input-group {
@@ -312,14 +326,8 @@ div.dialog {
     position: absolute;
     top: 50%;
     left: 50%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 8px;
     margin-right: -50%;
-    padding: 8px;
+    padding: 16px;
     min-width: min(240px, 50%);
     transform: translate(-50%, -50%);
     background-color: #333;
@@ -327,6 +335,33 @@ div.dialog {
     border-radius: 8px;
     border: 2px solid #1ed2ff;
     box-shadow: 4px 4px 16px black;
+}
+
+div.dialog.single-line {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+div.dialog.multiline {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+div.dialog.multiline > div {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: space-evenly;
 }
 
 div.dialog > img {
