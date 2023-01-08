@@ -1,6 +1,8 @@
 import os
 import subprocess
 import nmcli
+import pydhcpdparser
+import re
 
 class NetworkManager():
 
@@ -120,26 +122,31 @@ class NetworkManager():
         
         with open(f"{self.CONFIG_DIRECTORY}/dhcpd.conf", "r") as file:
             conf = file.read()
+            conf_dict = pydhcpdparser.parser.parse(conf)
+
+        def find(key : str) -> any:
+            return next((item[key] for item in conf_dict if key in item), None)
+
+        options = find("option")
+        range = find("range")
+        dns = options["domain-name-servers"].split(",")
 
         configuration = {
-            "default-lease-time": 600,
-            "max-lease-time": 7200,
-            "subnet": "192.168.250.0",
-            "netmask": "255.255.255.0",
+            "default-lease-time": find("default-lease-time"),
+            "max-lease-time": find("max-lease-time"),
+            "subnet": find("subnet"),
+            "netmask": find("netmask"),
             "interfaces" : [
                 "eth1",
                 "wlan0"
             ],
-            "router": "192.168.250.1",
+            "router": options["routers"],
             "range": {
-                "start": "192.168.250.10",
-                "end": "192.168.250.200"
+                "start": range[0],
+                "end": range[1]
             },
-            "dns": [
-                "10.0.0.5",
-                "10.0.0.1",
-            ],
-            "domain" : "remote.1.sdoras.lan"
+            "dns": dns,
+            "domain" : options["domain-name"]
         }
 
         return configuration
