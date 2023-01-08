@@ -9,8 +9,68 @@
     </head>
     <body>
         <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
-        <div>
-            
+        <div class="content">
+            <dl class="prop-grid">
+                <dt>
+                    <label for="subnet">Subnet:</label>
+                </dt>
+                <dd>
+                    <input id="subnet" type="text" placeholder="192.168.250" />
+                    <span id="netmask">/24</span>
+                </dd>
+                <dt>
+                    <label for="router">Router IP Address:</label>
+                </dt>
+                <dd>
+                    <input id="router" type="text" placeholder="192.168.250.1"  />
+                </dd>
+                <dt>
+                    <label for="range-start">Range:</label>
+                </dt>
+                <dd>
+                    <input id="range-start" type="text" placeholder="192.168.250.10" />
+                </dd>
+                <dt>
+                    <label for="range-end">To:</label>
+                </dt>
+                <dd>
+                    <input id="range-end" type="text" placeholder="192.168.250.200" />
+                </dd>
+                <hr />
+                <dt>
+                    <label for="dns-0">DNS Servers:</label>
+                </dt>
+                <dd>
+                    <input id="dns-0" type="text" placeholder="8.8.8.8" />
+                </dd>
+                <dt>
+
+                </dt>
+                <dd>
+                    <input id="dns-1" type="text" placeholder="8.8.4.4" />
+                </dd>
+                <hr />
+                <dt>
+                    <label for="default-lease-time">Default Lease Time:</label>
+                </dt>
+                <dd>
+                    <input id="default-lease-time" type="number" placeholder="600" min="0" />
+                    <span>seconds</span>
+                </dd>
+                <dt>
+                    <label for="max-lease-time">Max Lease Time:</label>
+                </dt>
+                <dd>
+                    <input id="max-lease-time" type="number" placeholder="7200" min="0" />
+                    <span>seconds</span>
+                </dd>
+                <dt>
+
+                </dt>
+                <dd>
+                    <input id="submit" class="ignore" type="button" value="Submit" />
+                </dd>
+            </dl>
         </div>
         <div class="template" data-content="/shared/loading.html"></div>
     </body>

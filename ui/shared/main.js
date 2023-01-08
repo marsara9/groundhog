@@ -60,6 +60,29 @@ function putJson(url, data) {
     })
 }
 
+function genericPopulateFields(data) {
+    for(const key in data) {
+        let value = data[key]
+        if(typeof value === "object") {
+            for(const index in value) {
+                $(`input#${key}-${index}`).val(value[index])
+            }
+        } else {
+            $(`input#${key}`).val(data[key])
+        }
+    }
+}
+
+function getFieldData(submit) {
+    configuration = {}
+    submit.parents("dl.prop-grid").find("input:not(.ignore)").each(function() {
+        const input = $(this)        
+        configuration[input.attr("id")] = input.val()
+    })
+
+    return configuration
+}
+
 const observer = new MutationObserver(function () {
     observer.disconnect()
 })

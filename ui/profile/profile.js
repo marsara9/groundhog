@@ -1,16 +1,5 @@
-
-function getPasswordUpdate(submit) {
-    updatePassword = {}
-    submit.parents("dl.prop-grid").find("input:not(.ignore)").each(function() {
-        const input = $(this)        
-        updatePassword[input.attr("id")] = input.val()
-    })
-
-    return updatePassword
-}
-
 function submitPasswordUpdate() {
-    updatePassword = getPasswordUpdate($(this))
+    updatePassword = getFieldData($(this))
 
     if($("#confirmPassword").val() != updatePassword["newPassword"]) {
         return

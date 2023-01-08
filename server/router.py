@@ -26,6 +26,12 @@ class Application:
                 return http.get_base_auth_json(self.get_status)
             case "/wifi/scan":
                 return http.get_base_auth_json(self.get_wifi_scan)
+            case "/vpn/configuration":
+                pass
+            case "/wifi/configuration":
+                pass
+            case "/dhcp/configuration":
+                return http.get_base_auth_json(self.get_dhcp_configuation)
             case _:
                 filename = None
                 try:
@@ -46,12 +52,12 @@ class Application:
 
     def put(self, http : HttpTools):
         match http.request.path:
-            case "/configuration/vpn":
-                http.put_base_auth_json(self.put_vpn_configuration)
-                pass
-            case "/configuration/wifi":
-                http.put_base_auth_json(self.put_wifi_configuration)
-                pass
+            case "/vpn/configuration":
+                return http.put_base_auth_json(self.put_vpn_configuration)
+            case "/wifi/configuration":
+                return http.put_base_auth_json(self.put_wifi_configuration)
+            case "/dhcp/configuration":
+                return http.put_base_auth_json(self.put_dhcp_configuration)
         return http.send_json_error(404, "Not Found")
 
     def post_auth(self, http : HttpTools):
@@ -138,6 +144,9 @@ class Application:
     def get_wifi_scan(self):
         return self.network_manager.get_nearby_access_points() 
 
+    def get_dhcp_configuation(self):
+        return self.network_manager.get_dhcp_configuration()
+
     def post_user_change_password(self, http : HttpTools):
         if http.request.content_length == 0:
             return http.send_json_error(411)
@@ -191,4 +200,7 @@ class Application:
         else:
             self.network_manager.connect_to_wifi(configuration["ssid"], configuration["passphrase"])
 
+        return
+
+    def put_dhcp_configuration(self, configuration : dict[str:any]):
         return

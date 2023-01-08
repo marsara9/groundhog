@@ -123,7 +123,7 @@ class HttpTools:
             ])
         except Exception as e:
             return self.send_json_error(500, "There was an error on the server.", e)
-        return
+        return []
 
     def fix_path(self, filepath : str):
         filepath = filepath.replace("..", "")
