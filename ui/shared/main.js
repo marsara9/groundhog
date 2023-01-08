@@ -31,6 +31,7 @@ function postJson(url, data) {
         },
         body: JSON.stringify(data)
     }).catch(reason => {
+        $("#loading-dialog").hide()
         if(reason.code == 401) {
             console.log(reason)
             logout()
@@ -51,6 +52,7 @@ function putJson(url, data) {
         },
         body: JSON.stringify(data)
     }).catch(reason => {
+        $("#loading-dialog").hide()
         if(reason.code == 401) {
             console.log(reason)
             logout()
@@ -71,6 +73,7 @@ function deleteJson(url, data) {
         },
         body: JSON.stringify(data)
     }).catch(reason => {
+        $("#loading-dialog").hide()
         if(reason.code == 401) {
             console.log(reason)
             logout()
