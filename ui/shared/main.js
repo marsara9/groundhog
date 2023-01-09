@@ -1,86 +1,65 @@
-function fetchJson(url, onResult) {
-    fetch(url, {
-        credentials: "same-origin"
-    }).then(response => {
-        if(response.ok) {
-            return response.json()
+function restJson(url, method, body, showSpinner, onResult, onError) {
+
+    let params = {
+        method: method,
+        credentials: "same-origin",
+        cache: "no-cache",
+        headers: {}
+    }
+    if(body) {
+        params.body = JSON.stringify(body)
+        params.headers["content-type"] = "application/json"
+    }
+
+    if(showSpinner) {
+        $("#loading-dialog").show()
+    }
+
+    fetch(url, params).then(response => {        
+        if(response.headers.get("content-type") == "application/json") {
+            response.json().then(data => {
+                if(!response.ok) {
+                    let input = $(`#${data.parameter}`)
+                    input.addClass("error")
+                    if(onError) {
+                        onError(data)
+                    }
+                } else {
+                    if(onResult) {
+                        onResult(data)
+                    }
+                }
+            })
         } else {
-            let error =  new Error(response.statusText)
-            error.status = response.status
-            error.body = response.body
-            throw error
+            if(response.ok && onResult) {
+                onResult()
+            }
+            else if(!response.ok && onError) {
+                onError(response.body)
+            }
         }
-    }).then(data => {
-        onResult(data)
-    }).catch(reason => {
-        console.log(reason)
-        if(reason.status == 401) {
-            logout()
-        }
-    })
-}
-
-function postJson(url, data) {
-    $("#loading-dialog").show()
-    return fetch(url, {
-        method: "POST",
-        credentials: "same-origin",
-        cache: "no-cache",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    }).catch(reason => {
-        $("#loading-dialog").hide()
-        if(reason.code == 401) {
-            console.log(reason)
-            logout()
+        if(response.status == 401) {
+            logout()          
         }
     }).then(() => {
         $("#loading-dialog").hide()
     })
 }
 
-function putJson(url, data) {
-    $("#loading-dialog").show()
-    return fetch(url, {
-        method: "PUT",
-        credentials: "same-origin",
-        cache: "no-cache",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    }).catch(reason => {
-        $("#loading-dialog").hide()
-        if(reason.code == 401) {
-            console.log(reason)
-            logout()
-        }
-    }).then(() => {
-        $("#loading-dialog").hide()
-    })
+function fetchJson(url, onResult, onError) {
+    restJson(url, "GET", null, false, onResult, onError)
 }
 
-function deleteJson(url, data) {
-    $("#loading-dialog").show()
-    return fetch(url, {
-        method: "DELETE",
-        credentials: "same-origin",
-        cache: "no-cache",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    }).catch(reason => {
-        $("#loading-dialog").hide()
-        if(reason.code == 401) {
-            console.log(reason)
-            logout()
-        }
-    }).then(() => {
-        $("#loading-dialog").hide()
-    })
+function postJson(url, data, onResult, onError) {
+    restJson(url, "POST", data, true, onResult, onError)
+}
+
+function putJson(url, data, onResult, onError) {
+    restJson(url, "PUT", data, true, onResult, onError)
+}
+
+function deleteJson(url, data, onResult, onError) {
+    restJson(url, "DELETE", data, true, onResult, onError)
 }
 
 function genericPopulateFields(data) {
@@ -105,10 +84,6 @@ function getFieldData(submit) {
 
     return configuration
 }
-
-const observer = new MutationObserver(function () {
-    observer.disconnect()
-})
 
 function setCookie(name,value,days) {
     var expires = "";
