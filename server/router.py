@@ -166,7 +166,9 @@ class Application:
         if http.request.cookies["username"].value != username:
             return http.send_json_error(403, "Forbidden")
 
-        if not http.auth.authenticate(username, currnet_password, http.request.remote_address):
+        try:
+            http.auth.authenticate(username, currnet_password, http.request.remote_address)
+        except:
             return http.send_json_error(403, {
                 "parameter" : "password",
                 "message" : "Current password doesn't match."

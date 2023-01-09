@@ -19,7 +19,7 @@ function restJson(url, method, body, showSpinner, onResult, onError) {
         if(response.headers.get("content-type") == "application/json") {
             response.json().then(data => {
                 if(!response.ok) {
-                    let input = $(`#${response.parameter}`)
+                    let input = $(`#${data.parameter}`)
                     input.addClass("error")
                     if(onError) {
                         onError(data)
