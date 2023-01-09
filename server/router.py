@@ -167,7 +167,7 @@ class Application:
             return http.send_json_error(403, "Forbidden")
 
         try:
-            http.auth.authenticate(username, currnet_password, http.request.remote_address)
+            token = http.auth.authenticate(username, currnet_password, http.request.remote_address)
         except:
             return http.send_json_error(403, {
                 "parameter" : "password",
@@ -187,7 +187,6 @@ class Application:
             })
 
         if http.auth.set_user_password(username, new_password):
-            token = http.auth.create_auth_token(username, http.request.remote_address)
             http.start_response("200 OK", [
                 ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
             ])
