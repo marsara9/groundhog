@@ -224,23 +224,75 @@ class Application:
 
     def get_simple_configuration(self):
 
-        return {
-            "mode" : "ethernet",
-            "lan-ip" : "192.168.250.1/24",
-            "wan-ip": "10.0.8.6",
-            "dns" : [
-                "10.0.0.5",
-                "10.0.0.1"
-            ],
+        wan_interface = self.network_manager.get_wan_interface()
+        wifi_interfaces = self.network_manager.get_wifi_interfaces()
+        ssid = self.network_manager.get_wifi_ssid()
+
+        if len(wan_interface) == 0:
+            connection_type = "Unknown"
+        else:
+            if wan_interface in wifi_interfaces:
+                connection_type = "wifi"
+            else:
+                connection_type = "ethernet"
+
+        # LAN IP is considered to be the IP of the first ethernet interface that isn't
+        # directly connected to the internet.  If the device only has a single ethernet
+        # interface and it's being used for WAN traffic, then fallback to use the WiFi's
+        # adapter's IP address.
+        ip_address = next([self.network_manager.get_ip_address(interface) 
+            for interface in self.network_manager.get_lan_interfaces() 
+            if self.network_manager.get_ip_address(interface) and 
+                interface not in self.network_manager.get_wifi_interfaces()
+        ], self.network_manager.get_ip_address(self.network_manager.get_wifi_interfaces()[0]))
+
+        vpn_config = self.network_manager.get_vpn_configuration(False)
+
+        wifi_config = {
             "wifi" : {
-                "ssid" : "Day-VPN"
-            },
-            "vpn" : {
-                "url" : "vpn.sdoras.lan",
-                "port" : 51820
+                "ssid" : ssid
             }
         }
 
+        base_config = {
+            "connection-type" : connection_type,
+            "lan-ip" : ip_address
+        }
+
+        base_config.update(vpn_config)
+        base_config.update(wifi_config)
+
+        return base_config
+
     def put_simple_configuration(self, configuration : dict[str:any]):
 
-        pass
+        configuration["vpn"]["allowed-ips"] = f"{configuration['vpn']['subnet']}/8,8.8.8.8/32,8.8.4.4/32"
+
+        # If there are any missing values (because the user left the field blank)
+        # grab the old configuration file as a start, and replace only the fields
+        # that were specified.
+        old_configuration = self.get_simple_configuration()
+        old_configuration.update(configuration)
+        configuration = old_configuration
+
+        self.network_manager.create_vpn_configuration_file(
+            self.network_manager.get_vpn_interface(),
+            configuration
+        )
+        self.network_manager.configure_vpn()
+
+        wan_interface = self.network_manager.get_wan_interface()
+        wifi_interfaces = self.network_manager.get_wifi_interfaces()
+
+        if len(wan_interface) or wan_interface in wifi_interfaces:
+            self.network_manager.connect_to_wifi(
+                configuration["wifi"]["ssid"],
+                configuration["wifi"]["passphrase"]
+            )
+        else:
+            self.network_manager.create_access_point(
+                configuration["wifi"]["ssid"],
+                configuration["wifi"]["passphrase"]
+            )
+        
+        #self.network_manager.cofigure_dhcp(configuration)

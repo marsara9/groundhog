@@ -6,6 +6,21 @@ function fetchConfiguration() {
         const ip = localIpAddress.split("/")[0]
         const netmask = localIpAddress.split("/")[1]
 
+        switch(result["connection-type"]) {
+            case "wifi", "unknown":
+                $(".wifi").show()
+                $(".ethernet").hide()
+                break;
+            case "ethernet":
+                $(".wifi").hide()
+                $(".ethernet").show()
+                break;
+            default:
+                $(".wifi").hide()
+                $(".ethernet").hide()
+                break;
+        }
+
         $("#lan-ip").val(localIpAddress.split("/")[0])
         $("#subnet").text(`${getSubnet(localIpAddress)}/${netmask}`)
     })
@@ -14,8 +29,8 @@ function fetchConfiguration() {
 function submitConfiguration() {
     const data = {
         ...getFieldData($("#subnet")),
-        ...getFieldData($("ssid")),
-        ...getFieldData($("#vpn-endpoint"))
+        ...getFieldData($("#wifi-ssid")),
+        ...getFieldData($("#vpn-url"))
     }
 
     console.log(data)
@@ -64,17 +79,19 @@ function setConfiguration(configuration) {
     const dns = configuration.dns.split(",")
     const wanIp = configuration.address.split("/")[0]
 
+    const vpnAllowedIPs = configuration.allowedips.split(",")
+
     $("#vpn-url").val(url)
     $("#vpn-port").val(port)
-    $("#vpn-endpoint").val(configuration.endpoint)
+    $("#vpn-subnet").val(vpnAllowedIPs[0])
 
-    $("#private-key").val(configuration.privatekey)
-    $("#public-key").val(configuration.publickey)
-    $("#preshared-key").val(configuration.presharedkey)
+    $("#vpn-keys-private").val(configuration.privatekey)
+    $("#vpn-keys-public").val(configuration.publickey)
+    $("#vpn-keys-preshared").val(configuration.presharedkey)
 
     $("#wan-ip").val(wanIp)
-    $("#dns-0").val(dns[0])
-    $("#dns-1").val(dns[1])
+    $("#vpn-dns-0").val(dns[0])
+    $("#vpn-dns-1").val(dns[1])
 }
 
 function ipToint(ipAddress) {
@@ -116,14 +133,6 @@ function bitCount (num) {
 }
 
 $(document).ready(function() {
-
-    $("#vpn-url").on("input", function() {
-        $("#vpn-endpoint").val($(this).val() + ":" + $("#vpn-port").val())
-    })
-    $("#vpn-port").on("input", function() {
-        $("#vpn-endpoint").val($("#vpn-url").val() + ":" + $(this).val())
-    })
-
     fetchConfiguration()
     $("#file").on("change", parseConfigFile)
     $("#submit").click(submitConfiguration)
