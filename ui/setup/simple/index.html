@@ -16,14 +16,13 @@
                     <label for="subnet">Subnet:</label>
                 </dt>
                 <dd>
-                    <input id="subnet" type="text" placeholder="192.168.250" />
-                    <span class="input">.0/24</span>
+                    <span id="subnet">192.168.250.0/24</span>
                 </dd>
                 <dt>
                     <label for="lan-ip">LAN IP Address:</label>
                 </dt>
                 <dd>
-                    <span>192.168.250.1</span>
+                    <input id="lan-ip" type="text" placeholder="192.168.250.1" />
                 </dd>
                 <dt>
                     <label for="wan-ip">WAN IP Address:</label>
@@ -48,16 +47,16 @@
             <p class="ethernet">Access Point Settings:</p>
             <dl class="prop-grid">
                 <dt>
-                    <label for="ssid">SSID:</label>
+                    <label for="wifi-ssid">SSID:</label>
                 </dt>
                 <dd>
-                    <input id="ssid" type="text" maxlength="32" />
+                    <input id="wifi-ssid" type="text" maxlength="32" />
                 </dd>
                 <dt>
-                    <label for="passphrase">Passphrase:</label>
+                    <label for="wifi-passphrase">Passphrase:</label>
                 </dt>
                 <dd>
-                    <input id="passphrase" type="password" maxlength="63" />
+                    <input id="wifi-passphrase" type="password" maxlength="63" />
                 </dd>
             </dl>
             <p>VPN Settings:</p>
@@ -78,22 +77,22 @@
                     <input type="hidden" id="vpn-endpoint" />
                 </dd>
                 <dt>
-                    <label for="private-key">Private Key:</label>
+                    <label for="keys-private">Private Key:</label>
                 </dt>
                 <dd>
-                    <input id="private-key" type="text" />
+                    <input id="keys-private" type="text" />
                 </dd>
                 <dt>
-                    <label for="public-key">Public Key:</label>
+                    <label for="keys-public">Public Key:</label>
                 </dt>
                 <dd>
-                    <input id="public-key" type="text" />
+                    <input id="keys-public" type="text" />
                 </dd>
                 <dt>
-                    <label for="preshared-key">Presahred Key:</label>
+                    <label for="keys-preshared">Presahred Key:</label>
                 </dt>
                 <dd>
-                    <input id="preshared-key" type="text" />
+                    <input id="keys-preshared" type="text" />
                 </dd>
             </dl>
             <p>Save:</p>

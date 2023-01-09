@@ -32,6 +32,8 @@ class Application:
                 pass
             case "/dhcp/configuration":
                 return http.get_base_auth_json(self.get_dhcp_configuation)
+            case "/simple/configuration":
+                return http.get_base_auth_json(self.get_simple_configuration)
             case _:
                 filename = None
                 try:
@@ -58,6 +60,8 @@ class Application:
                 return http.put_base_auth_json(self.put_wifi_configuration)
             case "/dhcp/configuration":
                 return http.put_base_auth_json(self.put_dhcp_configuration)
+            case "/simple/configuration":
+                return http.put_base_auth_json(self.put_simple_configuration)
         return http.send_json_error(404, "Not Found")
 
     def post_auth(self, http : HttpTools):
@@ -217,3 +221,26 @@ class Application:
 
     def put_dhcp_configuration(self, configuration : dict[str:any]):
         return
+
+    def get_simple_configuration(self):
+
+        return {
+            "mode" : "ethernet",
+            "lan-ip" : "192.168.250.1/24",
+            "wan-ip": "10.0.8.6",
+            "dns" : [
+                "10.0.0.5",
+                "10.0.0.1"
+            ],
+            "wifi" : {
+                "ssid" : "Day-VPN"
+            },
+            "vpn" : {
+                "url" : "vpn.sdoras.lan",
+                "port" : 51820
+            }
+        }
+
+    def put_simple_configuration(self, configuration : dict[str:any]):
+
+        pass

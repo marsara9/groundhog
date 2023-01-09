@@ -1,6 +1,13 @@
 function fetchConfiguration() {
-    fetchJson("/dhcp/configuration", result => {
+    fetchJson("/simple/configuration", result => {
         genericPopulateFields(result)
+
+        const localIpAddress = result["lan-ip"]
+        const ip = localIpAddress.split("/")[0]
+        const netmask = localIpAddress.split("/")[1]
+
+        $("#lan-ip").val(localIpAddress.split("/")[0])
+        $("#subnet").text(`${getSubnet(localIpAddress)}/${netmask}`)
     })
 }
 
@@ -68,6 +75,44 @@ function setConfiguration(configuration) {
     $("#wan-ip").val(wanIp)
     $("#dns-0").val(dns[0])
     $("#dns-1").val(dns[1])
+}
+
+function ipToint(ipAddress) {
+    return ipAddress.split('.')
+      .reduce(function(ipInt, octet) { 
+        return (ipInt<<0x08) + parseInt(octet, 10)
+      }, 0) >>> 0
+  }
+  
+function intToip (ipInt) {
+    return `${ipInt>>>0x18}.${(ipInt>>0x10) & 0xFF}.${(ipInt>>0x08) & 0xFF}.${ipInt & 0xFF}`
+}
+
+function getSubnet(ip) {
+    const parts = ip.split("/")
+
+    const netmask = parseInt(Array(parseInt(parts[1], 10))
+        .fill("1")
+        .concat(Array(32-parseInt(parts[1], 10)).fill("0"))
+        .join(""), 2)
+
+    return intToip(ipToint(parts[0]) & netmask)
+}
+
+function calculateSubnetSize(netmask) {
+    let address = 0
+    const octets = netmask.split(".").reverse()
+    for(i = 0; i < octets.length; i++) {
+        const octet = parseInt(octets[i])
+        address += (octet * Math.pow(0x100,i))
+    }
+    return bitCount(address)
+}
+
+function bitCount (num) {
+    num = num - ((num >> 1) & 0x55555555)
+    num = (num & 0x33333333) + ((num >> 2) & 0x33333333)
+    return ((num + (num >> 4) & 0xF0F0F0F) * 0x1010101) >> 24
 }
 
 $(document).ready(function() {
