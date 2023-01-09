@@ -123,6 +123,10 @@ input, select {
     box-sizing: border-box;
 }
 
+.input {
+    border-bottom: 1px solid white;
+}
+
 input[type="text"],
 input[type="password"],
 input[type="number"],

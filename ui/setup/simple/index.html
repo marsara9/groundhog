@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Groundhog - Setup - DHCP</title>
+        <link rel="stylesheet" href="/shared/styles.css">
+        <script src="https://code.jquery.com/jquery-3.6.2.min.js" integrity="sha256-2krYZKh//PcchRtd+H+VyyQoZ/e3EcrkxhM8ycwASPA=" crossorigin="anonymous"></script>
+        <script src="/shared/main.js"></script>
+        <script src="/setup/simple/simple.js"></script>
+    </head>
+    <body>
+        <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
+        <div class="content">
+            <p>Basic Information:</p>
+            <dl class="prop-grid">
+                <dt>
+                    <label for="subnet">Subnet:</label>
+                </dt>
+                <dd>
+                    <input id="subnet" type="text" placeholder="192.168.250" />
+                    <span class="input">.0/24</span>
+                </dd>
+                <dt>
+                    <label for="lan-ip">LAN IP Address:</label>
+                </dt>
+                <dd>
+                    <span>192.168.250.1</span>
+                </dd>
+                <dt>
+                    <label for="wan-ip">WAN IP Address:</label>
+                </dt>
+                <dd>
+                    <input id="wan-ip" type="text" placeholder="10.0.8.2"  />
+                </dd>
+                <dt>
+                    <label for="dns-0">DNS Servers:</label>
+                </dt>
+                <dd>
+                    <input id="dns-0" type="text" placeholder="8.8.8.8" />
+                </dd>
+                <dt>
+                    
+                </dt>
+                <dd>
+                    <input id="dns-1" type="text" placeholder="8.8.4.4" />
+                </dd>
+            </dl>
+            <p class="wifi">WiFi Settings:</p>
+            <p class="ethernet">Access Point Settings:</p>
+            <dl class="prop-grid">
+                <dt>
+                    <label for="ssid">SSID:</label>
+                </dt>
+                <dd>
+                    <input id="ssid" type="text" maxlength="32" />
+                </dd>
+                <dt>
+                    <label for="passphrase">Passphrase:</label>
+                </dt>
+                <dd>
+                    <input id="passphrase" type="password" maxlength="63" />
+                </dd>
+            </dl>
+            <p>VPN Settings:</p>
+            <dl class="prop-grid">
+                <dt>
+                    <label for="file">Import from file:</label>
+                </dt>
+                <dd>
+                    <input class="ignore" type="file" id="file" placeholder="wg0.conf" />
+                </dd>
+                <dt>
+                    <label for="vpn-url">VPN Server:</label>
+                </dt>
+                <dd>
+                    <input class="ignore" type="text" id="vpn-url" pattern="([0-9]{1,3}\.){3}[0-9]{1,3}" inputmode="numeric" placeholder="12.23.45.67" />
+                    <span>:</span>
+                    <input class="ignore" type="number" id="vpn-port" min="10000" max="65535" placeholder="51820" style="width: 60px;" />
+                    <input type="hidden" id="vpn-endpoint" />
+                </dd>
+                <dt>
+                    <label for="private-key">Private Key:</label>
+                </dt>
+                <dd>
+                    <input id="private-key" type="text" />
+                </dd>
+                <dt>
+                    <label for="public-key">Public Key:</label>
+                </dt>
+                <dd>
+                    <input id="public-key" type="text" />
+                </dd>
+                <dt>
+                    <label for="preshared-key">Presahred Key:</label>
+                </dt>
+                <dd>
+                    <input id="preshared-key" type="text" />
+                </dd>
+            </dl>
+            <p>Save:</p>
+            <dl class="prop-grid">
+                <dt>
+                    <span id="config-update-response"></span>
+                </dt>
+                <dd>
+                    <input id="submit" class="ignore" type="button" value="Submit" />
+                </dd>
+            </dl>
+        </div>
+        <div class="template" data-content="/shared/loading.html"></div>
+    </body>
+</html>
