@@ -12,11 +12,11 @@ services:
       - 80:80
       - 443:443
     depends_on:
-      - router
+      - groundhog
     restart: unless-stopped
-  router:
-    image: marsara9/vpnrouter:latest
-    container_name: vpnrouter
+  groundhog:
+    image: marsara9/groundhog:latest
+    container_name: groundhog
     networks:
       - internal
     cap_add:
@@ -29,7 +29,7 @@ services:
     #  - 8080:8080
     volumes:
       - /var/run/dbus:/var/run/dbus
-      # - /docker/vpnrouter/database:/router/database
+      # - /docker/groundhog/database:/router/database
     restart: unless-stopped
 networks:
   internal:
