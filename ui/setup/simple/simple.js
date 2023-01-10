@@ -135,24 +135,28 @@ function bitCount (num) {
 
 function scanWiFi() {
     const dialog = $("#wifi-scan-dialog")
-    dialog.find("wifi-scan-status").show()
+    const status = dialog.find("wifi-scan-status")
+    const scanResults =  dialog.find("#wifi-scan-results")
+
+    status.show()
+    scanResults.hide()
     
     fetchJson("/wifi/scan", results => {
-        dialog.find("#wifi-scan-status").hide()
-
-        const scanResults =  dialog.find("#wifi-scan-results")
+        
         scanResults.empty()
-        for(result in results) {
-            const item = $(`<li>${result}</li>`)
+        for(let i = 0; i < results.length; i++) {
+            const result = results[i]
+            const item = $("<li></li>").text(result)
             item.click(function() {
                 dialog.find("button.positive").prop("disabled", false)
             })
             scanResults.append(item)
         }
-        scanResults.show()
 
+        status.hide()
+        scanResults.show()
     }, reason => {
-        dialog.find("#wifi-scan-status").text(reason.message)
+        status.text(reason.message)
     })
     
     dialog[0].showModal()
