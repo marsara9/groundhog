@@ -133,8 +133,39 @@ function bitCount (num) {
     return ((num + (num >> 4) & 0xF0F0F0F) * 0x1010101) >> 24
 }
 
+function scanWiFi() {
+    const dialog = $("#wifi-scan-dialog")
+    dialog.find("wifi-scan-status").show()
+    
+    fetchJson("/wifi/scan", results => {
+        dialog.find("#wifi-scan-status").hide()
+
+        const scanResults =  dialog.find("#wifi-scan-results")
+        scanResults.empty()
+        for(result in results) {
+            const item = $(`<li>${result}</li>`)
+            item.click(function() {
+                dialog.find("button.positive").prop("disabled", false)
+            })
+            scanResults.append(item)
+        }
+        scanResults.show()
+
+    }, reason => {
+        dialog.find("#wifi-scan-status").text(reason.message)
+    })
+    
+    dialog[0].showModal()
+    dialog.find("button.positive").click(function() {
+        const value = dialog.find("li.active").text()
+        $("#wifi-ssid").val(value)
+    })
+    
+}
+
 $(document).ready(function() {
     fetchConfiguration()
     $("#file").on("change", parseConfigFile)
     $("#submit").click(submitConfiguration)
+    $("#wifi-scan").click(scanWiFi)
 });

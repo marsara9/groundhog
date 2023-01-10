@@ -31,15 +31,9 @@ function getFieldData(submit) {
         for(let i = keys.length-1; i >= 0; i--) {
             const key = keys[i]
 
-            if(isNaN(parseInt(key, 10))) {
-                const temp = {}
-                temp[key] = object
-                object = temp
-            } else {
-                const temp = []
-                temp[key] = object
-                object = temp
-            }
+            const temp = (isNaN(parseInt(key, 10)) ? {} : [])
+            temp[key] = object
+            object = temp
         }
 
         configuration = _.merge(configuration, object)
@@ -102,9 +96,19 @@ function fixAutoFill() {
     // }, 500)
 }
 
+function configureListSelect() {
+    $("ul.select > li").click(function () {
+        $(this).siblings("li.active").removeClass("active")
+        $(this).addClass("active")
+    })
+}
+
 $(document).ready(function() {
     loadTemplates()
+    
     setupTabs()
+    configureListSelect()
+
     checkLogin()
     fixAutoFill()
 });
