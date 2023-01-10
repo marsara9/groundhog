@@ -140,16 +140,20 @@ function scanWiFi() {
 
     status.show()
     scanResults.hide()
+    scanResults.empty()
     
     fetchJson("/wifi/scan", results => {
         
-        scanResults.empty()
         for(let i = 0; i < results.length; i++) {
             const result = results[i]
-            const item = $("<li></li>").text(result)
-            item.click(function() {
-                dialog.find("button.positive").prop("disabled", false)
-            })
+            const item = $("<li></li>")
+                .text(result)
+                .click(function() {
+                    item.siblings("li.active").removeClass("active")
+                    item.addClass("active")
+                    
+                    dialog.find("button.positive").prop("disabled", false)
+                })
             scanResults.append(item)
         }
 
