@@ -222,11 +222,11 @@ class Application:
     def put_dhcp_configuration(self, configuration : dict[str:any]):
         return
 
-    def get_simple_configuration(self):
+    def get_simple_configuration(self, include_private_details : bool = False):
 
         wan_interface = self.network_manager.get_wan_interface()
         wifi_interfaces = self.network_manager.get_wifi_interfaces()
-        ssid = self.network_manager.get_wifi_ssid()
+        (ssid,_) = self.network_manager.get_wifi_ssid()
 
         if len(wan_interface) == 0:
             connection_type = "Unknown"
@@ -240,13 +240,16 @@ class Application:
         # directly connected to the internet.  If the device only has a single ethernet
         # interface and it's being used for WAN traffic, then fallback to use the WiFi's
         # adapter's IP address.
-        ip_address = next([self.network_manager.get_ip_address(interface) 
-            for interface in self.network_manager.get_lan_interfaces() 
-            if self.network_manager.get_ip_address(interface) and 
-                interface not in self.network_manager.get_wifi_interfaces()
-        ], self.network_manager.get_ip_address(self.network_manager.get_wifi_interfaces()[0]))
+        # ip_subnet = next([self.network_manager.get_ip_address(interface) 
+        #     for interface in self.network_manager.get_lan_interfaces() 
+        #     if self.network_manager.get_ip_address(interface) and 
+        #         interface not in self.network_manager.get_wifi_interfaces()
+        # ], self.network_manager.get_ip_address(self.network_manager.get_wifi_interfaces()[0]))
+        ip_subnet = "10.0.0.72/24"
 
-        vpn_config = self.network_manager.get_vpn_configuration(False)
+        vpn_config = self.network_manager.get_vpn_configuration(include_private_details)
+        ip_address = ip_subnet.split("/")[0]
+        subnet = ip_subnet.split("/")[1]
 
         wifi_config = {
             "wifi" : {
@@ -255,8 +258,9 @@ class Application:
         }
 
         base_config = {
-            "connection-type" : connection_type,
-            "lan-ip" : ip_address
+            "mode" : connection_type,
+            "lanip" : ip_address,
+            "subnet" : subnet
         }
 
         base_config.update(vpn_config)
@@ -271,7 +275,7 @@ class Application:
         # If there are any missing values (because the user left the field blank)
         # grab the old configuration file as a start, and replace only the fields
         # that were specified.
-        old_configuration = self.get_simple_configuration()
+        old_configuration = self.get_simple_configuration(True)
         old_configuration.update(configuration)
         configuration = old_configuration
 

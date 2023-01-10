@@ -2,11 +2,12 @@ function fetchConfiguration() {
     fetchJson("/simple/configuration", result => {
         genericPopulateFields(result)
 
-        const localIpAddress = result["lan-ip"]
-        const ip = localIpAddress.split("/")[0]
-        const netmask = localIpAddress.split("/")[1]
+        console.log(result)
 
-        switch(result["connection-type"]) {
+        //const localIpAddress = result["lanip"]
+        //const netmask = localIpAddress.split("/")[1]
+
+        switch(result.mode) {
             case "wifi", "unknown":
                 $(".wifi").show()
                 $(".ethernet").hide()
@@ -21,8 +22,8 @@ function fetchConfiguration() {
                 break;
         }
 
-        $("#lan-ip").val(localIpAddress.split("/")[0])
-        $("#subnet").text(`${getSubnet(localIpAddress)}/${netmask}`)
+        //$("#lanip").val(localIpAddress.split("/")[0])
+        //$("#subnet").text(`${getSubnet(localIpAddress)}/${netmask}`)
     })
 }
 

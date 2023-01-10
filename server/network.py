@@ -63,7 +63,7 @@ class NetworkManager():
         nmcli_ = subprocess.run(["nmcli", "-t", "-f", "active,ssid,security", "device", "wifi"], stdout=subprocess.PIPE)
         grep = subprocess.run(["grep", "yes"], input=nmcli_.stdout, stdout=subprocess.PIPE)
         awk = subprocess.run(["awk", "-F", ":", "{print $2,$3}"], input=grep.stdout, stdout=subprocess.PIPE)
-        result = awk.stdout.decode("utf8").strip("\n").split(" ")    
+        result = awk.stdout.decode("utf8").strip("\n").split(",")    
         if len(result) >= 2:
             return result
         else:
@@ -126,20 +126,20 @@ class NetworkManager():
         allowed_ips.remove("8.8.4.4/32")
 
         config = {
-            "wan-ip" : config["Interface"]["Address"],
-            "dns" : config["Interface"]["DNS"].split(","),
+            "wanip" : config["Interface"]["Address"],
             "vpn" : {
                 "url" : vpn_endpoint[0],
                 "port" : vpn_endpoint[1],
-                "subnet" : allowed_ips[0]
+                "subnet" : allowed_ips[0],
+                "dns" : config["Interface"]["DNS"].split(",")
             }
         }
 
         if(include_private_details):
             config["vpn"]["keys"] = {
                 "private" : config["Interface"]["PrivateKey"],
-                "private" : config["PEER"]["PublicKey"],
-                "private" : config["PEER"]["PresharedKey"],
+                "private" : config["Peer"]["PublicKey"],
+                "private" : config["Peer"]["PresharedKey"],
             }
 
         return config

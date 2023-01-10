@@ -3,9 +3,12 @@
     <head>
         <title>Groundhog - Setup - DHCP</title>
         <link rel="stylesheet" href="/shared/styles.css">
-        <script src="https://code.jquery.com/jquery-3.6.2.min.js" integrity="sha256-2krYZKh//PcchRtd+H+VyyQoZ/e3EcrkxhM8ycwASPA=" crossorigin="anonymous"></script>
-        <script src="/shared/main.js"></script>
-        <script src="/setup/simple/simple.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+        <script type="text/javascript" src="/shared/rest.js"></script>
+        <script type="text/javascript" src="/shared/cookies.js"></script>
+        <script type="text/javascript" src="/shared/main.js"></script>
+        <script ype="text/javascript" src="/setup/simple/simple.js"></script>
     </head>
     <body>
         <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
@@ -13,22 +16,22 @@
             <p>Basic Information:</p>
             <dl class="prop-grid">
                 <dt>
-                    <label for="subnet">Subnet:</label>
+                    <label for="subnet">Su<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>bnet:</label>
                 </dt>
                 <dd>
                     <span id="subnet">192.168.250.0/24</span>
                 </dd>
                 <dt>
-                    <label for="lan-ip">LAN IP Address:</label>
+                    <label for="lanip">LAN IP Address:</label>
                 </dt>
                 <dd>
-                    <input id="lan-ip" type="text" placeholder="192.168.250.1" inputmode="numeric" />
+                    <input id="lanip" type="text" placeholder="192.168.250.1" inputmode="numeric" />
                 </dd>
                 <dt>
-                    <label for="wan-ip">WAN IP Address:</label>
+                    <label for="wanip">WAN IP Address:</label>
                 </dt>
                 <dd>
-                    <input id="wan-ip" type="text" placeholder="10.0.8.2" inputmode="numeric"  />
+                    <input id="wanip" type="text" placeholder="10.0.8.2" inputmode="numeric"  />
                 </dd>
                 <dt>
                     <label for="vpn-dns-0">DNS Servers:</label>
