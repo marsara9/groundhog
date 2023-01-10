@@ -139,7 +139,7 @@ input[type="number"]#port::-webkit-outer-spin-button,
 input[type="number"]#port::-webkit-inner-spin-button,
 input[type="number"]#port {
     -webkit-appearance: none;
-    -moz-appearance: textfield;
+    /* -moz-appearance: textfield; */
     margin: 0;
 }
 
@@ -344,10 +344,33 @@ dialog::backdrop {
     background-color: rgba(0.0, 0.0, 0.0, 0.7);
 }
 
+dialog ::-webkit-scrollbar {
+    width: 10px;
+}
+
+dialog ::-webkit-scrollbar-track {
+    background: #333;
+}
+
+dialog ::-webkit-scrollbar-thumb {
+    background: white;
+    border-radius: 8px;
+}
+
+dialog ::-webkit-scrollbar-thumb:hover {
+    background: #1ed2ff;
+}
+
+dialog > p {
+    padding: 0 8px;
+}
+
 ul.select {
     list-style-type: none;
     padding-inline-start: 0;
-    /* overflow: scroll; */
+    max-height: 200px;
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 ul.select > li {
