@@ -2,6 +2,7 @@ import os
 import subprocess
 import nmcli
 import pydhcpdparser
+import configparser
 
 class NetworkManager():
 
@@ -62,7 +63,7 @@ class NetworkManager():
         nmcli_ = subprocess.run(["nmcli", "-t", "-f", "active,ssid,security", "device", "wifi"], stdout=subprocess.PIPE)
         grep = subprocess.run(["grep", "yes"], input=nmcli_.stdout, stdout=subprocess.PIPE)
         awk = subprocess.run(["awk", "-F", ":", "{print $2,$3}"], input=grep.stdout, stdout=subprocess.PIPE)
-        result = awk.stdout.decode("utf8").strip("\n").split(" ")    
+        result = awk.stdout.decode("utf8").strip("\n").split(",")    
         if len(result) >= 2:
             return result
         else:
@@ -95,16 +96,16 @@ class NetworkManager():
         
         with open(f"{self.CONFIG_DIRECTORY}/{self.get_vpn_interface()}.conf", "w+") as file:
             file.write("[Interface]\n")
-            file.write(f"PrivateKey = {configuration['privatekey']}\n")
-            file.write(f"Address = {configuration['address']}\n")
-            file.write(f"DNS = {configuration['dns']}\n")
+            file.write(f"PrivateKey = {configuration['vpn']['keys']['private']}\n")
+            file.write(f"Address = {configuration['wan-ip']}\n")
+            file.write(f"DNS = {','.join(configuration['dns'])}\n")
             file.write("\n\n")
-            file.write("[PEER]\n")
-            file.write(f"PublicKey = {configuration['publickey']}\n")
-            file.write(f"PresharedKey = {configuration['presharedkey']}\n")
-            file.write(f"AllowedIPs = {configuration['allowedips']}\n")
+            file.write("[Peer]\n")
+            file.write(f"PublicKey = {configuration['vpn']['keys']['public']}\n")
+            file.write(f"PresharedKey = {configuration['vpn']['keys']['preshared']}\n")
+            file.write(f"AllowedIPs = {configuration['vpn']['allowed-ips']}\n")
             file.write(f"PersistentKeepalive = 0\n")
-            file.write(f"Endpoint = {configuration['endpoint']}\n")
+            file.write(f"Endpoint = {configuration['vpn']['url']}:{configuration['vpn']['port']}\n")
             file.flush()
  
     def configure_vpn(self):
@@ -114,6 +115,34 @@ class NetworkManager():
         subprocess.call(["nmcli", "connection", "import", "type", "wireguard", "file", config_path])
         nmcli.connection.up(vpn_interface)
         return
+
+    def get_vpn_configuration(self, include_private_details : bool) -> dict[str:any]:
+        config = configparser.ConfigParser()
+        config.read(f"{self.CONFIG_DIRECTORY}/{self.get_vpn_interface()}.conf")
+
+        vpn_endpoint = config["Peer"]["Endpoint"].split(":")
+        allowed_ips = config["Peer"]["AllowedIPs"].split(",")
+        allowed_ips.remove("8.8.8.8/32")
+        allowed_ips.remove("8.8.4.4/32")
+
+        config = {
+            "wanip" : config["Interface"]["Address"],
+            "vpn" : {
+                "url" : vpn_endpoint[0],
+                "port" : vpn_endpoint[1],
+                "subnet" : allowed_ips[0],
+                "dns" : config["Interface"]["DNS"].split(",")
+            }
+        }
+
+        if(include_private_details):
+            config["vpn"]["keys"] = {
+                "private" : config["Interface"]["PrivateKey"],
+                "private" : config["Peer"]["PublicKey"],
+                "private" : config["Peer"]["PresharedKey"],
+            }
+
+        return config
  
     def get_dhcp_configuration(self):
         if not os.path.exists(f"{self.CONFIG_DIRECTORY}/dhcpd.conf"):
@@ -149,3 +178,6 @@ class NetworkManager():
         }
 
         return configuration
+
+    def get_ip_address(self, interface : str) -> str:
+        return nmcli.device.show(interface, "ip4.address").get("ip4.address[0]")

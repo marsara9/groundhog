@@ -1,113 +1,51 @@
-function restJson(url, method, body, showSpinner, onResult, onError) {
 
-    let params = {
-        method: method,
-        credentials: "same-origin",
-        cache: "no-cache",
-        headers: {}
-    }
-    if(body) {
-        params.body = JSON.stringify(body)
-        params.headers["content-type"] = "application/json"
-    }
 
-    if(showSpinner) {
-        $("#loading-dialog").show()
-    }
-
-    fetch(url, params).then(response => {        
-        if(response.headers.get("content-type") == "application/json") {
-            response.json().then(data => {
-                if(!response.ok) {
-                    let input = $(`#${data.parameter}`)
-                    input.addClass("error")
-                    if(onError) {
-                        onError(data)
-                    }
-                } else {
-                    if(onResult) {
-                        onResult(data)
-                    }
-                }
-            })
-        } else {
-            if(response.ok && onResult) {
-                onResult()
-            }
-            else if(!response.ok && onError) {
-                onError(response.body)
-            }
-        }
-        if(response.status == 401) {
-            logout()          
-        }
-    }).then(() => {
-        $("#loading-dialog").hide()
-    })
-}
-
-function fetchJson(url, onResult, onError) {
-    restJson(url, "GET", null, false, onResult, onError)
-}
-
-function postJson(url, data, onResult, onError) {
-    restJson(url, "POST", data, true, onResult, onError)
-}
-
-function putJson(url, data, onResult, onError) {
-    restJson(url, "PUT", data, true, onResult, onError)
-}
-
-function deleteJson(url, data, onResult, onError) {
-    restJson(url, "DELETE", data, true, onResult, onError)
-}
-
-function genericPopulateFields(data) {
+function genericPopulateFields(data, prefix = null) {
     for(const key in data) {
         let value = data[key]
-        if(typeof value === "object") {
-            for(const index in value) {
-                $(`input#${key}-${index}`).val(value[index])
-            }
+
+        const next = (prefix ? `${prefix}-${key}` : key)
+        const id = `input#${next}`
+
+        if(value instanceof Object) {
+            genericPopulateFields(value, next)
         } else {
-            $(`input#${key}`).val(data[key])
+            $(id).val(value)
         }
     }
 }
 
 function getFieldData(submit) {
-    configuration = {}
+    let configuration = {}
     submit.parents("dl.prop-grid").find("input:not(.ignore)").each(function() {
-        const input = $(this)        
-        configuration[input.attr("id")] = input.val()
+        const input = $(this)
+        const value = input.val()
+
+        if(!value) {
+            return
+        }
+
+        let object = value
+
+        const keys = input.attr("id").split("-")
+        for(let i = keys.length-1; i >= 0; i--) {
+            const key = keys[i]
+
+            if(isNaN(parseInt(key, 10))) {
+                const temp = {}
+                temp[key] = object
+                object = temp
+            } else {
+                const temp = []
+                temp[key] = object
+                object = temp
+            }
+        }
+
+        configuration = _.merge(configuration, object)
     })
 
     return configuration
-}
-
-function setCookie(name,value,days) {
-    var expires = "";
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + (days*24*60*60*1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
-}
-
-function getCookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-    }
-    return null;
-}
-
-function eraseCookie(name) {   
-    document.cookie = name+'=; Max-Age=-99999999;';  
 }
 
 function logout() {

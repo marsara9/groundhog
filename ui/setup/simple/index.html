@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Groundhog - Setup - DHCP</title>
+        <link rel="stylesheet" href="/shared/styles.css">
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+        <script type="text/javascript" src="/shared/rest.js"></script>
+        <script type="text/javascript" src="/shared/cookies.js"></script>
+        <script type="text/javascript" src="/shared/main.js"></script>
+        <script ype="text/javascript" src="/setup/simple/simple.js"></script>
+    </head>
+    <body>
+        <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
+        <div class="content">
+            <p>Basic Information:</p>
+            <dl class="prop-grid">
+                <dt>
+                    <label for="subnet">Su<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>bnet:</label>
+                </dt>
+                <dd>
+                    <span id="subnet">192.168.250.0/24</span>
+                </dd>
+                <dt>
+                    <label for="lanip">LAN IP Address:</label>
+                </dt>
+                <dd>
+                    <input id="lanip" type="text" placeholder="192.168.250.1" inputmode="numeric" />
+                </dd>
+                <dt>
+                    <label for="wanip">WAN IP Address:</label>
+                </dt>
+                <dd>
+                    <input id="wanip" type="text" placeholder="10.0.8.2" inputmode="numeric"  />
+                </dd>
+                <dt>
+                    <label for="vpn-dns-0">DNS Servers:</label>
+                </dt>
+                <dd>
+                    <input id="vpn-dns-0" type="text" placeholder="8.8.8.8" inputmode="numeric" />
+                </dd>
+                <dt>
+                    
+                </dt>
+                <dd>
+                    <input id="vpn-dns-1" type="text" placeholder="8.8.4.4" inputmode="numeric" />
+                </dd>
+            </dl>
+            <p class="wifi">WiFi Settings:</p>
+            <p class="ethernet">Access Point Settings:</p>
+            <dl class="prop-grid">
+                <dt>
+                    <label for="wifi-ssid">SSID:</label>
+                </dt>
+                <dd>
+                    <input id="wifi-ssid" type="text" maxlength="32" />
+                    <button id="wifi-scan">Scan</button>
+                </dd>
+                <dt>
+                    <label for="wifi-passphrase">Passphrase:</label>
+                </dt>
+                <dd>
+                    <input id="wifi-passphrase" type="password" maxlength="63" />
+                </dd>
+            </dl>
+            <p>VPN Settings:</p>
+            <dl class="prop-grid">
+                <dt>
+                    <label for="file">Import from file:</label>
+                </dt>
+                <dd>
+                    <input class="ignore" type="file" id="file" placeholder="wg0.conf" />
+                </dd>
+                <dt>
+                    <label for="vpn-url">VPN Server:</label>
+                </dt>
+                <dd>
+                    <input class="ignore" type="text" id="vpn-url" inputmode="numeric" placeholder="12.23.45.67" />
+                    <span>:</span>
+                    <input class="ignore" type="number" id="vpn-port" min="10000" max="65535" placeholder="51820" style="width: 60px;" />
+                </dd>
+                <dt>
+                    <label>VPN Subnet:</label>
+                </dt>
+                <dd>
+                    <input id="vpn-subnet" type="text" inputmode="numeric" placeholder="10.0.0.0/8" />
+                </dd>
+                <dt>
+                    <label for="vpn-keys-private">Private Key:</label>
+                </dt>
+                <dd>
+                    <input id="vpn-keys-private" type="text" />
+                </dd>
+                <dt>
+                    <label for="vpn-keys-public">Public Key:</label>
+                </dt>
+                <dd>
+                    <input id="vpn-keys-public" type="text" />
+                </dd>
+                <dt>
+                    <label for="vpn-keys-preshared">Presahred Key:</label>
+                </dt>
+                <dd>
+                    <input id="vpn-keys-preshared" type="text" />
+                </dd>
+            </dl>
+            <p>Save:</p>
+            <dl class="prop-grid">
+                <dt>
+                    <span id="config-update-response"></span>
+                </dt>
+                <dd>
+                    <input id="submit" class="ignore" type="button" value="Submit" />
+                </dd>
+            </dl>
+        </div>
+        <div class="template" data-content="/shared/loading.html"></div>
+    </body>
+</html>
