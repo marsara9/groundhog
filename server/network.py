@@ -79,7 +79,14 @@ class NetworkManager():
         return
  
     def get_nearby_access_points(self):
-        return [*set(filter(None, [signal.ssid for signal in nmcli.device.wifi()]))]
+        results = {}
+        for signal in nmcli.device.wifi():
+            if (signal.ssid is not None and len(signal.ssid) > 0) and signal.ssid not in results or results[signal.ssid]["strength"] < signal.signal:
+                results[signal.ssid] = {
+                    "security" : signal.security,
+                    "strength" : signal.signal
+                }
+        return results
  
     def connect_to_wifi(self, ssid : str, passphrase : str):
         wifi_interfaces = self.get_wifi_interfaces()

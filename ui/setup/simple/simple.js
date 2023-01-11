@@ -4,9 +4,6 @@ function fetchConfiguration() {
 
         console.log(result)
 
-        //const localIpAddress = result["lanip"]
-        //const netmask = localIpAddress.split("/")[1]
-
         switch(result.mode) {
             case "wifi", "unknown":
                 $(".wifi").show()
@@ -21,9 +18,6 @@ function fetchConfiguration() {
                 $(".ethernet").hide()
                 break;
         }
-
-        //$("#lanip").val(localIpAddress.split("/")[0])
-        //$("#subnet").text(`${getSubnet(localIpAddress)}/${netmask}`)
     })
 }
 
@@ -135,7 +129,7 @@ function bitCount (num) {
 
 function scanWiFi() {
     const dialog = $("#wifi-scan-dialog")
-    const status = dialog.find("wifi-scan-status")
+    const status = dialog.find("#wifi-scan-status")
     const scanResults =  dialog.find("#wifi-scan-results")
 
     status.show()
@@ -143,11 +137,41 @@ function scanWiFi() {
     scanResults.empty()
     
     fetchJson("/wifi/scan", results => {
-        
-        for(let i = 0; i < results.length; i++) {
-            const result = results[i]
+
+        resultsArray = []
+        for(ssid in results) {
+            resultsArray.push(results[ssid])
+            resultsArray[resultsArray.length - 1]["name"] = ssid
+        }
+
+        resultsArray.sort(function(lhs, rhs) {
+            return rhs.strength - lhs.strength
+        })
+
+        for(let i = 0; i < resultsArray.length; i++) {
+            const result = resultsArray[i]
+
+            let signalStrengthFactor = Math.ceil(result.strength / 20)
+            // if(result.strength > 80) {
+            //     signalStrengthFactor = 5
+            // } else if(result.strength > 60) {
+            //     signalStrengthFactor = 4
+            // } else if(result.strength > 40) {
+            //     signalStrengthFactor = 3
+            // } else if(result.strength > 20) {
+            //     signalStrengthFactor = 2
+            // } else {
+            //     signalStrengthFactor = 1
+            // }
+
+            const signalName = $("<span></span>")
+                .text(result.name)
+            const signalStrengthImg = $("<img></img>")
+                .attr("src", `/imgs/wifi/wifi-${signalStrengthFactor}.svg`)
+                .attr("height", 24)
             const item = $("<li></li>")
-                .text(result)
+                .append(signalName)
+                .append(signalStrengthImg)
                 .click(function() {
                     item.siblings("li.active").removeClass("active")
                     item.addClass("active")

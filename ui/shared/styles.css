@@ -374,8 +374,18 @@ ul.select {
 }
 
 ul.select > li {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
     padding: 8px;
     margin: 2px;
+}
+
+ul.select > li > *:first-child {
+    flex-grow: 1;
+    flex-shrink: 0;
 }
 
 ul.select > :is(li:hover, li.active) {
