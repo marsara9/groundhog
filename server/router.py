@@ -26,12 +26,6 @@ class Application:
                 return http.get_base_auth_json(self.get_status)
             case "/wifi/scan":
                 return http.get_base_auth_json(self.get_wifi_scan)
-            case "/vpn/configuration":
-                pass
-            case "/wifi/configuration":
-                pass
-            case "/dhcp/configuration":
-                return http.get_base_auth_json(self.get_dhcp_configuation)
             case "/simple/configuration":
                 return http.get_base_auth_json(self.get_simple_configuration)
             case _:
@@ -54,12 +48,6 @@ class Application:
 
     def put(self, http : HttpTools):
         match http.request.path:
-            case "/vpn/configuration":
-                return http.put_base_auth_json(self.put_vpn_configuration)
-            case "/wifi/configuration":
-                return http.put_base_auth_json(self.put_wifi_configuration)
-            case "/dhcp/configuration":
-                return http.put_base_auth_json(self.put_dhcp_configuration)
             case "/simple/configuration":
                 return http.put_base_auth_json(self.put_simple_configuration)
         return http.send_json_error(404, "Not Found")
@@ -148,9 +136,6 @@ class Application:
     def get_wifi_scan(self):
         return self.network_manager.get_nearby_access_points() 
 
-    def get_dhcp_configuation(self):
-        return self.network_manager.get_dhcp_configuration()
-
     def post_user_change_password(self, http : HttpTools):
         if http.request.content_length == 0:
             return http.send_json_error(411, "Missing Payload")
@@ -198,29 +183,6 @@ class Application:
             http.send_json_error(406, "The server was unable to change your password at this time.  Please try again later.")
 
         return []
-
-    def put_vpn_configuration(self, configuration : dict[str:any]):
-
-        self.network_manager.create_vpn_configuration_file(
-            self.network_manager.get_vpn_interface(),
-            configuration
-        )
-
-        self.network_manager.configure_vpn(self.network_manager.get_vpn_interface())
-
-        return
-
-    def put_wifi_configuration(self, configuration : dict[str:any]):
-
-        if(configuration["apmode"] == True):
-            self.network_manager.create_access_point(configuration["ssid"], configuration["passphrase"])
-        else:
-            self.network_manager.connect_to_wifi(configuration["ssid"], configuration["passphrase"])
-
-        return
-
-    def put_dhcp_configuration(self, configuration : dict[str:any]):
-        return
 
     def get_simple_configuration(self, include_private_details : bool = False):
 
@@ -279,11 +241,7 @@ class Application:
         old_configuration.update(configuration)
         configuration = old_configuration
 
-        self.network_manager.create_vpn_configuration_file(
-            self.network_manager.get_vpn_interface(),
-            configuration
-        )
-        self.network_manager.configure_vpn()
+        self.network_manager.configure_vpn(configuration)
 
         wan_interface = self.network_manager.get_wan_interface()
         wifi_interfaces = self.network_manager.get_wifi_interfaces()

@@ -79,7 +79,14 @@ class NetworkManager():
         return
  
     def get_nearby_access_points(self):
-        return [*set(filter(None, [signal.ssid for signal in nmcli.device.wifi()]))]
+        results = {}
+        for signal in nmcli.device.wifi():
+            if (signal.ssid is not None and len(signal.ssid) > 0) and (signal.ssid not in results or results[signal.ssid]["strength"] < signal.signal):
+                results[signal.ssid] = {
+                    "security" : signal.security,
+                    "strength" : signal.signal
+                }
+        return results
  
     def connect_to_wifi(self, ssid : str, passphrase : str):
         wifi_interfaces = self.get_wifi_interfaces()
@@ -90,11 +97,15 @@ class NetworkManager():
         nmcli.device.wifi_connect(ssid, passphrase, wifi_interfaces[0])
         return
 
-    def create_vpn_configuration_file(self, interface : str, configuration : dict[str:any]):
+    def configure_vpn(self, configuration : dict[str:any]):
+
+        vpn_interface = self.get_vpn_interface()
+        config_path = f"{self.CONFIG_DIRECTORY}/{vpn_interface}.conf"
+
         if not os.path.exists(self.CONFIG_DIRECTORY):
             os.makedirs(self.CONFIG_DIRECTORY)
         
-        with open(f"{self.CONFIG_DIRECTORY}/{self.get_vpn_interface()}.conf", "w+") as file:
+        with open(config_path, "w+") as file:
             file.write("[Interface]\n")
             file.write(f"PrivateKey = {configuration['vpn']['keys']['private']}\n")
             file.write(f"Address = {configuration['wan-ip']}\n")
@@ -107,11 +118,7 @@ class NetworkManager():
             file.write(f"PersistentKeepalive = 0\n")
             file.write(f"Endpoint = {configuration['vpn']['url']}:{configuration['vpn']['port']}\n")
             file.flush()
- 
-    def configure_vpn(self):
-        vpn_interface = self.get_vpn_interface()
-        config_path = f"{self.CONFIG_DIRECTORY}/{vpn_interface}.conf"
- 
+
         subprocess.call(["nmcli", "connection", "import", "type", "wireguard", "file", config_path])
         nmcli.connection.up(vpn_interface)
         return

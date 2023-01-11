@@ -146,7 +146,7 @@ input[type="number"]#port {
 input[type="submit"],
 input[type="button"],
 input[type="file"]::file-selector-button,
-button {    
+button:not(:has(img)) {    
     border: none;
     background-color: transparent;
     color: white;
@@ -155,10 +155,17 @@ button {
     border-radius: 8px;
 }
 
+button:has(img) {
+    border: none;
+    background-color: transparent;
+    padding: 2px;
+    width: 32px;
+}
+
 input[type="submit"]:hover,
 input[type="button"]:hover,
 input[type="file"]::file-selector-button:hover,
-button:hover {
+button:not(:has(img)):hover {
     background-color: black;
     color: #1ed2ff;
 }
@@ -365,6 +372,14 @@ dialog > p {
     padding: 0 8px;
 }
 
+dialog > form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+}
+
 ul.select {
     list-style-type: none;
     padding-inline-start: 0;
@@ -374,8 +389,18 @@ ul.select {
 }
 
 ul.select > li {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
     padding: 8px;
     margin: 2px;
+}
+
+ul.select > li > *:first-child {
+    flex-grow: 1;
+    flex-shrink: 0;
 }
 
 ul.select > :is(li:hover, li.active) {
