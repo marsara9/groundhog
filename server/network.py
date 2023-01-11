@@ -81,7 +81,7 @@ class NetworkManager():
     def get_nearby_access_points(self):
         results = {}
         for signal in nmcli.device.wifi():
-            if (signal.ssid is not None and len(signal.ssid) > 0) and signal.ssid not in results or results[signal.ssid]["strength"] < signal.signal:
+            if (signal.ssid is not None and len(signal.ssid) > 0) and (signal.ssid not in results or results[signal.ssid]["strength"] < signal.signal):
                 results[signal.ssid] = {
                     "security" : signal.security,
                     "strength" : signal.signal
