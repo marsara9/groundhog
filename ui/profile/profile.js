@@ -23,17 +23,17 @@ function submitPasswordUpdate() {
 }
 
 function deleteUser() {
-    let dialog = $("#confirm-delete-dialog")
+    let dialog = $("#confirm-delete-dialog")[0]
     $("#confirm-delete-dialog .positive").click(function() {
-        dialog.hide()
+        dialog.close()
         deleteJson("/user/" + getCookie("username")).then(() => {
             logout()
         })  
     })
     $("#confirm-delete-dialog .negative").click(function() {
-        dialog.hide()
+        dialog.close()
     })
-    dialog.show()
+    dialog.showModal()
 }
 
 $(document).ready(function() {

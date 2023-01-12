@@ -1,6 +1,6 @@
 function login() {
 
-    $("#loading-dialog").show()
+    $("#loading-dialog")[0].showModal()
 
     const username = $("#username").val()
     const password = $("#password").val()
@@ -22,7 +22,7 @@ function login() {
             })
             return
         }
-        $("#loading-dialog").hide()
+        $("#loading-dialog")[0].close()
         location.href = "/"
     }).catch((reason) => {
         $("#login-error").text(reason)

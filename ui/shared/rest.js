@@ -12,7 +12,7 @@ function restJson(url, method, body, showSpinner, onResult, onError) {
     }
 
     if(showSpinner) {
-        $("#loading-dialog").show()
+        $("#loading-dialog")[0].showModal()
     }
 
     fetch(url, params).then(response => {        
@@ -42,7 +42,9 @@ function restJson(url, method, body, showSpinner, onResult, onError) {
             logout()          
         }
     }).then(() => {
-        $("#loading-dialog").hide()
+        if(showSpinner) {
+            $("#loading-dialog")[0].close()
+        }
     })
 }
 
