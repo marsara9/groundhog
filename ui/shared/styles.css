@@ -426,6 +426,6 @@ dialog > div.multiline > div {
     justify-content: space-evenly;
 }
 
-dialog img {
+dialog > div.single-line > img {
     height: 40px;
 }
