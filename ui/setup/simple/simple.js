@@ -152,17 +152,6 @@ function scanWiFi() {
             const result = resultsArray[i]
 
             let signalStrengthFactor = Math.ceil(result.strength / 20)
-            // if(result.strength > 80) {
-            //     signalStrengthFactor = 5
-            // } else if(result.strength > 60) {
-            //     signalStrengthFactor = 4
-            // } else if(result.strength > 40) {
-            //     signalStrengthFactor = 3
-            // } else if(result.strength > 20) {
-            //     signalStrengthFactor = 2
-            // } else {
-            //     signalStrengthFactor = 1
-            // }
 
             const signalName = $("<span></span>")
                 .text(result.name)
@@ -183,16 +172,28 @@ function scanWiFi() {
 
         status.hide()
         scanResults.show()
+
+        $("#wifi-refresh > img").attr("src", "/imgs/reload/reload-static.svg")
+
     }, reason => {
         status.text(reason.message)
     })
     
-    dialog[0].showModal()
+    if(!dialog.attr("open")) {
+        dialog[0].showModal()
+    }
     dialog.find("button.positive").click(function() {
         const value = dialog.find("li.active").text()
         $("#wifi-ssid").val(value)
     })
-    
+}
+
+function refreshWiFi(e) {
+    e.preventDefault()
+
+    $("#wifi-refresh > img").attr("src", "/imgs/reload/reload-animated.svg")
+
+    scanWiFi()
 }
 
 $(document).ready(function() {
@@ -200,4 +201,5 @@ $(document).ready(function() {
     $("#file").on("change", parseConfigFile)
     $("#submit").click(submitConfiguration)
     $("#wifi-scan").click(scanWiFi)
+    $("#wifi-refresh").click(refreshWiFi)
 });

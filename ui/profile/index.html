@@ -4,6 +4,9 @@
         <title>Groundhog - Profile</title>
         <link rel="stylesheet" href="/shared/styles.css" />
         <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+        <script type="text/javascript" src="/shared/rest.js"></script>
+        <script type="text/javascript" src="/shared/cookies.js"></script>
         <script type="text/javascript" src="/shared/main.js"></script>
         <script type="text/javascript" src="/profile/profile.js"></script>
     </head>
@@ -71,7 +74,7 @@
                 </dt>
                 <dd>
                     <input type="password" id="new-user-confirm-password" />
-                </dd>
+                </dd>.dialog
                 <dt>
                     
                 </dt>
@@ -80,15 +83,15 @@
                 </dd>
             </dl>
         </div>
-        <div id="confirm-delete-dialog" class="schim">
-            <div class="multiline dialog">
+        <dialog id="confirm-delete-dialog">            
+            <div class="multiline">
                 <span>Are you sure?  This cannot be undone.</span>
                 <div>
                     <button class="positive error">Delete</button>
                     <button class="negative">Cancel</button>
                 </div>
-            </div>
-        </div>
+            </div>            
+        </dialog>
         <div class="template" data-content="/shared/loading.html"></div>
     </body>
 </html>
