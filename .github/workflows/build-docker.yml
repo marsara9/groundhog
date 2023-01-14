@@ -29,7 +29,8 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v3
         with:
-          context: docker/
+          context: .
+          file: docker/dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: true
           tags: marsara9/groundhog:latest
