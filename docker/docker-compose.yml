@@ -27,10 +27,10 @@ services:
       - TZ=America/New_York
     ports:
     #  - 8080:8080
-    #  - 53:53/udp
+     - 67:67/udp
     volumes:
       - /var/run/dbus:/var/run/dbus
-      # - /docker/groundhog/database:/router/database
+      - /docker/groundhog/database:/router/database
     restart: unless-stopped
 networks:
   internal:

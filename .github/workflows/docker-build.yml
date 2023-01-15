@@ -1,4 +1,4 @@
-name: Docker Build Multiplatform
+name: docker build
 run-name: ${{ github.actor }} is building and pushing to docker-hub.
 on:
   push:
