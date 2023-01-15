@@ -1,12 +1,14 @@
+from dhcp import DHCP
 import os
 import subprocess
 import nmcli
-import pydhcpdparser
 import configparser
+
 
 class NetworkManager():
 
     CONFIG_DIRECTORY = f"{os.getcwd()}/database/config"
+    dhcp = DHCP()
 
     def __init__(self):
         nmcli.disable_use_sudo()
@@ -124,8 +126,14 @@ class NetworkManager():
         return
 
     def get_vpn_configuration(self, include_private_details : bool) -> dict[str:any]:
+
+        config_path = f"{self.CONFIG_DIRECTORY}/{self.get_vpn_interface()}.conf"
+
+        if not os.path.exists(config_path):
+            return None
+
         config = configparser.ConfigParser()
-        config.read(f"{self.CONFIG_DIRECTORY}/{self.get_vpn_interface()}.conf")
+        config.read(config_path)
 
         vpn_endpoint = config["Peer"]["Endpoint"].split(":")
         allowed_ips = config["Peer"]["AllowedIPs"].split(",")
@@ -134,11 +142,11 @@ class NetworkManager():
 
         config = {
             "wanip" : config["Interface"]["Address"],
+            "dns" : config["Interface"]["DNS"].split(","),
             "vpn" : {
                 "url" : vpn_endpoint[0],
                 "port" : vpn_endpoint[1],
-                "subnet" : allowed_ips[0],
-                "dns" : config["Interface"]["DNS"].split(",")
+                "subnet" : allowed_ips[0]
             }
         }
 
@@ -150,38 +158,54 @@ class NetworkManager():
             }
 
         return config
+
+    def configure_dhcp(self, configuration : dict[str : any]):
+        if not os.path.exists(self.CONFIG_DIRECTORY):
+            os.makedirs(self.CONFIG_DIRECTORY)
+
+        config_path = f"{self.CONFIG_DIRECTORY}/dnsmasq.conf"
+
+        ip_addr = configuration["lanip"]
+        netmask = "255.255.255.0"
+        subnet = DHCP.get_subnet(ip_addr, netmask)
+        (range_start, range_end) = DHCP.get_range(subnet, 190, 9)
+
+        dhcp_range = [
+            range_start,
+            range_end,
+            netmask,
+            "8h"
+        ]
+
+        with open(config_path, "w+") as file:
+            file.write("port=0\n")
+            file.write(f"dhcp-leasefile={self.CONFIG_DIRECTORY}/dnsmasq.leases\n")
+            file.write(f"dhcp-range={','.join(dhcp_range)}\n")
+            file.write(f"dhcp-options=6,{','.join(configuration['dns'])}\n")
+            # for interface in configuration["dhcp"]["interfaces"]:
+            for interface in self.get_lan_interfaces():
+                file.write(f"interface={interface}\n")
+            file.flush()
+
+        self.dhcp.restart(config_path)
  
     def get_dhcp_configuration(self):
-        if not os.path.exists(f"{self.CONFIG_DIRECTORY}/dhcpd.conf"):
+        if not os.path.exists(f"{self.CONFIG_DIRECTORY}/dnsmasq.conf"):
             return None
         
-        with open(f"{self.CONFIG_DIRECTORY}/dhcpd.conf", "r") as file:
-            conf = file.read()
-            conf_dict = pydhcpdparser.parser.parse(conf)
+        with open(f"{self.CONFIG_DIRECTORY}/dnsmasq.conf", "r") as file:
+            dnsmasq = DHCP.get_config(file.read())
 
-        def find(key : str) -> any:
-            return next((item[key] for item in conf_dict if key in item), None)
-
-        options = find("option")
-        range = find("range")
-        dns = options["domain-name-servers"].split(",")
+        subnet = DHCP.get_subnet_cidr(
+            dnsmasq["dhcp-range"][0],
+            dnsmasq["dhcp-range"][2],
+        )
 
         configuration = {
-            "default-lease-time": find("default-lease-time"),
-            "max-lease-time": find("max-lease-time"),
-            "subnet": find("subnet"),
-            "netmask": find("netmask"),
-            "interfaces" : [
-                "eth1",
-                "wlan0"
-            ],
-            "router": options["routers"],
-            "range": {
-                "start": range[0],
-                "end": range[1]
-            },
-            "dns": dns,
-            "domain" : options["domain-name"]
+            "dns": dnsmasq["dhcp-options"]["6"],
+            "dhcp": {
+                "subnet": subnet,
+            }
         }
 
         return configuration
