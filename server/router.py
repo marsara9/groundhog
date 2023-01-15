@@ -119,7 +119,7 @@ class Application:
             if self.network_manager.get_interface_status(interface) == "up":
                 wifi_status = "up"
  
-        dhcp_interfaces = self.network_manager.get_lan_interfaces()
+        dhcp_interfaces = self.network_manager.get_dhcp_configuration()["dhcp"]["interfaces"]
  
         (ssid,security_type) = self.network_manager.get_wifi_ssid()
  
