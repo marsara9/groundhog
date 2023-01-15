@@ -25,8 +25,9 @@ services:
       - apparmor:unconfined
     environment:
       - TZ=America/New_York
-    #ports:
+    ports:
     #  - 8080:8080
+    #  - 53:53/udp
     volumes:
       - /var/run/dbus:/var/run/dbus
       # - /docker/groundhog/database:/router/database

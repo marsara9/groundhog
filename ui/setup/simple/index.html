@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title>Groundhog - Setup - DHCP</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/shared/styles.css">
         <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
@@ -16,10 +17,10 @@
             <p>Basic Information:</p>
             <dl class="prop-grid">
                 <dt>
-                    <label for="subnet">Su<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>bnet:</label>
+                    <label for="dhcp-subnet">Subnet:</label>
                 </dt>
                 <dd>
-                    <span id="subnet">192.168.250.0/24</span>
+                    <span id="dhcp-subnet">192.168.250.0/24</span>
                 </dd>
                 <dt>
                     <label for="lanip">LAN IP Address:</label>
@@ -34,16 +35,16 @@
                     <input id="wanip" type="text" placeholder="10.0.8.2" inputmode="numeric"  />
                 </dd>
                 <dt>
-                    <label for="vpn-dns-0">DNS Servers:</label>
+                    <label for="dns-0">DNS Servers:</label>
                 </dt>
                 <dd>
-                    <input id="vpn-dns-0" type="text" placeholder="8.8.8.8" inputmode="numeric" />
+                    <input id="dns-0" type="text" placeholder="8.8.8.8" inputmode="numeric" />
                 </dd>
                 <dt>
                     
                 </dt>
                 <dd>
-                    <input id="vpn-dns-1" type="text" placeholder="8.8.4.4" inputmode="numeric" />
+                    <input id="dns-1" type="text" placeholder="8.8.4.4" inputmode="numeric" />
                 </dd>
             </dl>
             <p class="wifi">WiFi Settings:</p>
