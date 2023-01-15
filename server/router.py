@@ -1,7 +1,6 @@
 from network import NetworkManager
 from http_tools import HttpTools
 import os
-import simplejson as json
 
 class Application:
 
