@@ -55,10 +55,15 @@ class HttpTools:
         self.start_response = start_response
         self.request = Request(environ)
 
+    def print_error(self,error : Exception):
+        stack = traceback.format_exception(error)
+        for entry in stack:
+            print(f"\033[91m{entry}\033[0m")
+
     def send_basic_error(self, code : int, message : str, error : Exception = None):
 
         if error != None:
-            print(f"\033[91m {str(error)} \033[0m")
+            self.print_error(error)
         
         self.start_response(f"{code} {responses[code]}", [
             ("Content-Type", "text/plain"),
@@ -67,23 +72,30 @@ class HttpTools:
 
         return [message.encode("utf8")]
 
-    def send_json_error(self, code : int, message : str, error : Exception = None):
+    def send_json_error(self, code : int, message : any = None, error : Exception = None):
 
         if error != None:
-            print(f"\033[91m {str(error)} \033[0m")
+            self.print_error(error)
 
         self.start_response(f"{code} {responses[code]}", [
             ("Content-Type", "application/json")
         ])
 
-        if __debug__:
-            obj = {
-                "message": message,
-                "error": str(error) if error else None
+        if message == None:
+            message = {
+                "message" : responses[code]
             }
-            return [json.dumps(obj).encode("utf8")]
-        else:
-            return [json.dumps(message).encode("utf8")]
+        elif not isinstance(message, dict):
+            message = {
+                "message" : message
+            }
+
+        message["code"] = code
+
+        if __debug__:
+            message["error"] = str(error) if error else None
+
+        return [json.dumps(message).encode("utf8")]
 
     def get_base_auth_json(self, get):
         if not self.auth.validate_session_cookies(self.request.cookies, self.request.remote_address):

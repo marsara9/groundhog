@@ -1,22 +1,22 @@
 version: '3.5'
 services:
-  # webui:
-  #   image: nginx:latest
-  #   container_name: webui
-  #   networks:
-  #     - internal
-  #   volumes:
-  #     - /docker/nginx:/etc/nginx
-  #     - /docker/certs:/certs
-  #   ports:
-  #     - 80:80
-  #     - 443:443
-  #   depends_on:
-  #     - server
-  #   restart: unless-stopped
-  router:
-    image: marsara9/vpnrouter:latest
-    container_name: vpnrouter
+  webui:
+    image: nginx:latest
+    container_name: webui
+    networks:
+      - internal
+    volumes:
+      - /docker/nginx:/etc/nginx
+      - /docker/certs:/certs
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - groundhog
+    restart: unless-stopped
+  groundhog:
+    image: marsara9/groundhog:latest
+    container_name: groundhog
     networks:
       - internal
     cap_add:
@@ -24,13 +24,12 @@ services:
     security_opt:
       - apparmor:unconfined
     environment:
-    #   - PUID=1000
-    #   - PGID=1000
       - TZ=America/New_York
-    ports:
-      - 8080:8080
+    #ports:
+    #  - 8080:8080
     volumes:
       - /var/run/dbus:/var/run/dbus
+      # - /docker/groundhog/database:/router/database
     restart: unless-stopped
 networks:
   internal:

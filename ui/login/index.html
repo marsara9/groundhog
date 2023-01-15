@@ -1,15 +1,18 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-        <title>VPN Server</title>
+        <title>Groundhog - Login</title>
         <link rel="stylesheet" href="/shared/styles.css">
-        <script src="https://code.jquery.com/jquery-3.6.2.min.js" integrity="sha256-2krYZKh//PcchRtd+H+VyyQoZ/e3EcrkxhM8ycwASPA=" crossorigin="anonymous"></script>
-        <script src="/shared/main.js"></script>
-        <script src="/login/login.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+        <script type="text/javascript" src="/shared/rest.js"></script>
+        <script type="text/javascript" src="/shared/cookies.js"></script>
+        <script type="text/javascript" src="/shared/main.js"></script>
+        <script type="text/javascript" src="/login/login.js"></script>
     </head>
     <body>
         <div>
-            <div class="login-box">
+            <form class="login-box" onsubmit="return false">
                 <dl>
                     <dt>
                         <label for="username">Username:</label>

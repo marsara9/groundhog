@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:experimental
 FROM debian:stable-slim AS deps
 RUN cd /tmp && \
     apt-get update && \
@@ -17,25 +18,28 @@ RUN apt-get update && \
 WORKDIR /build
 COPY server/ server/
 
+COPY docker/install-bcrypt.sh .
+RUN chmod +x install-bcrypt.sh
+
 # Setup user and permissions
-RUN useradd -m builduser
-RUN chown -R builduser /build
-USER builduser
-ENV HOME="/home/builduser"
+# RUN useradd -m -G root -d "/home/builduser" builduser
+# RUN chown -R builduser /build
+# USER builduser
+# ENV HOME="/home/builduser"
+ENV HOME="/root"
+
+ARG TARGETPLATFORM
 
 # Install user specific software
-## Rust is required by bcrypt
-ENV PATH="${HOME}/.cargo/bin:${PATH}"
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
-# Install Python dependencies
-RUN pip3 install --verbose --no-warn-script-location --no-cache-dir \
-        simplejson bcrypt nmcli pydhcpdparser
+RUN --security=insecure ./install-bcrypt.sh $TARGETPLATFORM
+RUN pip3 install --verbose --no-warn-script-location --no-cache-dir --user \
+        simplejson nmcli pydhcpdparser
 
 # Install PyInstaller
 RUN pip3 install pyinstaller --verbose --no-warn-script-location --no-cache-dir || \
     pip3 install git+https://github.com/pyinstaller/pyinstaller
 
-RUN /home/builduser/.local/bin/pyinstaller --onefile --python-option u server/server.py
+RUN pyinstaller --onefile --python-option u server/server.py
 
 FROM gcr.io/distroless/static-debian11:debug
 # FROM gcr.io/distroless/static-debian11:latest

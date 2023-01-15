@@ -1,115 +1,45 @@
-function fetchJson(url, onResult) {
-    fetch(url, {
-        credentials: "same-origin"
-    }).then(response => {
-        if(response.ok) {
-            return response.json()
-        } else {
-            let error =  new Error(response.statusText)
-            error.status = response.status
-            error.body = response.body
-            throw error
-        }
-    }).then(data => {
-        onResult(data)
-    }).catch(reason => {
-        console.log(reason)
-        if(reason.status == 401) {
-            logout()
-        }
-    })
-}
 
-function postJson(url, data) {
-    $("#loading-dialog").show()
-    fetch(url, {
-        method: "POST",
-        credentials: "same-origin",
-        cache: "no-cache",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    }).catch(reason => {
-        if(reason.code == 401) {
-            console.log(reason)
-            logout()
-        }
-    }).then(() => {
-        $("#loading-dialog").hide()
-    })
-}
 
-function putJson(url, data) {
-    $("#loading-dialog").show()
-    fetch(url, {
-        method: "PUT",
-        credentials: "same-origin",
-        cache: "no-cache",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    }).catch(reason => {
-        if(reason.code == 401) {
-            console.log(reason)
-            logout()
-        }
-    }).then(() => {
-        $("#loading-dialog").hide()
-    })
-}
-
-function genericPopulateFields(data) {
+function genericPopulateFields(data, prefix = null) {
     for(const key in data) {
         let value = data[key]
-        if(typeof value === "object") {
-            for(const index in value) {
-                $(`input#${key}-${index}`).val(value[index])
-            }
+
+        const next = (prefix ? `${prefix}-${key}` : key)
+        const id = `input#${next}`
+
+        if(value instanceof Object) {
+            genericPopulateFields(value, next)
         } else {
-            $(`input#${key}`).val(data[key])
+            $(id).val(value)
         }
     }
 }
 
 function getFieldData(submit) {
-    configuration = {}
+    let configuration = {}
     submit.parents("dl.prop-grid").find("input:not(.ignore)").each(function() {
-        const input = $(this)        
-        configuration[input.attr("id")] = input.val()
+        const input = $(this)
+        const value = input.val()
+
+        if(!value) {
+            return
+        }
+
+        let object = value
+
+        const keys = input.attr("id").split("-")
+        for(let i = keys.length-1; i >= 0; i--) {
+            const key = keys[i]
+
+            const temp = (isNaN(parseInt(key, 10)) ? {} : [])
+            temp[key] = object
+            object = temp
+        }
+
+        configuration = _.merge(configuration, object)
     })
 
     return configuration
-}
-
-const observer = new MutationObserver(function () {
-    observer.disconnect()
-})
-
-function setCookie(name,value,days) {
-    var expires = "";
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + (days*24*60*60*1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
-}
-
-function getCookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-    }
-    return null;
-}
-
-function eraseCookie(name) {   
-    document.cookie = name+'=; Max-Age=-99999999;';  
 }
 
 function logout() {
@@ -166,9 +96,19 @@ function fixAutoFill() {
     // }, 500)
 }
 
+function configureListSelect() {
+    $("ul.select > li").click(function () {
+        $(this).siblings("li.active").removeClass("active")
+        $(this).addClass("active")
+    })
+}
+
 $(document).ready(function() {
     loadTemplates()
+    
     setupTabs()
+    configureListSelect()
+
     checkLogin()
     fixAutoFill()
 });
