@@ -202,16 +202,13 @@ class Application:
         # directly connected to the internet.  If the device only has a single ethernet
         # interface and it's being used for WAN traffic, then fallback to use the WiFi's
         # adapter's IP address.
-        # ip_subnet = next([self.network_manager.get_ip_address(interface) 
-        #     for interface in self.network_manager.get_lan_interfaces() 
-        #     if self.network_manager.get_ip_address(interface) and 
-        #         interface not in self.network_manager.get_wifi_interfaces()
-        # ], self.network_manager.get_ip_address(self.network_manager.get_wifi_interfaces()[0]))
-        ip_subnet = "10.0.0.72/24"
+        ip_addr = next(iter([self.network_manager.get_ip_address(interface) 
+            for interface in self.network_manager.get_lan_interfaces() 
+            if self.network_manager.get_ip_address(interface) and 
+                interface not in self.network_manager.get_wifi_interfaces()
+        ]), self.network_manager.get_ip_address(self.network_manager.get_wifi_interfaces()[0]))
 
         vpn_config = self.network_manager.get_vpn_configuration(include_private_details)
-        ip_address = ip_subnet.split("/")[0]
-        subnet = ip_subnet.split("/")[1]
 
         wifi_config = {
             "wifi" : {
@@ -219,14 +216,16 @@ class Application:
             }
         }
 
+        dhcp_conf = self.network_manager.get_dhcp_configuration()
+
         base_config = {
             "mode" : connection_type,
-            "lanip" : ip_address,
-            "subnet" : subnet
+            "lanip" : ip_addr
         }
 
         base_config.update(vpn_config)
         base_config.update(wifi_config)
+        base_config.update(dhcp_conf)
 
         return base_config
 
@@ -257,4 +256,4 @@ class Application:
                 configuration["wifi"]["passphrase"]
             )
         
-        #self.network_manager.cofigure_dhcp(configuration)
+        self.network_manager.cofigure_dhcp(configuration)

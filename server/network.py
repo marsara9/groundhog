@@ -165,11 +165,16 @@ class NetworkManager():
 
         config_path = f"{self.CONFIG_DIRECTORY}/dnsmasq.conf"
 
+        ip_addr = configuration["lanip"]
+        netmask = "255.255.255.0"
+        subnet = DHCP.get_subnet(ip_addr, netmask)
+        (range_start, range_end) = DHCP.get_range(subnet, 190, 9)
+
         dhcp_range = [
-            configuration["dhcp"]["range"]["start"],
-            configuration["dhcp"]["range"]["end"],
-            configuration["dhcp"]["netmask"],
-            f"{configuration['dhcp']['lease-time']}s"
+            range_start,
+            range_end,
+            netmask,
+            "8h"
         ]
 
         with open(config_path, "w+") as file:
@@ -177,11 +182,12 @@ class NetworkManager():
             file.write(f"dhcp-leasefile={self.CONFIG_DIRECTORY}/dnsmasq.leases\n")
             file.write(f"dhcp-range={','.join(dhcp_range)}\n")
             file.write(f"dhcp-options=6,{','.join(configuration['dns'])}\n")
-            for interface in configuration["dhcp"]["interfaces"]:
+            # for interface in configuration["dhcp"]["interfaces"]:
+            for interface in self.get_lan_interfaces():
                 file.write(f"interface={interface}\n")
             file.flush()
 
-        self.dhcp.restart()
+        self.dhcp.restart(config_path)
  
     def get_dhcp_configuration(self):
         if not os.path.exists(f"{self.CONFIG_DIRECTORY}/dnsmasq.conf"):
@@ -190,35 +196,15 @@ class NetworkManager():
         with open(f"{self.CONFIG_DIRECTORY}/dnsmasq.conf", "r") as file:
             dnsmasq = DHCP.get_config(file.read())
 
-        subnet = DHCP.get_subnet(
+        subnet = DHCP.get_subnet_cidr(
             dnsmasq["dhcp-range"][0],
             dnsmasq["dhcp-range"][2],
         )
 
-        lease_time = dnsmasq["dhcp-range"][3]
-        lease_time_time = lease_time[-1]
-        lease_time_value = lease_time[:-1]
-        lease_time_seconds = 3600
-
-        match lease_time_time:
-            case "h":
-                lease_time_seconds = lease_time_value * 3600
-            case "m":
-                lease_time_seconds = lease_time_value * 60
-            case "s":
-                lease_time_seconds = lease_time_value
-
         configuration = {
             "dns": dnsmasq["dhcp-options"]["6"],
             "dhcp": {
-                "lease-time": lease_time_seconds,
                 "subnet": subnet,
-                "netmask": dnsmasq["dhcp-range"][2],
-                "interfaces" : dnsmasq["interface"],
-                "range": {
-                    "start": dnsmasq["dhcp-range"][0],
-                    "end": dnsmasq["dhcp-range"][1]
-                }
             }
         }
 
