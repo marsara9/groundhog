@@ -4,6 +4,12 @@ body{
     font-family: Arial, Helvetica, sans-serif;
 }
 
+::selection,
+::-moz-selection {
+    background-color: #1ed2ff;
+    color: #fff;
+}
+
 /* dialogs */
 dialog,
 .login-box,
