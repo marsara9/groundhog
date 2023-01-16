@@ -3,8 +3,9 @@ FROM debian:stable-slim AS deps
 RUN cd /tmp && \
     apt-get update && \
     apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
-        --no-conflicts --no-breaks --no-replaces --no-enhances \
-        --no-pre-depends network-manager grep dnsmasq libzstd1 | grep "^\w") && \
+        --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends \
+        network-manager grep dnsmasq libzstd1 | \
+        grep "^\w") && \
     mkdir /dpkg && \
     for deb in *.deb; do dpkg --extract $deb /dpkg || exit 10; done
 
@@ -20,6 +21,10 @@ COPY server/ server/
 
 COPY docker/install-bcrypt.sh .
 RUN chmod +x install-bcrypt.sh
+
+## The install-bcrypt script requires root in order to apply the patch
+## to the rustup script.  Once the dependency on rust can be removed then
+## a proper non-root user can be used for the build process.
 
 # Setup user and permissions
 # RUN useradd -m -G root -d "/home/builduser" builduser
@@ -41,8 +46,8 @@ RUN pip3 install pyinstaller --verbose --no-warn-script-location --no-cache-dir 
 
 RUN pyinstaller --onefile --python-option u server/server.py
 
-FROM gcr.io/distroless/static-debian11:debug
-# FROM gcr.io/distroless/static-debian11:latest
+# FROM gcr.io/distroless/static-debian11:debug # Uncomment if you need shell access
+FROM gcr.io/distroless/static-debian11:latest
 
 COPY --from=deps /usr/bin/awk /usr/bin/awk
 COPY --from=deps /dpkg /
