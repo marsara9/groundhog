@@ -263,7 +263,11 @@ dl.tab-content {
 }
 
 .login-box {
-    display: table;
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translate(-50%);
+    max-width: 80%;
     border: 2px solid #1ed2ff;
     padding: 16px;
     background-color: #333;
@@ -293,18 +297,23 @@ dl.tab-content {
 
 dl.prop-grid {
     display: grid;
-    grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
-    max-width: 512px;
+    
+    max-width: min(512px, 80%);
     gap: 8px;
     border: 2px solid #1ed2ff;
     padding: 16px;
     border-radius: 8px;
     background-color: #333;
     color: white;
-    /* overflow: hidden; */
     align-items: last baseline;
     box-shadow: 4px 4px 16px black;
     white-space: normal;
+}
+
+@media (min-width: 640px) {
+    dl.prop-grid {
+        grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
+    }
 }
 
 dl.prop-grid > hr {
@@ -327,6 +336,7 @@ dl.prop-grid > dd > * {
     flex-shrink: 1;
     flex-grow: 1;
     flex-basis: content;
+    width: 0;
 }
 
 dialog {
