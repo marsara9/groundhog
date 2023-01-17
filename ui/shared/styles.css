@@ -4,10 +4,8 @@ body{
     font-family: Arial, Helvetica, sans-serif;
 }
 
-::selection,
-::-moz-selection {
-    background-color: #1ed2ff;
-    color: #fff;
+* {
+    border-color: #1ed2ff;
 }
 
 /* dialogs */
@@ -18,7 +16,8 @@ dl.prop-grid {
     padding: 16px;
     color: white;
     border-radius: 8px;
-    border: 2px solid #1ed2ff;
+    border-style: solid;
+    border-width: 2px;
     box-shadow: 4px 4px 16px black;
 }
 
