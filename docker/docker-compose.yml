@@ -20,17 +20,17 @@ services:
     networks:
       - internal
     cap_add:
-      - NET_ADMIN
+      - NET_ADMIN # REQUIRED to read/write network setings
     security_opt:
-      - apparmor:unconfined
+      - apparmor:unconfined # REQUIRED to read/write network settings
     environment:
       - TZ=America/New_York
     ports:
-    #  - 8080:8080
-     - 67:67/udp
+    #  - 8080:8080 # REQUIRED if you don't use a reverse proxy
+     - 67:67/udp # REQUIRED for DHCP to function
     volumes:
-      - /var/run/dbus:/var/run/dbus
-      - /docker/groundhog/database:/router/database
+      - /var/run/dbus:/var/run/dbus # REQUIRED to read/write network settings
+      - /docker/groundhog/database:/router/database # OPTIONAL where all settings are stored
     restart: unless-stopped
 networks:
   internal:
