@@ -4,6 +4,93 @@ body{
     font-family: Arial, Helvetica, sans-serif;
 }
 
+* {
+    border-color: #1ed2ff;
+}
+
+/* dialogs */
+dialog,
+.login-box,
+dl.prop-grid {
+    background-color: #333;
+    padding: 16px;
+    color: white;
+    border-radius: 8px;
+    border-style: solid;
+    border-width: 2px;
+    box-shadow: 4px 4px 16px black;
+}
+
+.login-box {
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translate(-50%);
+    max-width: 80%;
+    margin: 80px auto;
+}
+
+dl.prop-grid {
+    display: grid;
+    max-width: min(512px, 80%);
+    gap: 8px;
+    align-items: last baseline;
+    white-space: normal;
+}
+
+/* dialog conent */
+@media (min-width: 640px) {
+    dl.prop-grid {
+        grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
+    }
+}
+
+dl.tab-content,
+.login-box > dl {
+    display: grid;
+    grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
+    margin: 0;
+    max-width: 480px;
+    gap: 8px;
+    overflow: hidden;
+}
+
+dl.tab-content {
+    padding: 8px;
+    background-color: #333;
+    align-items: last baseline;
+}
+
+.login-box > dl {
+    overflow: hidden;
+    align-items: center;
+}
+
+/* forms */
+dialog > div,
+dialog > form,
+ul.select > li,
+dialog > div.multiline > div,
+dl.prop-grid > :is(dt, dd) {
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+dialog > div.single-line,
+dialog > form,
+ul.select > li,
+dialog > div.multiline > div,
+dl.prop-grid > :is(dt, dd) {
+    flex-direction: row;
+}
+
+dialog > div.multiline {
+    flex-direction: column;
+}
+
 ul.main-menu {
     background-color: #333;
     list-style-type: none;
@@ -187,7 +274,6 @@ button.error:hover {
     background-color: #ff6b6b;
 }
 
-
 input:focus {
     border-color: #1ed2ff;
 }
@@ -249,71 +335,12 @@ button.tab.selected {
     flex-basis: 100%;
 }
 
-dl.tab-content {
-    display: grid;
-    grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
-    margin: 0;
-    max-width: 480px;
-    gap: 8px;
-    padding: 8px;
-    background-color: #333;
-    color: white;
-    overflow: hidden;
-    align-items: last baseline;
-}
-
-.login-box {
-    position: relative;
-    display: inline-block;
-    left: 50%;
-    transform: translate(-50%);
-    max-width: 80%;
-    border: 2px solid #1ed2ff;
-    padding: 16px;
-    background-color: #333;
-    border-radius: 8px;
-    margin: 80px auto;
-    box-shadow: 4px 4px 16px black;
-}
-
-.login-box > dl {
-    display: grid;
-    grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
-    max-width: 480px;
-    margin: 0;
-    gap: 8px;
-    color: white;
-    overflow: hidden;
-    align-items: center;
-}
-
 .login-box > .error {
     text-align: end;
 }
 
 .login-box > .input-group {
     margin: auto;
-}
-
-dl.prop-grid {
-    display: grid;
-    
-    max-width: min(512px, 80%);
-    gap: 8px;
-    border: 2px solid #1ed2ff;
-    padding: 16px;
-    border-radius: 8px;
-    background-color: #333;
-    color: white;
-    align-items: last baseline;
-    box-shadow: 4px 4px 16px black;
-    white-space: normal;
-}
-
-@media (min-width: 640px) {
-    dl.prop-grid {
-        grid-template-columns: minmax(min-content, 1fr) minmax(max-content, 240px);
-    }
 }
 
 dl.prop-grid > hr {
@@ -325,26 +352,11 @@ dl.prop-grid > hr {
     background-image: linear-gradient(to right, white, #1ed2ff, white);
 }
 
-dl.prop-grid > :is(dt, dd) {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    gap: 8px;
-}
-
 dl.prop-grid > dd > * {
     flex-shrink: 1;
     flex-grow: 1;
     flex-basis: content;
     width: 0;
-}
-
-dialog {
-    background-color: #333;
-    color: white;
-    border-radius: 8px;
-    border: 2px solid #1ed2ff;
-    box-shadow: 4px 4px 16px black;
 }
 
 dialog::backdrop {
@@ -372,14 +384,6 @@ dialog > p {
     padding: 0 8px;
 }
 
-dialog > form {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 8px;
-}
-
 ul.select {
     list-style-type: none;
     padding-inline-start: 0;
@@ -389,11 +393,6 @@ ul.select {
 }
 
 ul.select > li {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    align-items: center;
     padding: 8px;
     margin: 2px;
 }
@@ -409,29 +408,7 @@ ul.select > :is(li:hover, li.active) {
     color: #333;
 }
 
-dialog > div.single-line {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-dialog > div.multiline {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: flex-start;
-}
-
 dialog > div.multiline > div {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    flex-wrap: nowrap;
     align-items: stretch;
     justify-content: space-evenly;
 }
