@@ -4,7 +4,10 @@ import io
 import os
 import validators
 
-class ConfigEntry:
+CONFIG_DIRECTORY = f"{os.getcwd()}/database/config"
+DEFAULT_ROOT_CONFIG = f"{CONFIG_DIRECTORY}/groundhod.yml"
+
+class ConfigEntry():
 
     name : str
     validate: Callable[[str], bool]
@@ -16,9 +19,7 @@ class ConfigEntry:
 
 class Config():
 
-    DEFAULT_ROOT_CONFIG = "database/config/groundhod.yml"
-
-    __config_items = list[ConfigEntry]
+    __config_items : list[ConfigEntry]
     __configuration = {}
 
     def __init__(self):
@@ -40,8 +41,8 @@ class Config():
             )
         ]
 
-        if os.path.exists(self.DEFAULT_ROOT_CONFIG):
-            with io.open(self.DEFAULT_ROOT_CONFIG, "r") as file:
+        if os.path.exists(DEFAULT_ROOT_CONFIG):
+            with io.open(DEFAULT_ROOT_CONFIG, "r") as file:
                 self.__configuration = yaml.safe_load(file)
 
     def get_all(self):
@@ -51,11 +52,17 @@ class Config():
         return self.__configuration
 
     def save(self):
-        if not os.path.exists(self.DEFAULT_ROOT_CONFIG):
-            os.makedirs(self.DEFAULT_ROOT_CONFIG)
+        if not os.path.exists(DEFAULT_ROOT_CONFIG):
+            os.makedirs(DEFAULT_ROOT_CONFIG)
 
-        with io.open(self.DEFAULT_ROOT_CONFIG, "w+") as file:
+        with io.open(DEFAULT_ROOT_CONFIG, "w+") as file:
             yaml.dump(self.__configuration)
+
+    def update(self, configuration: dict[str:any]):
+        for entry in self.__config_items:
+            if not entry.validate(configuration[entry.name]):
+                raise Exception(entry.exception_message)
+            self.__configuration[entry.name] = configuration[entry.name]
 
     def __validate_mode(self, mode : str) -> bool:
         return mode != "ethernet" and mode != "wifi"
@@ -98,12 +105,6 @@ class Config():
             raise Exception("address was not a valid ip address.")
 
         return True
-
-    def update(self, configuration: dict[str:any]):
-        for entry in self.__config_items:
-            if not entry.validate(configuration[entry.name]):
-                raise Exception(entry.exception_message)
-            self.__configuration[entry.name] = configuration[entry.name]
 
     def __is_string_none_or_blank(self, string : str):
         return not(string and string.strip())

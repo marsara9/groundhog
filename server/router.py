@@ -1,14 +1,16 @@
-from network import NetworkManager
-from http_tools import HttpTools
+from tools.http import HttpTools
+from network import dhcp, vpn, wifi
 from config import Config
 import os
 
 class Application:
 
     PASSWORD_LENGTH_REQUIREMENT = 8
+    dhcp_server : dhcp.DHCPServer
 
-    network_manager = NetworkManager()
-    config = Config()
+    def __init__(self, config : Config, dhcp_server : dhcp.DHCPServer):
+        self.config = config
+        self.dhcp_server = dhcp_server
 
     def __call__(self, environ, start_response):
         http = HttpTools(environ, start_response)
@@ -197,9 +199,8 @@ class Application:
         self.config.update(configuration)
         self.config.save()
 
-        self.network_manager.configure(configuration)
+        dhcp.configure(configuration)
+        wifi.configure(configuration)
+        vpn.configure(configuration)
 
-    def configure_network(self):
-
-        configuration = self.config.get_all()
-        self.network_manager.configure(configuration)
+        self.dhcp_server.restart()
