@@ -198,3 +198,8 @@ class Application:
         self.config.save()
 
         self.network_manager.configure(configuration)
+
+    def configure_network(self):
+
+        configuration = self.config.get_all()
+        self.network_manager.configure(configuration)

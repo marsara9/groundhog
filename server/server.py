@@ -12,6 +12,8 @@ if __name__ == "__main__":
             auth.create_user("admin", "admin")
 
         app = Application()
+        app.configure_network()
+
         with make_server(hostName, serverPort, app) as httpd:
             print(f"Serving on port {serverPort}...")
             httpd.serve_forever()

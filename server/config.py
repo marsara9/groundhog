@@ -40,14 +40,9 @@ class Config():
             )
         ]
 
-        self.__get()
-
-    def __get(self) -> dict[str:any]:
-        if not os.path.exists(self.DEFAULT_ROOT_CONFIG):
-            return {}
-
-        with io.open(self.DEFAULT_ROOT_CONFIG, "r") as file:
-            self.__configuration = yaml.safe_load(file)
+        if os.path.exists(self.DEFAULT_ROOT_CONFIG):
+            with io.open(self.DEFAULT_ROOT_CONFIG, "r") as file:
+                self.__configuration = yaml.safe_load(file)
 
     def get_all(self):
         return self.__configuration
