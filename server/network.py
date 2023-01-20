@@ -99,7 +99,15 @@ class NetworkManager():
         nmcli.device.wifi_connect(ssid, passphrase, wifi_interfaces[0])
         return
 
-    def configure_vpn(self, configuration : dict[str:any]):
+    def configure(self, configuration : dict[str:any]):
+
+        self.__configure_vpn(configuration)
+        self.__configure_wifi(configuration)
+        self.__configure_dhcp(configuration)
+
+        pass
+
+    def __configure_vpn(self, configuration : dict[str:any]):
 
         vpn_interface = self.get_vpn_interface()
         config_path = f"{self.CONFIG_DIRECTORY}/{vpn_interface}.conf"
@@ -125,41 +133,7 @@ class NetworkManager():
         nmcli.connection.up(vpn_interface)
         return
 
-    def get_vpn_configuration(self, include_private_details : bool) -> dict[str:any]:
-
-        config_path = f"{self.CONFIG_DIRECTORY}/{self.get_vpn_interface()}.conf"
-
-        if not os.path.exists(config_path):
-            return None
-
-        config = configparser.ConfigParser()
-        config.read(config_path)
-
-        vpn_endpoint = config["Peer"]["Endpoint"].split(":")
-        allowed_ips = config["Peer"]["AllowedIPs"].split(",")
-        allowed_ips.remove("8.8.8.8/32")
-        allowed_ips.remove("8.8.4.4/32")
-
-        config = {
-            "wanip" : config["Interface"]["Address"],
-            "dns" : config["Interface"]["DNS"].split(","),
-            "vpn" : {
-                "url" : vpn_endpoint[0],
-                "port" : vpn_endpoint[1],
-                "subnet" : allowed_ips[0]
-            }
-        }
-
-        if(include_private_details):
-            config["vpn"]["keys"] = {
-                "private" : config["Interface"]["PrivateKey"],
-                "private" : config["Peer"]["PublicKey"],
-                "private" : config["Peer"]["PresharedKey"],
-            }
-
-        return config
-
-    def configure_dhcp(self, configuration : dict[str : any]):
+    def __configure_dhcp(self, configuration : dict[str : any]):
         if not os.path.exists(self.CONFIG_DIRECTORY):
             os.makedirs(self.CONFIG_DIRECTORY)
 
@@ -182,33 +156,23 @@ class NetworkManager():
             file.write(f"dhcp-leasefile={self.CONFIG_DIRECTORY}/dnsmasq.leases\n")
             file.write(f"dhcp-range={','.join(dhcp_range)}\n")
             file.write(f"dhcp-options=6,{','.join(configuration['dns'])}\n")
-            # for interface in configuration["dhcp"]["interfaces"]:
             for interface in self.get_lan_interfaces():
                 file.write(f"interface={interface}\n")
             file.flush()
 
         self.dhcp.restart(config_path)
- 
-    def get_dhcp_configuration(self):
-        if not os.path.exists(f"{self.CONFIG_DIRECTORY}/dnsmasq.conf"):
-            return None
-        
-        with open(f"{self.CONFIG_DIRECTORY}/dnsmasq.conf", "r") as file:
-            dnsmasq = DHCP.get_config(file.read())
 
-        subnet = DHCP.get_subnet_cidr(
-            dnsmasq["dhcp-range"][0],
-            dnsmasq["dhcp-range"][2],
-        )
-
-        configuration = {
-            "dns": dnsmasq["dhcp-options"]["6"],
-            "dhcp": {
-                "subnet": subnet,
-            }
-        }
-
-        return configuration
+    def __configure_wifi(self, configuration : dict[str:any]):
+        if(configuration["mode"] == "wifi"):
+            self.connect_to_wifi(
+                configuration["wifi"]["ssid"],
+                configuration["wifi"]["passphrase"]
+            )
+        else:
+            self.create_access_point(
+                configuration["wifi"]["ssid"],
+                configuration["wifi"]["passphrase"]
+            )
 
     def get_ip_address(self, interface : str) -> str:
         return nmcli.device.show(interface, "ip4.address").get("ip4.address[0]")
