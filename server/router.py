@@ -1,12 +1,17 @@
-from network import NetworkManager
-from http_tools import HttpTools
+from tools.http import HttpTools
+from network import dhcp, vpn, wifi
+from config import Config
+import auth
 import os
 
 class Application:
 
     PASSWORD_LENGTH_REQUIREMENT = 8
+    dhcp_server : dhcp.DHCPServer
 
-    network_manager = NetworkManager()
+    def __init__(self, config : Config, dhcp_server : dhcp.DHCPServer):
+        self.config = config
+        self.dhcp_server = dhcp_server
 
     def __call__(self, environ, start_response):
         http = HttpTools(environ, start_response)
@@ -61,7 +66,7 @@ class Application:
         password = content["password"]
 
         try:
-            token = http.auth.authenticate(username, password, http.request.remote_address)
+            token = auth.authenticate(username, password, http.request.remote_address)
             http.start_response("204 No Content", [
                 ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
                 ("Set-Cookie", f"username={username}")
@@ -97,49 +102,32 @@ class Application:
 
     def get_status(self):
 
-        wan_interface = self.network_manager.get_wan_interface()
-        wifi_interfaces = self.network_manager.get_wifi_interfaces()
- 
-        if len(wan_interface) == 0:
-            connection_type = "Unknown"
-            internet_status = "down"
+        configuration = self.config.get_safe()
+        if "mode" in configuration:
+            mode = configuration["mode"]
         else:
-            if wan_interface in wifi_interfaces:
-                connection_type = "wifi"
-            else:
-                connection_type = "ethernet"
-            internet_status = self.network_manager.get_interface_status(wan_interface)
+            mode = "none"
  
-        vpn_interface = self.network_manager.get_vpn_interface()
-        vpn_status = self.network_manager.get_interface_status(vpn_interface)
- 
-        wifi_status = "down"
-        for interface in wifi_interfaces:
-            if self.network_manager.get_interface_status(interface) == "up":
-                wifi_status = "up"
- 
-        dhcp_interfaces = self.network_manager.get_lan_interfaces()
- 
-        (ssid,security_type) = self.network_manager.get_wifi_ssid()
+        (ssid,security_type) = wifi.get_wifi_ssid()
  
         return {
-            "connectionType": connection_type,
-            "internetStatus": internet_status,
-            "vpnStatus": vpn_status,
-            "wifiStatus": wifi_status,
-            "dhcpInterfaces": dhcp_interfaces,
+            "mode": mode,
+            "internetStatus": dhcp.get_wan_interface_status(mode),
+            "vpnStatus": vpn.get_interface_status(),
+            "wifiStatus": wifi.get_interface_status(),
+            "dhcpInterfaces": dhcp.get_lan_interfaces(mode),
             "ssid": ssid,
             "securityType": security_type
         }
 
     def get_wifi_scan(self):
-        return self.network_manager.get_nearby_access_points() 
+        return wifi.get_nearby_access_points()
 
     def post_user_change_password(self, http : HttpTools):
         if http.request.content_length == 0:
             return http.send_json_error(411, "Missing Payload")
         
-        if not http.auth.validate_session_cookies(http.request.cookies, http.request.remote_address):
+        if not auth.validate_session_cookies(http.request.cookies, http.request.remote_address):
             return http.send_json_error(401, "Not Authorized")
 
         if not http.request.validate_json("username", "password", "new-password"):
@@ -155,7 +143,7 @@ class Application:
             return http.send_json_error(403, "Forbidden")
 
         try:
-            token = http.auth.authenticate(username, currnet_password, http.request.remote_address)
+            token = auth.authenticate(username, currnet_password, http.request.remote_address)
         except:
             return http.send_json_error(403, {
                 "parameter" : "password",
@@ -174,7 +162,7 @@ class Application:
                 "message" : "The new password must be at least 8 characters long."
             })
 
-        if http.auth.set_user_password(username, new_password):
+        if auth.set_user_password(username, new_password):
             http.start_response("200 OK", [
                 ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
             ])
@@ -183,76 +171,20 @@ class Application:
 
         return []
 
-    def get_simple_configuration(self, include_private_details : bool = False):
-
-        wan_interface = self.network_manager.get_wan_interface()
-        wifi_interfaces = self.network_manager.get_wifi_interfaces()
-        (ssid,_) = self.network_manager.get_wifi_ssid()
-
-        if len(wan_interface) == 0:
-            connection_type = "Unknown"
-        else:
-            if wan_interface in wifi_interfaces:
-                connection_type = "wifi"
-            else:
-                connection_type = "ethernet"
-
-        # LAN IP is considered to be the IP of the first ethernet interface that isn't
-        # directly connected to the internet.  If the device only has a single ethernet
-        # interface and it's being used for WAN traffic, then fallback to use the WiFi's
-        # adapter's IP address.
-        ip_addr = next(iter([self.network_manager.get_ip_address(interface) 
-            for interface in self.network_manager.get_lan_interfaces() 
-            if self.network_manager.get_ip_address(interface) and 
-                interface not in self.network_manager.get_wifi_interfaces()
-        ]), self.network_manager.get_ip_address(self.network_manager.get_wifi_interfaces()[0]))
-
-        vpn_config = self.network_manager.get_vpn_configuration(include_private_details)
-
-        wifi_config = {
-            "wifi" : {
-                "ssid" : ssid
-            }
-        }
-
-        dhcp_conf = self.network_manager.get_dhcp_configuration()
-
-        base_config = {
-            "mode" : connection_type,
-            "lanip" : ip_addr
-        }
-
-        base_config.update(vpn_config)
-        base_config.update(wifi_config)
-        base_config.update(dhcp_conf)
-
-        return base_config
+    def get_simple_configuration(self):
+        return [self.config.get_safe()]
 
     def put_simple_configuration(self, configuration : dict[str:any]):
 
-        configuration["vpn"]["allowed-ips"] = f"{configuration['vpn']['subnet']}/8,8.8.8.8/32,8.8.4.4/32"
-
-        # If there are any missing values (because the user left the field blank)
-        # grab the old configuration file as a start, and replace only the fields
-        # that were specified.
-        old_configuration = self.get_simple_configuration(True)
+        old_configuration = self.config.get_all()
         old_configuration.update(configuration)
         configuration = old_configuration
 
-        self.network_manager.configure_vpn(configuration)
+        self.config.update(configuration)
+        self.config.save()
 
-        wan_interface = self.network_manager.get_wan_interface()
-        wifi_interfaces = self.network_manager.get_wifi_interfaces()
+        dhcp.configure(configuration)
+        wifi.configure(configuration)
+        vpn.configure(configuration)
 
-        if len(wan_interface) or wan_interface in wifi_interfaces:
-            self.network_manager.connect_to_wifi(
-                configuration["wifi"]["ssid"],
-                configuration["wifi"]["passphrase"]
-            )
-        else:
-            self.network_manager.create_access_point(
-                configuration["wifi"]["ssid"],
-                configuration["wifi"]["passphrase"]
-            )
-        
-        self.network_manager.cofigure_dhcp(configuration)
+        self.dhcp_server.restart()

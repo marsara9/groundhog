@@ -38,7 +38,7 @@ ARG TARGETPLATFORM
 # Install user specific software
 RUN --security=insecure ./install-bcrypt.sh $TARGETPLATFORM
 RUN pip3 install --verbose --no-warn-script-location --no-cache-dir --user \
-        simplejson nmcli
+        simplejson nmcli validators
 
 # Install PyInstaller
 RUN pip3 install pyinstaller --verbose --no-warn-script-location --no-cache-dir || \

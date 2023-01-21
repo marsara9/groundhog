@@ -1,6 +1,6 @@
 async function fetchStatus() {
     return fetchJson("/status", result => {
-        displayConnectionType(result.connectionType)
+        displayConnectionType(result.mode)
 
         displayInterfaceState("#wan-status", result.internetStatus)
         displayInterfaceState("#vpn-status", result.vpnStatus)

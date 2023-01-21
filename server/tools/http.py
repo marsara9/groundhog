@@ -1,6 +1,6 @@
-from auth import Auth
 from http.client import responses
 from http.cookies import SimpleCookie
+import auth
 import simplejson as json
 import traceback
 
@@ -44,11 +44,8 @@ class Request:
             return mapper(environ[key])
         else:
             return default
-        
 
 class HttpTools:
-
-    auth = Auth()
 
     def __init__(self, environ, start_response):
         self.environ = environ
@@ -98,11 +95,11 @@ class HttpTools:
         return [json.dumps(message).encode("utf8")]
 
     def get_base_auth_json(self, get):
-        if not self.auth.validate_session_cookies(self.request.cookies, self.request.remote_address):
+        if not auth.validate_session_cookies(self.request.cookies, self.request.remote_address):
             return self.send_json_error(401, "Not Authorized")
         try:
             username = self.request.cookies["username"].value
-            token = self.auth.create_auth_token(username, self.request.remote_address)
+            token = auth.create_auth_token(username, self.request.remote_address)
 
             result = json.dumps(get())
 
@@ -116,7 +113,7 @@ class HttpTools:
             return self.send_json_error(500, "There was an error on the server.", e)
 
     def put_base_auth_json(self, put):
-        if not self.auth.validate_session_cookies(self.request.cookies, self.request.remote_address):
+        if not auth.validate_session_cookies(self.request.cookies, self.request.remote_address):
             return self.send_json_error(401, "Not Authorized")
 
         try:
@@ -124,7 +121,7 @@ class HttpTools:
                 return self.send_json_error(411)
 
             username = self.request.cookies["username"].value
-            token = self.auth.create_auth_token(username, self.request.remote_address)
+            token = auth.create_auth_token(username, self.request.remote_address)
 
             content = self.request.jsonBody()
 
