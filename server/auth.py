@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from http.cookies import SimpleCookie
-import os
 import base64
 import bcrypt
+import os
 
 USERS_DIRECTORY = f"{os.getcwd()}/database/users"
 
@@ -56,7 +56,7 @@ def validate_session_cookies(cookies : SimpleCookie, ip_address : str) -> bool:
     username = cookies["username"].value
     token = cookies["sessionid"].value
 
-    return self.validate_session(username, token, ip_address)
+    return validate_session(username, token, ip_address)
 
 def validate_session(username : str, token : str, ip_address : str) -> bool:
     if username == None or token == None:

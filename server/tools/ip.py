@@ -31,12 +31,22 @@ def get_subnet_ip_cidr(ip : str):
     netmask = 0xFFFFFFFF << (32-int(prefix))
 
     return long_to_ip(ip_to_long(ip) & netmask)
+
+def get_subnet_prefix(ip : str) -> int:
+    """
+    Returns the prefix of a given CIDR notation IP address.
+
+    Example: 192.168.1.1/24 -> 24
+    """
+    validators.ipv4_cidr(ip)
+
+    return int(ip.split("/")[1])
     
 def get_range(
     subnet_cidr : str, 
     max_clients : int, 
     reserved_clients : int = 1
-) -> tuple(str,str):
+) -> tuple[str,str]:
     """
     Given a subnet ip (example: 192.168.1.0/24) this will return the min and max 
     IP addresses in the given subnet that has the specified number of clients.
@@ -58,7 +68,7 @@ def get_range(
     if netmask & (reserved_clients + 1 + max_clients) != 0:
         raise Exception("max_clients + reserved_clients is greater than the subnet can support.")
 
-    start = ip_to_long(subnet) | reserved_clients + 1
-    end = ip_to_long(subnet) | reserved_clients + 1 + max_clients
+    start = long_to_ip(ip_to_long(subnet) | reserved_clients + 1)
+    end = long_to_ip(ip_to_long(subnet) | reserved_clients + 1 + max_clients)
 
     return (start, end)

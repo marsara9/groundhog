@@ -1,7 +1,7 @@
 import nmcli
 import subprocess
 
-def get_interfaces():
+def get_interfaces() -> list[str]:
     return [device.device for device in nmcli.device() if device.device_type == "wifi"]
 
 def connect_to_wifi(ssid : str, passphrase : str):
@@ -22,9 +22,11 @@ def create_access_point(ssid : str, passphrase : str):
     nmcli.device.wifi_hotspot(wifi_interfaces[0], ssid=ssid, password=passphrase)
     return
 
-def get_interface_status(interface : str):
-    if not interface in [device.device for device in get_interfaces()]:
+def get_interface_status() -> str:
+    wifi_interfaces = get_interfaces()
+    if len(wifi_interfaces) == 0:
         return None
+    interface = wifi_interfaces[0]
 
     result = [device.state for device in nmcli.device.status() if device.device == interface][0]
     match result:
@@ -34,7 +36,7 @@ def get_interface_status(interface : str):
             return "down"
     return None
 
-def get_nearby_access_points():
+def get_nearby_access_points() -> dict[str:(str | int)]:
     results = {}
     for signal in nmcli.device.wifi():
         if (signal.ssid is not None and len(signal.ssid) > 0) and (signal.ssid not in results or results[signal.ssid]["strength"] < signal.signal):
@@ -44,19 +46,19 @@ def get_nearby_access_points():
             }
     return results
 
-def get_wifi_ssid(self):
-    wifi_interfaces = self.get_wifi_interfaces()
+def get_wifi_ssid() -> tuple[str, str]:
+    wifi_interfaces = get_interfaces()
     if len(wifi_interfaces) == 0:
-        return None
+        return (None, None)
 
     nmcli_ = subprocess.run(["nmcli", "-t", "-f", "active,ssid,security", "device", "wifi"], stdout=subprocess.PIPE)
     grep = subprocess.run(["grep", "yes"], input=nmcli_.stdout, stdout=subprocess.PIPE)
     awk = subprocess.run(["awk", "-F", ":", "{print $2,$3}"], input=grep.stdout, stdout=subprocess.PIPE)
     result = awk.stdout.decode("utf8").strip("\n").split(",")    
     if len(result) >= 2:
-        return result
+        return tuple(map(str,result))
     else:
-        return [None, None]
+        return (None, None)
 
 def configure(configuration : dict[str:any]):
     if(configuration["mode"] == "wifi"):

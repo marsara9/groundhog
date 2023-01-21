@@ -7,7 +7,7 @@ def get_interface():
         return "wg0"
 
 def get_interface_status():
-    result = [device.state for device in nmcli.device.status() if device.device == get_interface()][0]
+    result = next(iter([device.state for device in nmcli.device.status() if device.device == get_interface()]), "disconnected")
     match result:
         case "connected":
             return "up"

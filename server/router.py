@@ -1,6 +1,7 @@
 from tools.http import HttpTools
 from network import dhcp, vpn, wifi
 from config import Config
+import auth
 import os
 
 class Application:
@@ -65,7 +66,7 @@ class Application:
         password = content["password"]
 
         try:
-            token = http.auth.authenticate(username, password, http.request.remote_address)
+            token = auth.authenticate(username, password, http.request.remote_address)
             http.start_response("204 No Content", [
                 ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
                 ("Set-Cookie", f"username={username}")
@@ -101,49 +102,32 @@ class Application:
 
     def get_status(self):
 
-        wan_interface = self.network_manager.get_wan_interface()
-        wifi_interfaces = self.network_manager.get_wifi_interfaces()
- 
-        if len(wan_interface) == 0:
-            connection_type = "Unknown"
-            internet_status = "down"
+        configuration = self.config.get_safe()
+        if "mode" in configuration:
+            mode = configuration["mode"]
         else:
-            if wan_interface in wifi_interfaces:
-                connection_type = "wifi"
-            else:
-                connection_type = "ethernet"
-            internet_status = self.network_manager.get_interface_status(wan_interface)
+            mode = "none"
  
-        vpn_interface = self.network_manager.get_vpn_interface()
-        vpn_status = self.network_manager.get_interface_status(vpn_interface)
- 
-        wifi_status = "down"
-        for interface in wifi_interfaces:
-            if self.network_manager.get_interface_status(interface) == "up":
-                wifi_status = "up"
- 
-        dhcp_interfaces = self.network_manager.get_lan_interfaces()
- 
-        (ssid,security_type) = self.network_manager.get_wifi_ssid()
+        (ssid,security_type) = wifi.get_wifi_ssid()
  
         return {
-            "connectionType": connection_type,
-            "internetStatus": internet_status,
-            "vpnStatus": vpn_status,
-            "wifiStatus": wifi_status,
-            "dhcpInterfaces": dhcp_interfaces,
+            "mode": mode,
+            "internetStatus": dhcp.get_wan_interface_status(mode),
+            "vpnStatus": vpn.get_interface_status(),
+            "wifiStatus": wifi.get_interface_status(),
+            "dhcpInterfaces": dhcp.get_lan_interfaces(mode),
             "ssid": ssid,
             "securityType": security_type
         }
 
     def get_wifi_scan(self):
-        return self.network_manager.get_nearby_access_points() 
+        return wifi.get_nearby_access_points()
 
     def post_user_change_password(self, http : HttpTools):
         if http.request.content_length == 0:
             return http.send_json_error(411, "Missing Payload")
         
-        if not http.auth.validate_session_cookies(http.request.cookies, http.request.remote_address):
+        if not auth.validate_session_cookies(http.request.cookies, http.request.remote_address):
             return http.send_json_error(401, "Not Authorized")
 
         if not http.request.validate_json("username", "password", "new-password"):
@@ -159,7 +143,7 @@ class Application:
             return http.send_json_error(403, "Forbidden")
 
         try:
-            token = http.auth.authenticate(username, currnet_password, http.request.remote_address)
+            token = auth.authenticate(username, currnet_password, http.request.remote_address)
         except:
             return http.send_json_error(403, {
                 "parameter" : "password",
@@ -178,7 +162,7 @@ class Application:
                 "message" : "The new password must be at least 8 characters long."
             })
 
-        if http.auth.set_user_password(username, new_password):
+        if auth.set_user_password(username, new_password):
             http.start_response("200 OK", [
                 ("Set-Cookie", f"sessionid={token}; Max-Age=3600"),
             ])

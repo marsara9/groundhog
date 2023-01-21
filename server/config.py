@@ -1,18 +1,18 @@
 from typing import Callable
+import validators
 import yaml
 import io
 import os
-import validators
 
 CONFIG_DIRECTORY = f"{os.getcwd()}/database/config"
-DEFAULT_ROOT_CONFIG = f"{CONFIG_DIRECTORY}/groundhod.yml"
+DEFAULT_ROOT_CONFIG = f"{CONFIG_DIRECTORY}/groundhog.yml"
 
 class ConfigEntry():
 
     name : str
     validate: Callable[[str], bool]
 
-    def __init__(self, name : str, validate : Callable[[str], bool], exception_message : str = f"There was an error validating '{name}'."):
+    def __init__(self, name : str, validate : Callable[[str], bool], exception_message : str = None):
         self.name = name
         self.validate = validate
         self.exception_message = exception_message
@@ -44,6 +44,10 @@ class Config():
         if os.path.exists(DEFAULT_ROOT_CONFIG):
             with io.open(DEFAULT_ROOT_CONFIG, "r") as file:
                 self.__configuration = yaml.safe_load(file)
+            print(f"Config loaded: {self.__configuration}")
+        else:
+            self.__configuration = {}
+            print("No config file found; loading default configuration.")
 
     def get_all(self):
         return self.__configuration
