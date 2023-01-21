@@ -83,9 +83,9 @@ class DHCPServer():
 
         config_path = f"{CONFIG_DIRECTORY}/dnsmasq.conf"
 
-        # self.__process = subprocess.Popen([
-        #     "dnsmasq",
-        #     "-C",
-        #     config_path
-        # ])
+        self.__process = subprocess.Popen([
+            "dnsmasq",
+            "-C",
+            config_path
+        ])
     
