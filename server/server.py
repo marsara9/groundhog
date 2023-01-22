@@ -4,6 +4,7 @@ from router import Application
 from config import Config
 import auth
 import nmcli
+import traceback
 
 hostName = "0.0.0.0"
 serverPort = 8080
@@ -21,11 +22,20 @@ if __name__ == "__main__":
         configuration = config.get_all()
         if configuration:
             if "vpn" in configuration and "dns" in configuration:
-                vpn.configure(configuration)
+                if vpn.is_configuration_valid(configuration):
+                    vpn.configure(configuration)
+                else:
+                    print("Configuration Error: VPN missing required values.")
             if "wifi" in configuration:
-                wifi.configure(configuration)
+                if wifi.is_configuration_valid(configuration):
+                    wifi.configure(configuration)
+                else:
+                    print("Configuration Error: WiFi missing required values.")
             if "lanip" in configuration:
-                dhcp.configure(configuration)
+                if dhcp.is_configuration_valid(configuration):
+                    dhcp.configure(configuration)
+                else:
+                    print("Configuration Error: DHCP missing required values.")
 
             dhcp_server.restart()
 

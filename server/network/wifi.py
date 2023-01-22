@@ -60,6 +60,16 @@ def get_wifi_ssid() -> tuple[str, str]:
     else:
         return (None, None)
 
+def is_configuration_valid(configuration : dict[str:any]) -> bool:
+    if "mode" not in configuration:
+        return False
+    if "wifi" not in configuration:
+        if "ssid" not in configuration["wifi"]:
+            return False
+        if "passphrase" not in configuration["wifi"]:
+            return False
+    return True
+
 def configure(configuration : dict[str:any]):
     if(configuration["mode"] == "wifi"):
         connect_to_wifi(

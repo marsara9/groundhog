@@ -137,7 +137,7 @@ class Application:
 
         username = content["username"]
         currnet_password = content["password"]
-        new_password = content["new-password"]
+        new_password = content["password"]["new"]
 
         if http.request.cookies["username"].value != username:
             return http.send_json_error(403, "Forbidden")
