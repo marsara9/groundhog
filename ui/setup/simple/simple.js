@@ -28,6 +28,10 @@ function submitConfiguration() {
         ...getFieldData($("#vpn-url"))
     }
 
+    let url = $("#vpn-url").val()
+    let port = $("#vpn-port").val()
+    data["vpn"]["endpoint"] = `${url}:${port}`
+
     console.log(data)
 
     putJson("/simple/configuration", data, () => {
@@ -84,7 +88,7 @@ function setConfiguration(configuration) {
     $("#vpn-keys-public").val(configuration.publickey)
     $("#vpn-keys-preshared").val(configuration.presharedkey)
 
-    $("#wan-ip").val(wanIp)
+    $("#vpn-address").val(wanIp)
     $("#vpn-dns-0").val(dns[0])
     $("#vpn-dns-1").val(dns[1])
 }

@@ -45,6 +45,14 @@ def get_wan_interface_status(mode : str):
             return "down"
     return None
 
+def is_configuration_valid(configuration : dict[str:any]) -> bool:
+    if "mode" not in configuration:
+        return False
+    if "lanip" not in configuration:
+        return False
+    if "dns" not in configuration:
+        return False
+
 def configure(configuration : dict[str:any]):
     if not os.path.exists(CONFIG_DIRECTORY):
         os.makedirs(CONFIG_DIRECTORY)
