@@ -1,12 +1,12 @@
 function submitPasswordUpdate() {
     updatePassword = getFieldData($(this))
 
-    if($("#confirm-password").val() != updatePassword["new-password"]) {
-        $("#confirm-password").addClass("error")
+    if($("#password-confirm").val() != updatePassword["password"]["new"]) {
+        $("#password-confirm").addClass("error")
         return
     }
 
-    $("#confirm-password").removeClass("error")
+    $("#password-confirm").removeClass("error")
 
     postJson("/user/password", updatePassword, 
         onResult = () => {
