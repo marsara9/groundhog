@@ -8,10 +8,12 @@ class Application:
 
     PASSWORD_LENGTH_REQUIREMENT = 8
     dhcp_server : dhcp.DHCPServer
+    debug = False
 
-    def __init__(self, config : Config, dhcp_server : dhcp.DHCPServer):
+    def __init__(self, config : Config, dhcp_server : dhcp.DHCPServer, debug : bool):
         self.config = config
         self.dhcp_server = dhcp_server
+        self.debug = debug
 
     def __call__(self, environ, start_response):
         http = HttpTools(environ, start_response)
@@ -183,8 +185,8 @@ class Application:
         self.config.update(configuration)
         self.config.save()
 
-        dhcp.configure(configuration)
-        wifi.configure(configuration)
+        dhcp.configure(self.debug, configuration)
+        wifi.configure(self.debug, configuration)
         vpn.configure(configuration)
 
-        self.dhcp_server.restart()
+        self.dhcp_server.restart(self.debug)
