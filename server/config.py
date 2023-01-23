@@ -1,4 +1,5 @@
 from typing import Callable
+import simplejson as json
 import validators
 import yaml
 import io
@@ -44,7 +45,7 @@ class Config():
         if os.path.exists(DEFAULT_ROOT_CONFIG):
             with io.open(DEFAULT_ROOT_CONFIG, "r") as file:
                 self.__configuration = yaml.safe_load(file)
-            print(f"Config loaded: {self.__configuration}")
+            print(f"Config loaded: {json.dumps(self.__configuration, indent=4)}")
         else:
             self.__configuration = {}
             print("No config file found; loading default configuration.")
