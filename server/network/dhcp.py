@@ -34,10 +34,18 @@ def get_wan_interface(mode : str) -> str:
 
 def get_lan_interfaces(mode : str) -> list[str]:
     wan = get_wan_interface(mode)
-    return [device.device for device in nmcli.device() if (device.device_type == "ethernet" or device.device_type == "wifi") and device.device != wan]
+    return [device.device for device in nmcli.device() 
+        if (device.device_type == "ethernet" or 
+            device.device_type == "wifi") and 
+            device.device != wan and
+            device.state != "unmanaged"
+    ]
     
 def get_wan_interface_status(mode : str):
-    result = next(iter([device.state for device in nmcli.device.status() if device.device == get_wan_interface(mode)]), None)
+    result = next(iter([device.state for device in nmcli.device.status() 
+        if device.device == get_wan_interface(mode)
+    ]), None)
+
     match result:
         case "connected":
             return "up"
@@ -90,6 +98,9 @@ class DHCPServer():
             self.__process.wait()
 
         config_path = f"{CONFIG_DIRECTORY}/dnsmasq.conf"
+
+        if not os.path.exists(config_path):
+            raise Exception("No dnsmasq.conf configuration file found.  Please make sure to call `dhcp.configure(...)` before trying to restart the service.")
 
         if not debug:
             self.__process = subprocess.Popen([
