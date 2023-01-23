@@ -1,7 +1,9 @@
 function fetchConfiguration() {
     fetchJson("/simple/configuration", result => {
         genericPopulateFields(result)
-        updateMode($("#mode"))
+
+        const update = updateMode.bind($("#mode"))
+        update()
     })
 }
 
@@ -147,10 +149,16 @@ function refreshWiFi(e) {
 
 function updateMode() {
     $(".wifi,.ethernet").hide()
-    $($(this).val()).show()
+    const id = $(this).val()
+    $(`.${id}`).show()
 }
 
 $(document).ready(function() {
+    fixAutofill([
+        "wifi-ssid", 
+        "wifi-passphrase"
+    ])
+
     fetchConfiguration()
     $("#file").on("change", parseConfigFile)
     $("#mode").on("change", updateMode)

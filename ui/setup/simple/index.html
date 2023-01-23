@@ -9,7 +9,8 @@
         <script type="text/javascript" src="/shared/rest.js"></script>
         <script type="text/javascript" src="/shared/cookies.js"></script>
         <script type="text/javascript" src="/shared/main.js"></script>
-        <script ype="text/javascript" src="/setup/simple/simple.js"></script>
+        <script type="text/javascript" src="/setup/simple/simple.js"></script>
+        <script type="text/javascript" src="/shared/autofill-fix.js"></script>
     </head>
     <body>
         <div class="template" data-content="/shared/menu.html" data-script="/shared/menu.js"></div>
@@ -29,7 +30,7 @@
                     <label for="dhcp-subnet">Subnet:</label>
                 </dt>
                 <dd>
-                    <input type="text" id="dhcp-subnet" readonly="readonly">192.168.250.0/24</span>
+                    <input type="text" id="dhcp-subnet" placeholder="192.168.250.0/24" readonly="readonly" />
                 </dd>
                 <dt>
                     <label for="dhcp-dns-0">DNS Servers:</label>
