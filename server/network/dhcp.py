@@ -1,4 +1,4 @@
-from config import CONFIG_DIRECTORY
+from config import Config,CONFIG_DIRECTORY
 import tools.ip
 import subprocess
 import nmcli
@@ -56,10 +56,14 @@ def get_wan_interface_status(mode : str):
 def is_configuration_valid(configuration : dict[str:any]) -> bool:
     if "mode" not in configuration:
         return False
-    if "lanip" not in configuration:
+    if "dhcp" not in configuration:
         return False
-    if "dns" not in configuration:
-        return False
+    else:
+        if "subnet" not in configuration["dhcp"]:
+            return False
+        if "dns" not in configuration:
+            return False
+    return True
 
 def configure(configuration : dict[str:any]):
     if not os.path.exists(CONFIG_DIRECTORY):
@@ -88,9 +92,13 @@ def configure(configuration : dict[str:any]):
             file.write(f"interface={interface}\n")
         file.flush()
 
-class DHCPServer():
+class DHCPServer:
 
     __process = None
+    config : Config
+
+    def __init__(self, config : Config) -> None:
+        self.config = config
         
     def restart(self, debug : bool):
         if self.__process:
@@ -102,10 +110,30 @@ class DHCPServer():
         if not os.path.exists(config_path):
             raise Exception("No dnsmasq.conf configuration file found.  Please make sure to call `dhcp.configure(...)` before trying to restart the service.")
 
-        if not debug:
-            self.__process = subprocess.Popen([
-                "dnsmasq",
-                "-C",
-                config_path
-            ])
-    
+        configuration = self.config.get_all()
+
+        mode = configuration["mode"]
+        subnet = configuration["dhcp"]["subnet"]
+
+        if debug:
+            return
+
+        wan = get_wan_interface(mode)
+        nmcli.connection.modify(wan, {
+                "ipv4.method": "auto"
+            })
+        nmcli.connection.up(wan)
+
+        for index, interface in enumerate(get_lan_interfaces(mode)):
+            ip = tools.ip.get_ip_from_subnet(subnet, index)
+            nmcli.connection.modify(interface, {
+                "ipv4.address": ip,
+                "ipv4.method": "manual"
+            })
+            nmcli.connection.up(interface)
+
+        self.__process = subprocess.Popen([
+            "dnsmasq",
+            "-C",
+            config_path
+        ])

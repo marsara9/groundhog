@@ -41,6 +41,26 @@ def get_subnet_prefix(ip : str) -> int:
     validators.ipv4_cidr(ip)
 
     return int(ip.split("/")[1])
+
+def get_ip_from_subnet(subnet_cidr : str, value : int) -> str:
+    """
+    Takes a given subnet and value and combines them to generate a new IP address.
+
+    For example, if the subnet is to set to `192.168.1.0/24` and the value is `3`, this
+    method will return `192.168.1.3`.  However if you suppy a value that is greater
+    than what can fit in the subnet, then an exception is thrown.  i.e. `192.168.1.0/24`
+    and `260` would produce `192.168.2.5` which is outside of the subnet specified by
+    `/24`, but `192.168.0.0/16` and `260` would work.
+    """
+    validators.ipv4_cidr(subnet_cidr)
+
+    (subnet, prefix) = tuple(map(str, subnet_cidr.split("/")))
+    netmask = 0xFFFFFFFF << (32-int(prefix))
+
+    if ~netmask & value != value:
+        raise Exception("IP is out of subnet range")
+
+    return long_to_ip(ip_to_long(subnet) + value)
     
 def get_range(
     subnet_cidr : str, 

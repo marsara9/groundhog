@@ -60,7 +60,6 @@ function setConfiguration(configuration) {
     const url = configuration.endpoint.split(":")[0]
     const port = configuration.endpoint.split(":")[1]
     const dns = configuration.dns.split(",")
-    const wanIp = configuration.address.split("/")[0]
 
     const vpnAllowedIPs = configuration.allowedips.split(",")
 
@@ -72,9 +71,9 @@ function setConfiguration(configuration) {
     $("#vpn-keys-public").val(configuration.publickey)
     $("#vpn-keys-preshared").val(configuration.presharedkey)
 
-    $("#vpn-address").val(wanIp)
-    $("#vpn-dns-0").val(dns[0])
-    $("#vpn-dns-1").val(dns[1])
+    $("#vpn-address").val(configuration.address)
+    $("#dhcp-dns-0").val(dns[0])
+    $("#dhcp-dns-1").val(dns[1])
 }
 
 function scanWiFi() {
