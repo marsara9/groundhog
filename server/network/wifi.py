@@ -4,22 +4,24 @@ import subprocess
 def get_interfaces() -> list[str]:
     return [device.device for device in nmcli.device() if device.device_type == "wifi"]
 
-def connect_to_wifi(ssid : str, passphrase : str):
+def connect_to_wifi(ssid : str, passphrase : str, debug : bool):
     wifi_interfaces = get_interfaces()
     if len(wifi_interfaces) == 0:
         return
 
-    nmcli.radio.wifi_on()
-    nmcli.device.wifi_connect(ssid, passphrase, wifi_interfaces[0])
+    if not debug:
+        nmcli.radio.wifi_on()
+        nmcli.device.wifi_connect(ssid, passphrase, wifi_interfaces[0])
     return
 
-def create_access_point(ssid : str, passphrase : str):
+def create_access_point(ssid : str, passphrase : str, debug : bool):
     wifi_interfaces = get_interfaces()
     if len(wifi_interfaces) == 0:
         return
 
-    nmcli.radio.wifi_on()
-    nmcli.device.wifi_hotspot(wifi_interfaces[0], ssid=ssid, password=passphrase)
+    if not debug:
+        nmcli.radio.wifi_on()
+        nmcli.device.wifi_hotspot(wifi_interfaces[0], ssid=ssid, password=passphrase)
     return
 
 def get_interface_status() -> str:
@@ -64,20 +66,24 @@ def is_configuration_valid(configuration : dict[str:any]) -> bool:
     if "mode" not in configuration:
         return False
     if "wifi" not in configuration:
+        return False
+    else:
         if "ssid" not in configuration["wifi"]:
             return False
         if "passphrase" not in configuration["wifi"]:
             return False
     return True
 
-def configure(configuration : dict[str:any]):
+def configure(debug : bool, configuration : dict[str:any]):
     if(configuration["mode"] == "wifi"):
         connect_to_wifi(
             configuration["wifi"]["ssid"],
-            configuration["wifi"]["passphrase"]
+            configuration["wifi"]["passphrase"],
+            debug
         )
     else:
         create_access_point(
             configuration["wifi"]["ssid"],
-            configuration["wifi"]["passphrase"]
+            configuration["wifi"]["passphrase"],
+            debug
         )

@@ -75,7 +75,7 @@ def configure(configuration : dict[str:any]):
         file.write("dhcp-authoritative\n")
         file.write(f"dhcp-leasefile={CONFIG_DIRECTORY}/dnsmasq.leases\n")
         file.write(f"dhcp-range={','.join(dhcp_range)}\n")
-        file.write(f"dhcp-options=6,{','.join(configuration['dns'])}\n")
+        file.write(f"dhcp-option=6,{','.join(configuration['dns'])}\n")
         for interface in get_lan_interfaces(configuration["mode"]):
             file.write(f"interface={interface}\n")
         file.flush()
@@ -84,16 +84,17 @@ class DHCPServer():
 
     __process = None
         
-    def restart(self):
+    def restart(self, debug : bool):
         if self.__process:
             self.__process.terminate()
             self.__process.wait()
 
         config_path = f"{CONFIG_DIRECTORY}/dnsmasq.conf"
 
-        self.__process = subprocess.Popen([
-            "dnsmasq",
-            "-C",
-            config_path
-        ])
+        if not debug:
+            self.__process = subprocess.Popen([
+                "dnsmasq",
+                "-C",
+                config_path
+            ])
     

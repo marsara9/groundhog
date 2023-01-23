@@ -19,6 +19,8 @@ def is_configuration_valid(configuration : dict[str:any]) -> bool:
     if "dns" not in configuration:
         return False
     if "vpn" not in configuration:
+        return False
+    else:
         if "endpoint" not in configuration["vpn"]:
             return False
         if "address" not in configuration["vpn"]:
@@ -26,6 +28,8 @@ def is_configuration_valid(configuration : dict[str:any]) -> bool:
         if "subnet" not in configuration["vpn"]:
             return False
         if "keys" not in configuration["vpn"]:
+            return False
+        else:
             if "public" not in configuration["vpn"]["keys"]:
                 return False
             if "private" not in configuration["vpn"]["keys"]:
@@ -34,7 +38,7 @@ def is_configuration_valid(configuration : dict[str:any]) -> bool:
                 return False
     return True
 
-def configure(configuration : dict[str:any]):
+def configure(debug : bool, configuration : dict[str:any]):
     vpn_interface = get_interface()
     config_path = f"{CONFIG_DIRECTORY}/{vpn_interface}.conf"
 
@@ -58,7 +62,8 @@ def configure(configuration : dict[str:any]):
         file.write(f"Endpoint = {configuration['vpn']['endpoint']}\n")
         file.flush()
 
-    subprocess.call(["nmcli", "connection", "import", "type", "wireguard", "file", config_path])
-    nmcli.connection.up(vpn_interface)
+    if not debug:
+        subprocess.call(["nmcli", "connection", "import", "type", "wireguard", "file", config_path])
+        nmcli.connection.up(vpn_interface)
     return
         
