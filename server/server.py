@@ -20,10 +20,11 @@ if __name__ == "__main__":
         if len(auth.enumerate_users()) == 0:
             auth.create_user("admin", "admin")
 
-        dhcp_server = dhcp.DHCPServer()
-
         config = Config()
         configuration = config.get_all()
+
+        dhcp_server = dhcp.DHCPServer(config)
+
         if configuration:
             if "vpn" in configuration and "dns" in configuration:
                 if vpn.is_configuration_valid(configuration):

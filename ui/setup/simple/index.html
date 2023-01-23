@@ -29,25 +29,19 @@
                     <label for="dhcp-subnet">Subnet:</label>
                 </dt>
                 <dd>
-                    <span id="dhcp-subnet">192.168.250.0/24</span>
+                    <input type="text" id="dhcp-subnet" readonly="readonly">192.168.250.0/24</span>
                 </dd>
                 <dt>
-                    <label for="lanip">LAN IP Address:</label>
+                    <label for="dhcp-dns-0">DNS Servers:</label>
                 </dt>
                 <dd>
-                    <input id="lanip" type="text" placeholder="192.168.250.1" inputmode="numeric" />
-                </dd>
-                <dt>
-                    <label for="dns-0">DNS Servers:</label>
-                </dt>
-                <dd>
-                    <input id="dns-0" type="text" placeholder="8.8.8.8" inputmode="numeric" />
+                    <input id="dhcp-dns-0" type="text" placeholder="8.8.8.8" inputmode="numeric" />
                 </dd>
                 <dt>
                     
                 </dt>
                 <dd>
-                    <input id="dns-1" type="text" placeholder="8.8.4.4" inputmode="numeric" />
+                    <input id="dhcp-dns-1" type="text" placeholder="8.8.4.4" inputmode="numeric" />
                 </dd>
             </dl>
             <p class="wifi">WiFi Settings:</p>
@@ -57,14 +51,14 @@
                     <label for="wifi-ssid">SSID:</label>
                 </dt>
                 <dd>
-                    <input id="wifi-ssid" type="text" maxlength="32" />
+                    <input id="wifi-ssid" type="text" maxlength="32" autocomplete="off" />
                     <button id="wifi-scan" class="wifi">Scan</button>
                 </dd>
                 <dt>
                     <label for="wifi-passphrase">Passphrase:</label>
                 </dt>
                 <dd>
-                    <input id="wifi-passphrase" type="password" maxlength="63" />
+                    <input id="wifi-passphrase" type="password" maxlength="63" autocomplete="off" />
                 </dd>
             </dl>
             <p>VPN Settings:</p>
@@ -84,10 +78,10 @@
                     <input class="ignore" type="number" id="vpn-port" min="10000" max="65535" placeholder="51820" style="width: 60px;" />
                 </dd>
                 <dt>
-                    <label for="vpn-address">WAN IP Address:</label>
+                    <label for="vpn-address">VPN Address:</label>
                 </dt>
                 <dd>
-                    <input id="vpn-address" type="text" placeholder="10.0.8.2" inputmode="numeric"  />
+                    <input id="vpn-address" type="text" placeholder="10.0.8.2/24" inputmode="numeric"  />
                 </dd>
                 <dt>
                     <label>VPN Subnet:</label>
